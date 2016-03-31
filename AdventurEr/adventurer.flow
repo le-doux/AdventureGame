@@ -1,0 +1,26 @@
+{
+
+  project : {
+    name : 'AdventurEr',
+    version : '1.0.0',
+    author : 'ledoux',
+
+    app : {
+      name : 'AdventurEr',
+      package : 'org.ledoux.adventurer'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        adventurlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

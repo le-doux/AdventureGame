@@ -1,0 +1,26 @@
+{
+
+  project : {
+    name : 'AdventurEd',
+    version : '1.0.0',
+    author : 'Adam Le Doux',
+
+    app : {
+      name : 'AdventurEd',
+      package : 'org.ledoux.adventured'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        adventurlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

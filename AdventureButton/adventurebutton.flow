@@ -1,0 +1,26 @@
+{
+
+  project : {
+    name : 'adventurebutton',
+    version : '1.0.0',
+    author : 'ledoux',
+
+    app : {
+      name : 'adventurebutton',
+      package : 'org.ledoux.adventurebutton'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        adventurlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

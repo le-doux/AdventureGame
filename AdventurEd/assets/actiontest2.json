@@ -1,0 +1,15 @@
+{
+	"type" : "action",
+	"backgroundColor" : {
+		"r" : 1, "g" : 0, "b" : 1
+	},
+	"illustrationColor" : {
+		"r" : 1, "g" : 1, "b" : 0
+	},
+	"terrainPos" : 200,
+	"height" : -50,
+	"startSize" : 60,
+	"endSizeMult" : 2,
+	"pullDir" : "Down",
+	"outro" : "FillScreen"
+}
