@@ -1,0 +1,26 @@
+{
+
+  project : {
+    name : 'dialogwriter',
+    version : '1.0.0',
+    author : 'ledoux',
+
+    app : {
+      name : 'dialogwriter',
+      package : 'org.ledoux.dialogwriter'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        adventurlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
