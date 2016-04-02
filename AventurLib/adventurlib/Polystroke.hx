@@ -60,6 +60,15 @@ class Polystroke extends Visual {
 		return this;
 	}
 
+	public function drawIncomplete(delta:Float) {
+		geometry.vertices = [];
+		var count = 0;
+		for (p in points) {
+			if ( (count / points.length) < delta ) geometry.add(new Vertex(p,color));
+			count++;
+		}
+	}
+
 	/*
 	public function saveData() {
 		return {
