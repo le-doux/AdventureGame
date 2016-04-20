@@ -5,33 +5,40 @@ import luxe.Color;
 import luxe.Visual;
 import luxe.tween.Actuate;
 import luxe.Vector;
-import luxe.options.VisualOptions;
+import luxe.Entity;
+import luxe.options.EntityOptions;
 
 class Main extends luxe.Game {
 
 	var baseline = 500;
-
-	var dialogBox = {
-		origin: new Vector(100, 100),
-		width: 700,
-		wordHeight: 50,
-		spaceWidth: 20,
-		curLine: 0 
-	};
+	var topline = 300;
+	var midline = 400;
 
 	var curStroke : Array<Vector> = [];
 	var curWord : Array<Polystroke> = [];
-	var curSentence : Array<Word> = [];
+	var dialog : Dialog;
 
-	var animateSentenceDelta = 0.0;
+	var isPlayMode = false;
+	var hasNextDialog = false;
 
 	override function ready() {
+
+		dialog = new Dialog({
+			pos:new Vector(100,100)
+		});
 
 		Luxe.renderer.clear_color = new Color(0.3,0.5,1);
 
 		Luxe.draw.line({
 			p0: new Vector(0,baseline), p1: new Vector(Luxe.screen.width,baseline)
 		});
+		Luxe.draw.line({
+			p0: new Vector(0,topline), p1: new Vector(Luxe.screen.width,topline)
+		});
+		Luxe.draw.line({
+			p0: new Vector(0,midline), p1: new Vector(Luxe.screen.width,midline)
+		});
+
 	} //ready
 
 	override function onkeyup( e:KeyEvent ) {
@@ -42,38 +49,38 @@ class Main extends luxe.Game {
 
 		if (e.keycode == Key.space) { //new word
 
-			var wordPos = new Vector(dialogBox.origin.x, dialogBox.origin.y);
-			if (curSentence.length > 0) {
-				var prevWord = curSentence[curSentence.length-1];
-				wordPos = Vector.Add(prevWord.pos, new Vector(prevWord.width + dialogBox.spaceWidth, 0));
-			}
+			dialog.addWord(new Word({
+					strokes:curWord,
+					baseline:baseline, //this should really be preprocessed instead of part of the constructor
+					topline:topline
+				}));
 
-			var newWord = new Word({
-				pos:wordPos,
-				strokes:curWord, 
-				height:dialogBox.wordHeight, //should these go in the constructor?
-				baseline:baseline //should these go in the constructor?
-			});
-			
-			if (newWord.pos.x + newWord.width > dialogBox.origin.x + dialogBox.width) {
-				dialogBox.curLine++;
-				newWord.pos = new Vector(dialogBox.origin.x, dialogBox.origin.y + ((dialogBox.wordHeight + 20) * dialogBox.curLine));
-			}
-
-			curSentence.push(newWord);
 			curWord = [];
 		}
 
-		if (e.keycode == Key.enter) {
-			animateSentenceDelta = 0.0;
-			Actuate.tween(this, 5, {animateSentenceDelta:1.0*curSentence.length})
-				.onUpdate(function() {
-					var curDelta = animateSentenceDelta;
-					for (word in curSentence) {
-						word.drawIncomplete(curDelta);
-						curDelta -= 1.0;
-					}
-				});
+		if (isPlayMode) {
+			if (e.keycode == Key.down) {
+				if (hasNextDialog) {
+					hasNextDialog = dialog.showNext();
+				}
+				else {
+					isPlayMode = false;
+					dialog.returnToEditing();
+				}
+			}
+		}
+		else {
+			if (e.keycode == Key.enter) { //add new sentence
+				dialog.newSentence();
+			}
+			if (e.keycode == Key.rshift) { //test current sentence
+				dialog.animateSentence(5);
+			}
+			if (e.keycode == Key.key_p) { //enter play mode
+				isPlayMode = true;
+				dialog.beginDialog();
+				hasNextDialog = dialog.showNext();
+			}
 		}
 
 	} //onkeyup
@@ -138,60 +145,108 @@ class Main extends luxe.Game {
 
 } //Main
 
-typedef WordOptions = {
-	> VisualOptions,
-	var strokes : Array<Polystroke>;
-	var height : Float;
-	var baseline : Float;
+/*
+typedef DialogOptions = {
+	> EntityOptions,
+	@:optional var words : Array<Word>;
 }
+*/
 
-class Word extends Visual {
-	var strokes : Array<Polystroke>;
-	public var width : Float; //computed
-	var totalPoints : Int;
+//TOOD: make this a real class
+class Dialog extends Entity {
+	public var curSentence (get,null) : Array<Word>;
+	var sentences : Array<Array<Word>> = [];
+	var sentenceIndex = 0;
 
-	public override function new (_options:WordOptions) {
-		_options.no_geometry = true; //doesn't have its own geometry (switch to Entity?)
-		super(_options);
-		strokes = _options.strokes;
+	var dialogWidth = 650;
+	var wordHeight = 50;
+	var spaceWidth = 20;
 
-		var p0 = strokes[0].points[0];
-		var p0_inWorld = (new Vector(p0.x,p0.y)).transform(strokes[0].transform.world.matrix);
-		var topLeft = new Vector(p0_inWorld.x, p0_inWorld.y); //stops aliasing problem
-		var bottomRight = new Vector(p0_inWorld.x, p0_inWorld.y);
+	public override function new(options:EntityOptions) {
+		super(options);
+		sentences.push([]);
+	}
 
-		for (s in strokes) {
-			for (p in s.points) {
-				var p_inWorld = (new Vector(p.x,p.y)).transform(s.transform.world.matrix); //all this copying feels like a flaw in the framework
-				if (p_inWorld.x < topLeft.x) topLeft.x = p_inWorld.x;
-				if (p_inWorld.y < topLeft.y) topLeft.y = p_inWorld.y;
-				if (p_inWorld.x > bottomRight.x) bottomRight.x = p_inWorld.x;
-				if (p_inWorld.y > bottomRight.y) bottomRight.y = p_inWorld.y;
+	public function addWord(w:Word) {
+		w.parent = this;
+		w.height = wordHeight;
+		w.pos = new Vector(0,0);
+
+		var wordPos = new Vector(0, 0);
+		if (curSentence.length > 0) {
+			var prevWord = curSentence[curSentence.length-1];
+			if (prevWord.pos.x + w.width > dialogWidth) {
+				w.pos.y = prevWord.pos.y + (wordHeight + 20);
+			}
+			else {
+				w.pos.y = prevWord.pos.y;
+				w.pos.x = prevWord.pos.x + prevWord.width + spaceWidth;
 			}
 		}
 
-		var bounds = Vector.Subtract(bottomRight, topLeft);
-		var boundsResizeRatio = _options.height / bounds.y; //should this resize operation really go in here?
-
-		var heightAboveBaseline = _options.baseline - topLeft.y;
-
-		width = bounds.x * boundsResizeRatio; //computed, but never updated so far
-
-		for (s in strokes) {
-			s.pos.subtract(topLeft); //align strokes with (0, 0) origin
-			s.pos.y -= heightAboveBaseline; //then move above baseline
-			s.parent = this;
-			totalPoints += s.points.length;
-		}
-		scale.multiplyScalar(boundsResizeRatio); //fit word to current word height
+		curSentence.push(w);
 	}
 
-	public function drawIncomplete(delta:Float) {
-		var curPoint = delta * totalPoints;
-		for (s in strokes) {
-			var d = curPoint / s.points.length;
-			s.drawIncomplete(d);
-			curPoint -= s.points.length;
+	//seems dumb
+	public function returnToEditing() {
+		sentenceIndex = sentences.length - 1;
+		showSentence(sentenceIndex);
+	}
+
+	public function beginDialog() {
+		var i = 0;
+		for (s in sentences) {
+			hideSentence(i);
+			i++;
 		}
+		sentenceIndex = -1;
+	}
+
+	public function showNext() : Bool {
+		if (sentenceIndex >= 0) hideSentence(sentenceIndex);
+		sentenceIndex++;
+		if (sentenceIndex < sentences.length) {
+			showSentence(sentenceIndex);
+			animateSentence(5);
+		}
+		return sentenceIndex < sentences.length;
+	}
+
+	//includes some assumptions for the editor
+	public function newSentence() {
+		hideSentence(sentenceIndex);
+		sentences.push([]);
+		sentenceIndex++;
+	}
+
+	function showSentence(i:Int) {
+		for (w in sentences[i]) {
+			w.visible = true;
+		}
+	}
+
+	function hideSentence(i:Int) {
+		for (w in sentences[i]) {
+			w.visible = false;
+		}
+	}
+
+	public function animateSentence(t:Float) {
+		var animateSentenceControl = {
+			delta : 0.0
+		};
+		Actuate.tween(animateSentenceControl, t, {delta:1.0*curSentence.length})
+			.onUpdate(function() {
+				var curDelta = animateSentenceControl.delta;
+				for (word in curSentence) {
+					word.drawIncomplete(curDelta);
+					curDelta -= 1.0;
+				}
+			});
+	}
+
+	public function get_curSentence() : Array<Word> {
+		return sentences[sentenceIndex];
 	}
 }
+

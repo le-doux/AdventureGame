@@ -1,0 +1,1725 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"comp",
+				"p· components	luxe.structural.OrderedMap_String_luxe_Component"
+			],
+			[
+				"remove",
+				"m· _remove_child	 "
+			],
+			[
+				"remo",
+				"m· _remove_child	 "
+			],
+			[
+				"pick",
+				"pickIndex"
+			],
+			[
+				"ch",
+				"m· charCodeAt	Null<Int>"
+			],
+			[
+				"cur",
+				"curSprite"
+			],
+			[
+				"mul",
+				"m· multiplyScalar	 "
+			],
+			[
+				"emoi",
+				"emojiSpriteList"
+			],
+			[
+				"emoji",
+				"emojiSpriteList"
+			],
+			[
+				"do",
+				"p· down	Int"
+			],
+			[
+				"get_",
+				"m· get_components	 "
+			],
+			[
+				"get",
+				"m· get	get.T"
+			],
+			[
+				"I",
+				"p· Input	Input"
+			],
+			[
+				"ph",
+				"p· Physics	Physics"
+			],
+			[
+				"par",
+				"m· parseInt	Null<Int>"
+			],
+			[
+				"Emoji",
+				"EmojiPickerOptions"
+			],
+			[
+				"Enti",
+				"EntityOptions"
+			],
+			[
+				"E",
+				"p· Entity	Entity"
+			],
+			[
+				"fi",
+				"m· fields	Array<String>"
+			],
+			[
+				"geometr",
+				"geometryList"
+			],
+			[
+				"thermom",
+				"p· thermometer_face	{ unicode_alternates : String, unicode : String, shortname : String, name : String, keywords : Array<Unknown<1122>>, emoji_order : String, category : String, aliases : Array<String> }"
+			],
+			[
+				"spark",
+				"p· sparkling_heart	{ unicode : Array<String>, isCanonical : Bool }"
+			],
+			[
+				"node",
+				"nodeName"
+			],
+			[
+				"svG",
+				"svgXml"
+			],
+			[
+				"nod",
+				"p· nodeName	String"
+			],
+			[
+				"firs",
+				"m· firstElement	Xml"
+			],
+			[
+				"n",
+				"node"
+			],
+			[
+				"svg",
+				"svgXml"
+			],
+			[
+				"Re",
+				"p· Resources	Resources"
+			],
+			[
+				"loadim",
+				"loadImageFromShortname"
+			],
+			[
+				"ai",
+				"p· airplane	{ unicode : Array<String>, isCanonical : Bool }"
+			],
+			[
+				"text",
+				"m· texture	 "
+			],
+			[
+				"te",
+				"m· texture	 "
+			],
+			[
+				"lo",
+				"m· loadImage	 "
+			],
+			[
+				"m",
+				"p· mid	luxe.Vector"
+			],
+			[
+				"sc",
+				"p· screen	luxe.Screen"
+			],
+			[
+				"EmojiS",
+				"EmojiSpriteOptions"
+			],
+			[
+				"to",
+				"m· toLowerCase	String"
+			],
+			[
+				"load",
+				"m· loadImageFromShortname	 "
+			],
+			[
+				"subt",
+				"m· substring	String"
+			],
+			[
+				"re",
+				"p· resources	luxe.Resources"
+			],
+			[
+				"image",
+				"imageName"
+			],
+			[
+				"uni",
+				"unicode"
+			],
+			[
+				"unicod",
+				"unicodeList"
+			],
+			[
+				"emojio",
+				"emojioneList"
+			],
+			[
+				"en",
+				"p· enter	Int"
+			],
+			[
+				"w",
+				"p· wordHeight	Int"
+			],
+			[
+				"new",
+				"newWord"
+			],
+			[
+				"word",
+				"wordPos"
+			],
+			[
+				"hei",
+				"heightAboveBaseline"
+			],
+			[
+				"P0",
+				"p0_inWorld"
+			],
+			[
+				"p0",
+				"p0_inWorld"
+			],
+			[
+				"p",
+				"p· pos	luxe.Vector"
+			],
+			[
+				"boundsRe",
+				"boundsResizeRatio"
+			],
+			[
+				"boundsr",
+				"boundsResizeRatio"
+			],
+			[
+				"Visu",
+				"VisualOptions"
+			],
+			[
+				"clear",
+				"p· clear_color	phoenix.Color"
+			],
+			[
+				"onCom",
+				"onCompleteCallback"
+			],
+			[
+				"terr",
+				"terrain"
+			],
+			[
+				"on",
+				"m· onUpdate	luxe.tween.actuators.IGenericActuator"
+			],
+			[
+				"worl",
+				"screen_point_to_world"
+			],
+			[
+				"is",
+				"isOutroed"
+			],
+			[
+				"animate",
+				"animateOutro"
+			],
+			[
+				"star",
+				"startSize"
+			],
+			[
+				"pullD",
+				"pullDist"
+			],
+			[
+				"wo",
+				"m· screen_point_to_world	luxe.Vector"
+			],
+			[
+				"isAp",
+				"isAppeared"
+			],
+			[
+				"appea",
+				"animateAppear"
+			],
+			[
+				"js",
+				"jsonRes"
+			],
+			[
+				"trig",
+				"m· triggerTouch	 "
+			],
+			[
+				"action",
+				"actionButtons"
+			],
+			[
+				"tri",
+				"m· triggerDisappear	 "
+			],
+			[
+				"ter",
+				"p· terrainPos	Float"
+			],
+			[
+				"d",
+				"m· drawImmediate	 "
+			],
+			[
+				"act",
+				"actionButtons"
+			],
+			[
+				"ac",
+				"actionButtons"
+			],
+			[
+				"vel",
+				"velocityX"
+			],
+			[
+				"maxd",
+				"maxDistAheadOfPlayer"
+			],
+			[
+				"sp",
+				"p· edgeSpring	{ velocityX : Float, springConstant : Float, maxDist : Float }"
+			],
+			[
+				"off",
+				"offsetX"
+			],
+			[
+				"dis",
+				"distancePastEdge"
+			],
+			[
+				"camera",
+				"cameraDistancePastBounds"
+			],
+			[
+				"camerad",
+				"cameraDistancePastBounds"
+			],
+			[
+				"camer",
+				"cameraDistanceInBounds"
+			],
+			[
+				"cameradi",
+				"cameraDistancePastBounds"
+			],
+			[
+				"bl",
+				"m· movingBlockedDirection	Bool"
+			],
+			[
+				"direc",
+				"directionOfMovement"
+			],
+			[
+				"dire",
+				"directionOfMovement"
+			],
+			[
+				"min",
+				"m· min	Float"
+			],
+			[
+				"len",
+				"length-1"
+			],
+			[
+				"velo",
+				"velocityX"
+			],
+			[
+				"leng",
+				"length-1"
+			],
+			[
+				"lef",
+				"leftoverDist"
+			],
+			[
+				"clo",
+				"closestIndexToLeft"
+			],
+			[
+				"si",
+				"p· size	luxe.Vector"
+			],
+			[
+				"size",
+				"p· size_mode	luxe.SizeMode"
+			],
+			[
+				"po",
+				"p· pos	luxe.Vector"
+			],
+			[
+				"widh",
+				"widthToHeight"
+			],
+			[
+				"view",
+				"p· viewport	luxe.Rectangle"
+			],
+			[
+				"viw",
+				"p· viewport	luxe.Rectangle"
+			],
+			[
+				"zoom",
+				"zoomForCorrectWidth"
+			],
+			[
+				"wid",
+				"widthInWorldPixels"
+			],
+			[
+				"wi",
+				"widthInWorldPixels"
+			],
+			[
+				"he",
+				"heightInWorldPixels"
+			],
+			[
+				"des",
+				"m· destroy	 "
+			],
+			[
+				"scen",
+				"scenery"
+			],
+			[
+				"scne",
+				"sceneryColor"
+			],
+			[
+				"scene",
+				"scenery"
+			],
+			[
+				"b",
+				"batcher"
+			],
+			[
+				"g",
+				"m· getJson	 "
+			],
+			[
+				"se",
+				"m· setFromJson	luxe.Color"
+			],
+			[
+				"buildT",
+				"buildTerrainAlongLine"
+			],
+			[
+				"preV",
+				"prevCursorPos"
+			],
+			[
+				"pre",
+				"prev_world_point"
+			],
+			[
+				"build",
+				"m· buildTerrainAlongLine	Terrain"
+			],
+			[
+				"Ter",
+				"Terrain"
+			],
+			[
+				"close",
+				"m· closestPointToWorldPos	luxe.Vector"
+			],
+			[
+				"clos",
+				"m· closestPointToWorldPos	luxe.Vector"
+			],
+			[
+				"Terr",
+				"TerrainEditor"
+			],
+			[
+				"setF",
+				"m· setFromJson	luxe.Vector"
+			],
+			[
+				"cl",
+				"m· closestIndexToTerrainPos	Int"
+			],
+			[
+				"scre",
+				"screen_point"
+			],
+			[
+				"Fi",
+				"p· FileSystem	FileSystem"
+			],
+			[
+				"C",
+				"p· Color	Color"
+			],
+			[
+				"Terrain",
+				"TerrainSaveData"
+			],
+			[
+				"Terra",
+				"TerrainSaveData"
+			],
+			[
+				"cle",
+				"clearLevel1SceneryHack"
+			],
+			[
+				"level1",
+				"level1Scenery"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "DialogWriter/dialogwriter.flow",
+			"settings":
+			{
+				"buffer_size": 333,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "DialogWriter/src/Main.hx",
+			"settings":
+			{
+				"buffer_size": 5258,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/C++/C++ Single File.sublime-build",
+					""
+				],
+				[
+					"Packages/C++/C++ Single File.sublime-build",
+					"Run"
+				]
+			],
+			[
+				"Packages/C++/C++ Single File.sublime-build",
+				""
+			]
+		],
+		[
+			[
+				[
+					"Packages/Makefile/Make.sublime-build",
+					""
+				],
+				[
+					"Packages/Makefile/Make.sublime-build",
+					"Clean"
+				]
+			],
+			[
+				"Packages/Makefile/Make.sublime-build",
+				"Clean"
+			]
+		],
+		[
+			[
+				[
+					"Packages/sublime_flow/flow.sublime-build",
+					""
+				],
+				[
+					"Packages/User/xcode.sublime-build",
+					""
+				]
+			],
+			[
+				"Packages/sublime_flow/flow.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 127.0,
+		"last_filter": "package control: ins",
+		"selected_items":
+		[
+			[
+				"package control: ins",
+				"Package Control: Install Package"
+			],
+			[
+				"package control: remov",
+				"Package Control: Remove Package"
+			],
+			[
+				"package control up",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"package control list",
+				"Package Control: List Packages"
+			],
+			[
+				"package control ins",
+				"Package Control: Install Package"
+			],
+			[
+				"color",
+				"Colorsublime: Browse Themes"
+			],
+			[
+				"pack",
+				"Package Control: Install Package"
+			],
+			[
+				"colrosu",
+				"Colorsublime: Install Theme"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"add repos",
+				"Package Control: Add Repository"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"remove",
+				"Package Control: Remove Package"
+			],
+			[
+				"package",
+				"Package Control: Remove Package"
+			],
+			[
+				"package contorl: up",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"pacakge control",
+				"Package Control: List Packages"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"package cont",
+				"Package Control: Add Repository"
+			],
+			[
+				"package control u",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"install ",
+				"Package Control: Install Package"
+			],
+			[
+				"add",
+				"Package Control: Add Repository"
+			],
+			[
+				"add repo",
+				"Package Control: Add Repository"
+			],
+			[
+				"package control: ",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 449.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/adamrossledoux/Code/haxelib/luxe/git/luxe/Component.hx",
+		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/assets/emojione/emoji_strategy.json",
+		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/assets/emojione/emoji.json",
+		"/Users/adamrossledoux/Code/Web/Other People's Code & Libraries/emojione-master/emoji_strategy.json",
+		"/Users/adamrossledoux/Code/Web/Other People's Code & Libraries/emojione-master/emoji.json",
+		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/src/Emojione.hx",
+		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/src/Emoji.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/VectorExtender.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Terrain.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ScrollInputHandler.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Polystroke.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/PolylineExtender.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Level.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ColorExtender.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Avatar.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ActionButton.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/project.flow",
+		"/Users/adamrossledoux/Code/Haxe/libs/pincushion/pincushion/Pincushion.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventurEd/assets/leveltest7",
+		"/Users/adamrossledoux/Code/Haxe/AdventurEr/assets/leveltest10",
+		"/Users/adamrossledoux/Code/Haxe/StarGazing/src/Main.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventurEd/assets/leveltest2",
+		"/Users/adamrossledoux/Code/Haxe/libs/pincushion/pincushion/Pin.hx",
+		"/Users/adamrossledoux/Code/Haxe/ScrollProto/src/Level.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventurEd/assets/terrain_test2.json",
+		"/Users/adamrossledoux/Code/Haxe/AdventurEd/assets/terrain_test.json",
+		"/Users/adamrossledoux/Code/Haxe/libs/pincushion/pincushion/Polyfill.hx",
+		"/Users/adamrossledoux/Library/Application Support/Sublime Text 3/Packages/User/node.sublime-build",
+		"/Users/adamrossledoux/Code/Web/TPChess/BoardRendererSVG/board.html",
+		"/Users/adamrossledoux/Code/Web/TPChess/BoardRendererGIF/main.js",
+		"/Users/adamrossledoux/Code/Haxe/ScrollProto/src/Main.hx",
+		"/Users/adamrossledoux/Code/Haxe/ScrollProto/project.flow",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Boat.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Boat.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Sailor.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Lighthouse.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/res/Info.plist",
+		"/Applications/Boycott Advance.app/Contents/Info.plist",
+		"/Users/adamrossledoux/Code/C++/Boat/src/makefile",
+		"/Users/adamrossledoux/Code/C++/Boat/src/utils.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/main.cpp",
+		"/usr/local/Cellar/glew/1.11.0/lib/libGLEW.a",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Flag.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Lightbeam.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/RainParticles.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/SplashParticles.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/SmokeParticles.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/ParticleSystem.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Sailor.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/globals.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/SplashParticles.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/packageshaders.py",
+		"/Users/adamrossledoux/Code/C++/Boat/src/utils.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/ParticleSystem.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/SmokeParticles.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/smoke_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/smoke_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/splash_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/boat_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/boat_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/sailor_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/sailor_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/rain_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/rain_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/flag_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/flag_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/RainParticles.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Camera.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Lighthouse.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/lighthouse_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/lighthouse_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/lightbeam_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/lightbeam_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Lightbeam.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Flag.h",
+		"/Users/adamrossledoux/Code/C++/Boat/src/ocean_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/ocean_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/Boat/src/Camera.h",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/Fish.cpp",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/Fish.h",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/vertex_shader.vert",
+		"/Users/adamrossledoux/Code/C++/Boat/src/boag_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/ocean_vert.glsl",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/Camera.cpp",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/utils.cpp",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/utils.h",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/main.cpp",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/makefile",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/ocean_frag.glsl",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/vertex_shader.vert",
+		"/Users/adamrossledoux/Code/C++/BoatHope/src/fragment_shader.frag",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/fragment_shader.glsl",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/vertex_shader.glsl",
+		"/Users/adamrossledoux/Code/C++/FishOO/makefile",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/TestClass.h",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/TestClass.cpp",
+		"/Users/adamrossledoux/Code/C++/FishOO/src/makefile",
+		"/Users/adamrossledoux/.Archive/Code/C++/FirstClass/FirstClass.cpp",
+		"/Users/adamrossledoux/.Archive/Code/C++/FirstClass/main.cpp",
+		"/Users/adamrossledoux/.Archive/Code/C++/FirstClass/FirstClass.h",
+		"/Users/adamrossledoux/Code/C++/FishOO/TestClass.cpp",
+		"/Users/adamrossledoux/Code/C++/FishOO/TestClass.h",
+		"/Users/adamrossledoux/Code/C++/FishOO/main.cpp",
+		"/Users/adamrossledoux/Code/C++/FishShader/makefile",
+		"/Users/adamrossledoux/Code/C++/FishShader/main.cpp",
+		"/Users/adamrossledoux/Code/C++/opengl tutorials/2 - drawing/main.cpp",
+		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/Main.hx",
+		"/Users/adamrossledoux/Code/C++/opengl tutorials/3 - transformations/main.cpp",
+		"/Users/adamrossledoux/Code/C++/opengl tutorials/3 - transformations/makefile",
+		"/Users/adamrossledoux/Code/C++/opengl tutorials/2 - drawing/makefile",
+		"/Users/adamrossledoux/Code/C++/opengl tutorials/1 - context/makefile",
+		"/Users/adamrossledoux/Code/C++/opengl tutorials/1 - context/main.cpp",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo51_modern_opengl/main.cpp",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo51_modern_opengl/makefile",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/makefile",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/main.cpp",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/03_event_driven_programming.cpp",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/main.cpp",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/makefile",
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/make",
+		"/Users/adamrossledoux/Code/C++/openframeworks/examples/3d/3DPrimitivesExample/3DPrimitivesExample.sublime-project",
+		"/Users/adamrossledoux/Library/Application Support/Sublime Text 3/Packages/User/xcode.sublime-build",
+		"/Users/adamrossledoux/Code/openframeworks/INSTALL.md",
+		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/VectorExtender.hx",
+		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/Player.hx",
+		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/Planet.hx",
+		"/Users/adamrossledoux/Code/Haxe/StarSlam/project.flow",
+		"/Users/adamrossledoux/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			"<current file>",
+			"<current file>,<open files>",
+			"<current file>",
+			"<current file>,<open files>",
+			"<current file>",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"\"category",
+			"curIndex",
+			",\"aliases_ascii\":\\[(.*?)\\],",
+			",\"aliases_ascii\":\\[(.*)?\\],",
+			",\"aliases_ascii\":\\[.*\\]?,",
+			",\"aliases_ascii\":\\[.*\\],",
+			"\"aliases_ascii\":\\[\\]",
+			"\"aliases_ascii\":\\[.+\\]",
+			"aliases_ascii",
+			"travel",
+			"place",
+			"all",
+			"\":([a-zA-Z0-9_]+):\"",
+			"\":([a-zA-Z_]+):\"",
+			"\":*:\"",
+			"\":",
+			"typeof",
+			"this.emojione",
+			"actionButtons",
+			"isEditing",
+			"speedmult",
+			"trace",
+			"setFromJson",
+			"getJson",
+			"draw(",
+			"sizemode",
+			"zoom",
+			"stringify",
+			"e.mod ",
+			"actionbutton.pos = ",
+			"draw door",
+			"minYOffset",
+			"testCharacterPosInLevel2",
+			"reset the camera",
+			"actionButton",
+			"player.terrainPos",
+			"jump",
+			"levelboundleft",
+			"maxVelocity",
+			"isCamTooFarRight",
+			"isCamTooFarLeft",
+			"scrollVelocityOnRelease",
+			"lastScrollDelta",
+			"scrollVelocitySamples",
+			"player",
+			".glsl",
+			"f.",
+			"f",
+			"smoke.",
+			"sailor s",
+			"isstunned = ",
+			"isthebigone",
+			"isstunned",
+			"testsailors",
+			"testsailor",
+			"lightningTimer",
+			"storminess",
+			"rand(",
+			"rp.",
+			"rainparticles",
+			"rainparti",
+			"rp ",
+			"particlesystem::",
+			"totalTime",
+			"dramaupdate",
+			"unilightning",
+			"startnewwave",
+			"toboat",
+			"boat.",
+			"boat",
+			"boat = ",
+			"transform",
+			"rand()",
+			"uniStormine",
+			"uniwave",
+			"30f",
+			"dissapear",
+			"rand()",
+			"cout",
+			"[]",
+			"constructshaderprogram",
+			"glew",
+			"tmpCurLen",
+			"save(",
+			"pinBatcher",
+			"poseChanges",
+			"new Pin",
+			"allChildPins",
+			"AnimationLerp",
+			"PoseLerp",
+			"name",
+			"PinAnimation",
+			"PinFrame",
+			"PinData",
+			"parent",
+			"destroypanel",
+			"vSlider",
+			"e.pos",
+			"pin = ",
+			"isDragging",
+			"data = ",
+			"mode == 0",
+			"setstartpose",
+			"cast",
+			"generateFrameFrom",
+			"trace",
+			"childPins",
+			"removebones",
+			"addbones",
+			"\"Rigging\"",
+			"boneList",
+			"boneListMap",
+			"update",
+			"componentmanager.",
+			"mapMeshToboneList",
+			"Animation",
+			"multiselectbones",
+			"boneArray = ",
+			"skeleton",
+			"boneBatcher",
+			"add_batch",
+			"batcher",
+			"boneBatcher",
+			"selectBone",
+			"drawer",
+			"shapedraw",
+			"bonebatcher",
+			"activatelayer"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"pickIndex",
+			",",
+			"emoji",
+			"\"$1\"",
+			"\"*\"",
+			"\"",
+			"fromJson",
+			"toJson",
+			"level2Stuff.testCharacterPos",
+			"speechButton",
+			"pos",
+			"player.terrainPos",
+			"isCamTooFarRightAndMovingRight",
+			"isCamTooFarLeftAndMovingLeft",
+			"releaseVelocity",
+			"touchDelta",
+			"velocitySamples",
+			"h.",
+			"h",
+			"totalPlayTime",
+			"void dramaUpdate(float dt) {\n	dramaTimer += dt;\n	totalPlayTime += dt;\n	//std::cout << dramaTimer << std::endl;\n\n	float startOfStormTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time);\n	float hardModeTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time);\n	float impossibleModeTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time + dramaticArc[4].time);\n	float fakeCalmTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time + dramaticArc[4].time + dramaticArc[5].time);\n	float endOfStormTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time + dramaticArc[4].time + dramaticArc[5].time + \n							dramaticArc[6].time);\n\n	//std::cout << dramaTimer << std::endl;\n\n	//if (dramaTimer > dramaticArc[dramaIndex].time && dramaIndex < 5) {\n	if (dramaTimer > dramaticArc[dramaIndex].time && dramaIndex < 6) {\n		//std::cout << \"next difficulty!!!\" << std::endl;\n		dramaIndex++;\n		curDifficulty = dramaticArc[dramaIndex].difficulty;\n		dramaTimer = 0;\n\n		//make the current wave dissapear\n		didWaveHitPlayer = true;\n		waveDissapearTimer = 0;\n		waveStartHeight = wavePos.y;\n	}\n\n	//send the flag flying away\n	if (totalTime > (endOfStormTime - 10) && flag.isAttachedToBoat) {\n		flag.setRotYGoal( 270 );\n		flag.isAttachedToBoat = false;\n	}\n\n	if (!isTheBigOne && totalTime > (endOfStormTime - 5)) {\n		//std::cout << \"HERE IT COMES \" << std::endl;\n		startBigWave();\n	}\n	\n	//lighthouse events\n	if (totalTime > 2 && lighthouseMoveCounter < 1) {\n		lighthouse.moveTo(glm::vec3(6, -3.7, 10), startOfStormTime - 2);\n		lighthouseMoveCounter++;\n	}\n	else if (totalTime > (endOfStormTime + 30 + 3) && lighthouseMoveCounter < 2) {\n		//lighthouse.moveTo(glm::vec3(1.8, -0.4, 2.7), 15);\n		lighthouse.moveTo(glm::vec3(2, -0.4, 2.7), 15);\n		lighthouseMoveCounter++;\n	}\n	\n\n	//storminess\n	if (totalTime < startOfStormTime - 5) {\n		storminess = 0;\n	}\n	else if (totalTime < startOfStormTime) {\n		storminess = (totalTime - (startOfStormTime - 5)) / 5;\n	}\n	else if (totalTime < (endOfStormTime + 15)) {\n		storminess = 1;\n	}\n	else if (totalTime < endOfStormTime + 20) {\n		storminess = (5 - (totalTime - (endOfStormTime + 15))) / 5;\n	}\n	else {\n		storminess = 0;\n	}\n\n\n	//lightning\n	lightningTimer += dt;\n	//if (totalTime > (startOfStormTime - 2.51) && totalTime < startOfStormTime) { //start of storm\n	if (totalTime > startOfStormTime && totalTime < (startOfStormTime + 1)) {\n		if (lightningStrikeCounter < 1) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}\n	else if (totalTime > hardModeTime && totalTime < (hardModeTime + 5)) { //start of second wave\n		if (lightningStrikeCounter < 2) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}\n	//else if (totalTime > impossibleModeTime && totalTime < (impossibleModeTime + 5)) { //start of third wave\n	else if (totalTime > (impossibleModeTime - 1) && totalTime < impossibleModeTime) { //start of third wave\n		if (lightningStrikeCounter < 3) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n			//timeBetweenLightning = (2 + (rand() % 5)) * 1.0f;\n		}\n	}\n	else if (totalTime > impossibleModeTime && totalTime < (fakeCalmTime - 5)) { //third wave\n		doesLightningStrikeOnWaveCollision = true;\n		lightningTimer += dt; //double the speed of lightning in this period\n\n		/*\n		timeBetweenLightning -= dt;\n\n		if (timeBetweenLightning <= 0) {\n			lightningTimer = 0;\n			timeBetweenLightning = (3 + (rand() % 4)) * 1.0f;\n			//NOTE: this works ok. other possible ideas: \n			//lightning every time the boat gets hit, \n			//lightning every time a wave starts\n		}\n		*/\n	}\n	else if (totalTime > fakeCalmTime && totalTime < (fakeCalmTime + 5)) { //end of third wave\n		doesLightningStrikeOnWaveCollision = false;\n		if (lightningStrikeCounter < 4) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}\n	//else if (totalTime > (endOfStormTime + 20 - 2.51) && totalTime < (endOfStormTime + 25)) { //end of storm\n	else if (totalTime > (endOfStormTime + 20 - 5) && totalTime < (endOfStormTime + 25)) { //end of storm\n		if (lightningStrikeCounter < 5) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}	\n}\n",
+			"totalPlayTime",
+			"animationLerp",
+			"poseLerp",
+			"Animation",
+			"Frame",
+			"Pose",
+			"isPinDraggable",
+			"bones",
+			"mapping",
+			"mapMeshToBones",
+			"boneList",
+			"utilities",
+			"enterGroupHandle",
+			"groupHandle",
+			"isGroupingLayers",
+			"getRectBounds",
+			"closestVertex(",
+			"addSelectedLayerToComponentManagerInput",
+			"addComponentToEntity",
+			"addEntity",
+			"jsonRepresentation",
+			"polylineSplit",
+			"polylineIntersections",
+			"findIntersections",
+			"",
+			"PolygonDrawState",
+			"EditorState",
+			"switchLayerSelection",
+			"curColor"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "DialogWriter/dialogwriter.flow",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 333,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_flow/flow-file.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "DialogWriter/src/Main.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5258,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 376.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.unsaved_changes":
+	{
+		"height": 100.0
+	},
+	"pinned_build_system": "Packages/sublime_flow/flow.sublime-build",
+	"project": "adventuregame.sublime-project",
+	"replace":
+	{
+		"height": 42.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 247.0,
+		"last_filter": "new",
+		"selected_items":
+		[
+			[
+				"new",
+				"new"
+			],
+			[
+				"ini",
+				"init"
+			],
+			[
+				"text",
+				"text"
+			],
+			[
+				"texture",
+				"texture"
+			],
+			[
+				"add",
+				"addStrokeToIllustration"
+			],
+			[
+				"updat",
+				"update"
+			],
+			[
+				"loadl",
+				"loadLevel"
+			],
+			[
+				"animate",
+				"animateEmphasize"
+			],
+			[
+				"animateemp",
+				"animateEmphasize"
+			],
+			[
+				"update",
+				"update"
+			],
+			[
+				"animateou",
+				"animateOutro"
+			],
+			[
+				"animated",
+				"animateDisappear2"
+			],
+			[
+				"onmouse",
+				"onmouseup"
+			],
+			[
+				"onmou",
+				"onmousedown"
+			],
+			[
+				"onw",
+				"onwindowresized"
+			],
+			[
+				"onke",
+				"onkeydown"
+			],
+			[
+				"onkey",
+				"onkeydown"
+			],
+			[
+				"sav",
+				"save"
+			],
+			[
+				"resi",
+				"onwindowresized"
+			],
+			[
+				"open",
+				"open"
+			],
+			[
+				"goto",
+				"goToLevel"
+			],
+			[
+				"level2",
+				"level2hack"
+			],
+			[
+				"got",
+				"goToLevel"
+			],
+			[
+				"read",
+				"ready"
+			],
+			[
+				"dram",
+				"dramaUpdate"
+			],
+			[
+				"randompo",
+				"randomPositionInDropZone"
+			],
+			[
+				"rand",
+				"randomWaveStartingPosition"
+			],
+			[
+				"up",
+				"update"
+			],
+			[
+				"upda",
+				"update"
+			],
+			[
+				"wave",
+				"waveUpdate"
+			],
+			[
+				"upd",
+				"update"
+			],
+			[
+				"ready",
+				"ready"
+			],
+			[
+				"ancho",
+				"flagAnchorPoint"
+			],
+			[
+				"ra",
+				"randomWaveStartingPosition"
+			],
+			[
+				"neww",
+				"startNewWave"
+			],
+			[
+				"on",
+				"on_quit"
+			],
+			[
+				"re",
+				"ready"
+			],
+			[
+				"anch",
+				"smokeAnchorPoint"
+			],
+			[
+				"anc",
+				"flagAnchorPoint"
+			],
+			[
+				"start",
+				"startNewWave"
+			],
+			[
+				"startnew",
+				"startNewWave"
+			],
+			[
+				"dramau",
+				"dramaUpdate"
+			],
+			[
+				"drama",
+				"dramaUpdate"
+			],
+			[
+				"onk",
+				"OnKeyDown"
+			],
+			[
+				"rainpar",
+				"RainParticles"
+			],
+			[
+				"startw",
+				"startNewWave"
+			],
+			[
+				"randomwa",
+				"randomWaveStartingPosition"
+			],
+			[
+				"sart",
+				"startNewWave"
+			],
+			[
+				"spin",
+				"stunSpin"
+			],
+			[
+				"an",
+				"flagAnchorPoint"
+			],
+			[
+				"u",
+				"update"
+			],
+			[
+				"quit",
+				"on_quit"
+			],
+			[
+				"ocean",
+				"generateOceanMesh"
+			],
+			[
+				"waveco",
+				"testWaveCollision"
+			],
+			[
+				"dramu",
+				"DramaUnit"
+			],
+			[
+				"waveu",
+				"waveUpdate"
+			],
+			[
+				"darmaupd",
+				"dramaUpdate"
+			],
+			[
+				"dramaup",
+				"dramaUpdate"
+			],
+			[
+				"big",
+				"testBigWaveCollision"
+			],
+			[
+				"wav",
+				"waveUpdate"
+			],
+			[
+				"draw",
+				"drawOcean"
+			],
+			[
+				"loop",
+				"LoopRunner"
+			],
+			[
+				"loopr",
+				"LoopRunner"
+			],
+			[
+				"getwo",
+				"getWorldPos"
+			],
+			[
+				"set_an",
+				"set_animationDelta"
+			],
+			[
+				"set_a",
+				"set_animationDelta"
+			],
+			[
+				"component",
+				"startComponents"
+			],
+			[
+				"allChil",
+				"allChildPins"
+			],
+			[
+				"set",
+				"set_data"
+			],
+			[
+				"regi",
+				"registerComponent"
+			],
+			[
+				"get_",
+				"get_data"
+			],
+			[
+				"mousemo",
+				"onmousemove"
+			],
+			[
+				"se",
+				"set_data"
+			],
+			[
+				"resue",
+				"resumeStartPose"
+			],
+			[
+				"newa",
+				"newAnimation"
+			],
+			[
+				"pose",
+				"resumeStartPose"
+			],
+			[
+				"resum",
+				"resumeStartPose"
+			],
+			[
+				"onmo",
+				"onmousedown"
+			],
+			[
+				"updatef",
+				"updateFrame"
+			],
+			[
+				"gener",
+				"generateMesh"
+			],
+			[
+				"load",
+				"Load"
+			],
+			[
+				"recre",
+				"recreateEditorState"
+			],
+			[
+				"json",
+				"jsonRepresentation"
+			],
+			[
+				"recreate",
+				"recreateEditorState"
+			],
+			[
+				"save",
+				"SaveAuto"
+			],
+			[
+				"editorst",
+				"getEditorState"
+			],
+			[
+				"wipe",
+				"wipeCurrentScene"
+			],
+			[
+				"getbon",
+				"getAllBonesInScene"
+			],
+			[
+				"saveau",
+				"SaveAuto"
+			],
+			[
+				"childre",
+				"getChildrenAsPolys"
+			],
+			[
+				"getp",
+				"getPoints"
+			],
+			[
+				"drawre",
+				"drawRectBounds"
+			],
+			[
+				"gtp",
+				"getPoints"
+			],
+			[
+				"calcul",
+				"calculateBounds"
+			],
+			[
+				"getgrou",
+				"getGroupParent"
+			],
+			[
+				"getgr",
+				"getGroupParent"
+			],
+			[
+				"recen",
+				"recenter"
+			],
+			[
+				"endd",
+				"endDrawing"
+			],
+			[
+				"getall",
+				"getAllBonesInScene"
+			],
+			[
+				"addsele",
+				"addSelectedLayerToComponentManagerInput"
+			],
+			[
+				"mosue",
+				"onmousedown"
+			],
+			[
+				"skele",
+				"skeleton"
+			],
+			[
+				"group",
+				"groupLayers"
+			],
+			[
+				"key",
+				"onkeydown"
+			],
+			[
+				"onm",
+				"onmousedown"
+			],
+			[
+				"enterp",
+				"enterPlayMode"
+			],
+			[
+				"enter",
+				"enterPlayMode"
+			],
+			[
+				"play",
+				"PlayState"
+			],
+			[
+				"animat",
+				"AnimationState"
+			],
+			[
+				"anim",
+				"AnimationState"
+			],
+			[
+				"drawp",
+				"drawPlayPauseText"
+			],
+			[
+				"drawf",
+				"drawFileName"
+			],
+			[
+				"drawhel",
+				"drawHelpText"
+			],
+			[
+				"act",
+				"activateLayerNavigator"
+			],
+			[
+				"drawla",
+				"drawLayerNavigator"
+			],
+			[
+				"helpm",
+				"setHelpMessage"
+			],
+			[
+				"hel",
+				"helpMessage"
+			],
+			[
+				"ung",
+				"ungroupLayers"
+			],
+			[
+				"gotolay",
+				"goToLayer"
+			],
+			[
+				"keyd",
+				"onkeydown"
+			],
+			[
+				"groupla",
+				"groupLayers"
+			],
+			[
+				"wip",
+				"wipeCurrentScene"
+			],
+			[
+				"groupl",
+				"groupLayers"
+			],
+			[
+				"undo",
+				"undo"
+			],
+			[
+				"keydo",
+				"onkeydown"
+			],
+			[
+				"editg",
+				"editGroup"
+			],
+			[
+				"exitg",
+				"exitCurrentGroup"
+			],
+			[
+				"mreg",
+				"mergeGroup"
+			]
+		],
+		"width": 392.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 150.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
