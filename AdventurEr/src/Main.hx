@@ -53,6 +53,10 @@ class Main extends luxe.Game {
 	//player
 	public var player : Avatar;
 
+	//dialog
+	var testDialog : Dialog;
+	var isDialogMode = false;
+
 	//camera
 	var camera = {
 		offsetX : 0.0,
@@ -109,6 +113,7 @@ class Main extends luxe.Game {
 					cast(curLevel.levelScene.get("button_name_1"), ActionButton)
 						.onCompleteCallback = function() {
 							trace("button 1!!");
+							startDialogTest();
 						};
 					cast(curLevel.levelScene.get("button_name_2"), ActionButton)
 						.onCompleteCallback = function() {
@@ -172,10 +177,27 @@ class Main extends luxe.Game {
 		*/
 	} //ready
 
+	function startDialogTest() {
+		var load = Luxe.resources.load_json('assets/testdialog1');
+		load.then(function(jsonRes : JSONResource) {
+			var json = jsonRes.asset.json;
+			var worldPos = Luxe.camera.screen_point_to_world(new Vector(100,100)); //use its own layer at some point?
+			testDialog = new Dialog({pos:worldPos}).fromJson(json);
+			testDialog.beginDialog();
+			isDialogMode = true;
+		});
+	}
+
 	override function onkeyup( e:KeyEvent ) {
 
 		if(e.keycode == Key.escape) {
 			Luxe.shutdown();
+		}
+
+		if (isDialogMode) {
+			if (e.keycode == Key.down && !testDialog.isAnimationInProgress) {
+				isDialogMode = testDialog.showNext();
+			}
 		}
 
 	} //onkeyup
@@ -251,7 +273,7 @@ class Main extends luxe.Game {
 	
 	override function onmouseup(e:MouseEvent) {
 
-		if (curLevel != null && !curLevel.anyButtonsTouched()) {
+		if (curLevel != null && !curLevel.anyButtonsTouched() && !isDialogMode) {
 
 			if (Math.abs(scrollInput.releaseVelocity.x) > 0) {
 				var scrollSpeed = Maths.clamp(scrollInput.releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed);
@@ -267,7 +289,7 @@ class Main extends luxe.Game {
 
 	override function update(dt:Float) {
 
-		if (curLevel != null && !curLevel.anyButtonsTouched()) {
+		if (curLevel != null && !curLevel.anyButtonsTouched() && !isDialogMode) {
 		
 			//connect input to player
 			if (Luxe.input.mousedown(1)) {

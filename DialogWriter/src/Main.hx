@@ -8,6 +8,13 @@ import luxe.Vector;
 import luxe.Entity;
 import luxe.options.EntityOptions;
 
+//file IO
+import sys.io.File;
+import sys.io.FileOutput;
+import sys.io.FileInput;
+import haxe.Json;
+import dialogs.Dialogs;
+
 class Main extends luxe.Game {
 
 	var baseline = 500;
@@ -59,7 +66,7 @@ class Main extends luxe.Game {
 		}
 
 		if (isPlayMode) {
-			if (e.keycode == Key.down) {
+			if (e.keycode == Key.down && !dialog.isAnimationInProgress) {
 				if (hasNextDialog) {
 					hasNextDialog = dialog.showNext();
 				}
@@ -84,6 +91,31 @@ class Main extends luxe.Game {
 		}
 
 	} //onkeyup
+
+	override function onkeydown(e:KeyEvent) {
+		//save file
+		if (e.keycode == Key.key_s && e.mod.meta) {
+			//get path & open file
+			var path = Dialogs.save("Save dialog");
+			var output = File.write(path);
+
+			//get data & write it
+			var saveJson = dialog.toJson();
+			var saveStr = Json.stringify(saveJson);//, null, "    ");
+			output.writeString(saveStr);
+
+			//close file
+			output.close();
+		}
+		if (e.keycode == Key.key_o && e.mod.meta) {
+			var path = Dialogs.open("Save dialog");
+			var fileStr = File.getContent(path);
+			var json = Json.parse(fileStr);
+			dialog.destroy();
+			dialog = new Dialog({pos:new Vector(100,100)}).fromJson(json);
+		}
+
+	}
 
 	override function update(dt:Float) {
 
@@ -144,109 +176,4 @@ class Main extends luxe.Game {
 
 
 } //Main
-
-/*
-typedef DialogOptions = {
-	> EntityOptions,
-	@:optional var words : Array<Word>;
-}
-*/
-
-//TOOD: make this a real class
-class Dialog extends Entity {
-	public var curSentence (get,null) : Array<Word>;
-	var sentences : Array<Array<Word>> = [];
-	var sentenceIndex = 0;
-
-	var dialogWidth = 650;
-	var wordHeight = 50;
-	var spaceWidth = 20;
-
-	public override function new(options:EntityOptions) {
-		super(options);
-		sentences.push([]);
-	}
-
-	public function addWord(w:Word) {
-		w.parent = this;
-		w.height = wordHeight;
-		w.pos = new Vector(0,0);
-
-		var wordPos = new Vector(0, 0);
-		if (curSentence.length > 0) {
-			var prevWord = curSentence[curSentence.length-1];
-			if (prevWord.pos.x + w.width > dialogWidth) {
-				w.pos.y = prevWord.pos.y + (wordHeight + 20);
-			}
-			else {
-				w.pos.y = prevWord.pos.y;
-				w.pos.x = prevWord.pos.x + prevWord.width + spaceWidth;
-			}
-		}
-
-		curSentence.push(w);
-	}
-
-	//seems dumb
-	public function returnToEditing() {
-		sentenceIndex = sentences.length - 1;
-		showSentence(sentenceIndex);
-	}
-
-	public function beginDialog() {
-		var i = 0;
-		for (s in sentences) {
-			hideSentence(i);
-			i++;
-		}
-		sentenceIndex = -1;
-	}
-
-	public function showNext() : Bool {
-		if (sentenceIndex >= 0) hideSentence(sentenceIndex);
-		sentenceIndex++;
-		if (sentenceIndex < sentences.length) {
-			showSentence(sentenceIndex);
-			animateSentence(5);
-		}
-		return sentenceIndex < sentences.length;
-	}
-
-	//includes some assumptions for the editor
-	public function newSentence() {
-		hideSentence(sentenceIndex);
-		sentences.push([]);
-		sentenceIndex++;
-	}
-
-	function showSentence(i:Int) {
-		for (w in sentences[i]) {
-			w.visible = true;
-		}
-	}
-
-	function hideSentence(i:Int) {
-		for (w in sentences[i]) {
-			w.visible = false;
-		}
-	}
-
-	public function animateSentence(t:Float) {
-		var animateSentenceControl = {
-			delta : 0.0
-		};
-		Actuate.tween(animateSentenceControl, t, {delta:1.0*curSentence.length})
-			.onUpdate(function() {
-				var curDelta = animateSentenceControl.delta;
-				for (word in curSentence) {
-					word.drawIncomplete(curDelta);
-					curDelta -= 1.0;
-				}
-			});
-	}
-
-	public function get_curSentence() : Array<Word> {
-		return sentences[sentenceIndex];
-	}
-}
 
