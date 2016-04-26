@@ -32,9 +32,8 @@ class Dialog extends Entity {
 	public function addWord(w:Word) {
 		w.parent = this;
 		w.height = wordHeight;
-		w.pos = new Vector(0,0);
+		w.pos = new Vector(0,wordHeight);
 
-		var wordPos = new Vector(0, 0);
 		if (curSentence.length > 0) {
 			var prevWord = curSentence[curSentence.length-1];
 			if (prevWord.pos.x + w.width > dialogWidth) {

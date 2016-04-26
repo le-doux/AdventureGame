@@ -7,6 +7,7 @@ import luxe.Vector;
 import luxe.Entity;
 import luxe.utils.Maths;
 import luxe.resource.Resource.JSONResource;
+import luxe.tween.Actuate;
 
 /*
 //file IO
@@ -54,7 +55,8 @@ class Main extends luxe.Game {
 	public var player : Avatar;
 
 	//dialog
-	var testDialog : Dialog;
+	var curDialog : Dialog;
+	var dialogPullDist = 0.0;
 	var isDialogMode = false;
 
 	//camera
@@ -113,7 +115,8 @@ class Main extends luxe.Game {
 					cast(curLevel.levelScene.get("button_name_1"), ActionButton)
 						.onCompleteCallback = function() {
 							trace("button 1!!");
-							startDialogTest();
+							//startDialogTest();
+							enterDialog("helloworld");
 						};
 					cast(curLevel.levelScene.get("button_name_2"), ActionButton)
 						.onCompleteCallback = function() {
@@ -125,6 +128,8 @@ class Main extends luxe.Game {
 							player.terrainPos = 10;
 							//Luxe.camera.pos.x = curLevel.terrain.points[0].x;
 						};
+
+
 				}
 			});
 
@@ -177,27 +182,25 @@ class Main extends luxe.Game {
 		*/
 	} //ready
 
-	function startDialogTest() {
-		var load = Luxe.resources.load_json('assets/testdialog1');
-		load.then(function(jsonRes : JSONResource) {
-			var json = jsonRes.asset.json;
-			var worldPos = Luxe.camera.screen_point_to_world(new Vector(100,100)); //use its own layer at some point?
-			testDialog = new Dialog({pos:worldPos}).fromJson(json);
-			testDialog.beginDialog();
-			isDialogMode = true;
-		});
+	function enterDialog(dialogFile:String) {
+		Actuate.tween(Luxe.camera, 1.0, {zoom:1.5}).onComplete(function() {
+				var load = Luxe.resources.load_json('assets/' + dialogFile);
+				load.then(function(jsonRes : JSONResource) {
+						var json = jsonRes.asset.json;
+						var worldPos = Luxe.camera.screen_point_to_world(new Vector(100,100));
+						trace(worldPos);
+						curDialog = new Dialog({pos:worldPos,scale:new Vector(0.75,0.75)}).fromJson(json);
+						curDialog.beginDialog();
+						isDialogMode = curDialog.showNext();
+						//trace(isDialogMode);
+					});
+			});
 	}
 
 	override function onkeyup( e:KeyEvent ) {
 
 		if(e.keycode == Key.escape) {
 			Luxe.shutdown();
-		}
-
-		if (isDialogMode) {
-			if (e.keycode == Key.down && !testDialog.isAnimationInProgress) {
-				isDialogMode = testDialog.showNext();
-			}
 		}
 
 	} //onkeyup
@@ -264,6 +267,12 @@ class Main extends luxe.Game {
 			player.curTerrain = curTerrain;
 		}
 		*/
+
+		/*
+		if (isDialogMode && e.keycode == Key.down) {
+			isDialogMode = curDialog.showNext();
+		}
+		*/
 	}
 
 	override function onmousedown(e:MouseEvent) {
@@ -285,6 +294,12 @@ class Main extends luxe.Game {
 
 		}
 
+		if (isDialogMode) {
+			if (!curDialog.isAnimationInProgress) {
+				dialogPullDist = 0;
+			}
+		}
+
 	}
 
 	override function update(dt:Float) {
@@ -296,6 +311,44 @@ class Main extends luxe.Game {
 				player.changeVelocity(scrollInput.touchDelta.x / dt); //force velocity to match scrolling
 			}
 		
+		}
+
+		if (isDialogMode) {
+			if (!curDialog.isAnimationInProgress) {
+				//draw down arrow
+				var arrowBottom = Luxe.camera.screen_point_to_world(Luxe.screen.mid);
+				arrowBottom.y -= dialogPullDist;
+				Luxe.draw.line({
+						p0: arrowBottom,
+						p1: new Vector(arrowBottom.x-15, arrowBottom.y-15),
+						immediate: true
+					});
+				Luxe.draw.line({
+						p0: arrowBottom,
+						p1: new Vector(arrowBottom.x+15, arrowBottom.y-15),
+						immediate: true
+					});
+
+				//down arrow logic
+				var maxDownDist = 100;
+				if (Luxe.input.mousedown(1)) {
+					dialogPullDist += scrollInput.touchDelta.y;
+					if (dialogPullDist > 0) dialogPullDist = 0;
+
+					if (dialogPullDist < -maxDownDist) {
+						dialogPullDist = 0;
+						isDialogMode = curDialog.showNext();
+						if (!isDialogMode) {
+							Actuate.tween(Luxe.camera, 0.5, {zoom:1.0});
+						}
+					}
+
+					curDialog.scale.y = 0.75 + ( (dialogPullDist / -maxDownDist) * 0.3 );
+					//curDialog.scale.x = 0.75 + ( (dialogPullDist / -50) * 0.3 );
+				}
+			}
+
+			
 		}
 
 		cameraLogic(dt);
