@@ -449,4 +449,14 @@ class ActionButton extends Visual {
 
 		return this;
 	}
+
+	override public function set_visible(v:Bool) : Bool {
+		super.set_visible(v);
+		for (i in illustrations) {
+			for (s in i) {
+				s.visible = v;
+			}
+		}
+		return v;
+	}
 }

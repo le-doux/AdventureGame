@@ -117,11 +117,13 @@ class Level extends Entity {
 
 		//TODO: move this logic into the action buttons update?
 		for (a in buttons) {
-			if (Math.abs(a.terrainPos - Main.instance.player.terrainPos) < 300) { //arbitrary distance
-				a.triggerAppear();
-			}
-			else {
-				a.triggerDisappear();
+			if (a.active) {
+				if (Math.abs(a.terrainPos - Main.instance.player.terrainPos) < 300) { //arbitrary distance
+					a.triggerAppear();
+				}
+				else {
+					a.triggerDisappear();
+				}
 			}
 		}
 	}

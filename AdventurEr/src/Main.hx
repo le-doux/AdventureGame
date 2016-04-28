@@ -19,6 +19,16 @@ import haxe.Json;
 
 using adventurlib.ColorExtender;
 
+
+/*
+TODO NEW:
+- erase strokes (level, button, dialog)
+- edit dialog
+- bug w/ white lines
+- bug w/ word sizing
+*/
+
+
 /*
 	TODO:
 	- BUG: left overs from action button after scene change
@@ -95,6 +105,48 @@ class Main extends luxe.Game {
 		heightInWorldPixels = widthInWorldPixels * widthToHeight;
 		zoomForCorrectWidth = Luxe.screen.width / widthInWorldPixels;
 
+
+		//
+		var level1 : Level = null;
+		var level2 : Level = null;
+		level1 = new Level({
+				filename: "1_theOtherKidsFled",
+				onLevelInit : function() {
+
+					cast(level1.levelScene.get("button_openDoorCautiously"), ActionButton)
+						.onCompleteCallback = function() {
+							curLevel.hideLevel();
+							curLevel = level2;
+							curLevel.showLevel();
+							player.curTerrain = curLevel.terrain;
+							player.terrainPos = curLevel.terrain.length - 10;
+						}
+
+					curLevel = level1;
+					curLevel.showLevel();
+					player.curTerrain = curLevel.terrain;
+					player.terrainPos = 10;
+					Luxe.camera.pos.x = curLevel.terrain.points[0].x;
+					
+				}
+			});
+
+		level2 = new Level({
+				filename: "2_mahjongApt",
+				onLevelInit : function() {
+
+					cast(level2.levelScene.get("button_comeCloser"), ActionButton)
+						.onCompleteCallback = function() {
+							enterDialog("dialog_ladies");
+						}
+
+				}
+			});
+
+		//
+
+
+		/*
 		var level2 = new Level({
 			filename : "leveltest_whoa",
 			onLevelInit : function() {
@@ -132,6 +184,7 @@ class Main extends luxe.Game {
 
 				}
 			});
+		*/
 
 		/*
 		//hack to auto open test file
