@@ -5,12 +5,12 @@ import luxe.options.EntityOptions;
 import luxe.tween.Actuate;
 import luxe.Vector;
 
-/*
 typedef DialogOptions = {
 	> EntityOptions,
-	@:optional var words : Array<Word>;
+	@:optional var dialogWidth : Float;
+	@:optional var wordHeight : Float;
+	@:optional var spaceWidth : Float;
 }
-*/
 
 //TOOD: make this a real class
 class Dialog extends Entity {
@@ -18,34 +18,91 @@ class Dialog extends Entity {
 	var sentences : Array<Array<Word>> = [];
 	var sentenceIndex = 0;
 
-	var dialogWidth = 650;
-	var wordHeight = 50;
-	var spaceWidth = 20;
+	var dialogWidth : Float = 650;
+	var wordHeight : Float = 50;
+	var spaceWidth : Float = 20;
 
 	public var isAnimationInProgress = false;
 
-	public override function new(options:EntityOptions) {
+	public override function new(options:DialogOptions) {
 		super(options);
+
+		if (options.dialogWidth != null) dialogWidth = options.dialogWidth;
+		if (options.wordHeight != null) wordHeight = options.wordHeight;
+		if (options.spaceWidth != null) spaceWidth = options.spaceWidth;
+
 		sentences.push([]);
 	}
 
 	public function addWord(w:Word) {
 		w.parent = this;
 		w.height = wordHeight;
-		w.pos = new Vector(0,wordHeight);
+		w.pos = insertPoint(curSentence.length-1, w.width);
+		curSentence.push(w);
+	}
 
-		if (curSentence.length > 0) {
-			var prevWord = curSentence[curSentence.length-1];
-			if (prevWord.pos.x + w.width > dialogWidth) {
-				w.pos.y = prevWord.pos.y + (wordHeight + 20);
+	public function insertPoint(i : Int, ?wordWidth : Float) {
+		if (wordWidth == null) wordWidth = 0;
+
+		var pos = new Vector(0, wordHeight);
+		trace(curSentence);
+		if (curSentence.length > i && i >= 0) {
+			var prevWord = curSentence[i];
+			if (prevWord.pos.x + wordWidth > dialogWidth) {
+				pos.y = prevWord.pos.y + (wordHeight + 20);
 			}
 			else {
-				w.pos.y = prevWord.pos.y;
-				w.pos.x = prevWord.pos.x + prevWord.width + spaceWidth;
+				pos.y = prevWord.pos.y;
+				pos.x = prevWord.pos.x + prevWord.width + spaceWidth;
 			}
 		}
+		return pos;
+	}
 
+	public function insertWord(w:Word, i:Int) {
+
+		var wordList = [];
+		var j = i+1;
+		while (j < curSentence.length) {
+			var w = curSentence[j];
+			wordList.push(w);
+			j++;
+		}
+
+		for (w in wordList) {
+			curSentence.remove(w);
+		}
+
+		w.parent = this;
+		w.height = wordHeight;
+		w.pos = insertPoint(i, w.width);
 		curSentence.push(w);
+
+		for (w in wordList) {
+			addWord(w);
+		}
+	}
+
+	public function deleteWord(i : Int) { //from end of sentence
+		var w = curSentence[i];
+		w.destroy(true);
+		curSentence.remove(w);
+
+		var wordList = [];
+		while (i < curSentence.length) {
+			var w = curSentence[i];
+			wordList.push(w);
+			i++;
+		}
+
+		for (w in wordList) {
+			curSentence.remove(w);
+		}
+
+		for (w in wordList) {
+			addWord(w);
+		}
+
 	}
 
 	//seems dumb
@@ -112,6 +169,8 @@ class Dialog extends Entity {
 	}
 
 	public function get_curSentence() : Array<Word> {
+		trace(sentences.length);
+		trace(sentenceIndex);
 		return sentences[sentenceIndex];
 	}
 
@@ -141,7 +200,37 @@ class Dialog extends Entity {
 			hideSentence(sentenceIndex);
 			sentenceIndex++;
 		}
+		sentenceIndex--;
+		showSentence(sentenceIndex);
 		return this;
+	}
+
+	public function prevSentence() : Bool {
+		hideSentence(sentenceIndex);
+		sentenceIndex--;
+		if (sentenceIndex >= 0) {
+			showSentence(sentenceIndex);
+			return true;
+		}
+		else {
+			sentenceIndex = 0;
+			showSentence(sentenceIndex);
+			return false;
+		}
+	}
+
+	public function nextSentence() : Bool {
+		hideSentence(sentenceIndex);
+		sentenceIndex++;
+		if (sentenceIndex < sentences.length) {
+			showSentence(sentenceIndex);
+			return true;
+		}
+		else {
+			sentenceIndex = sentences.length - 1;
+			showSentence(sentenceIndex);
+			return false;
+		}
 	}
 
 }

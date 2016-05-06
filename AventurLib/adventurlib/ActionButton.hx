@@ -78,11 +78,13 @@ class ActionButton extends Visual {
 	///END OLD STUFF
 
 	public override function new(_options : luxe.options.VisualOptions) {
+		_options.depth = 190; //stupid hack
 		super(_options);
 		geometry = Luxe.draw.circle({
 			x : 0, y : 0,
 			r : 100, //arbitrary
-			batcher : _options.batcher
+			batcher : _options.batcher,
+			depth: 190
 		});
 
 		var ring = new Visual({
@@ -90,7 +92,8 @@ class ActionButton extends Visual {
 							x : 0, y : 0,
 							r : 102, //arbitrary,
 							color : new Color(1,1,1), //temporary
-							batcher : _options.batcher
+							batcher : _options.batcher,
+							depth: 200
 						}),
 			parent: this
 		});
@@ -101,7 +104,8 @@ class ActionButton extends Visual {
 					p0 : new Vector(-10,110),
 					p1 : new Vector(0,120),
 					color : new Color(1,1,1), //temporary,
-					batcher : _options.batcher
+					batcher : _options.batcher,
+					depth: 200
 				}),
 			parent: pullTab
 		});
@@ -110,7 +114,8 @@ class ActionButton extends Visual {
 					p0 : new Vector(10,110),
 					p1 : new Vector(0,120),
 					color : new Color(1,1,1), //temporary,
-					batcher : _options.batcher
+					batcher : _options.batcher,
+					depth: 200
 				}),
 			parent: pullTab
 		});
@@ -180,7 +185,7 @@ class ActionButton extends Visual {
 	public override function update(dt : Float) {
 
 		//inefficient to do this every loop?
-		if (curSize - startSize >= (endSize - startSize)/2 
+		if (curSize >= (endSize * 0.98)
 			&& illustrations[1].length > 0) {
 			for (s in illustrations[0]) {
 				s.set_visible(false);
@@ -318,24 +323,34 @@ class ActionButton extends Visual {
 	function animateDisappear() {
 		isEditing = false; //hack?
 		curSize = endSize;
-		Actuate.tween(this, 1.0, {curSize: 0})
-				.ease(luxe.tween.easing.Elastic.easeIn)
+		Actuate.tween(this, 0.3, {curSize: (endSize * 1.1)})
+				.ease(luxe.tween.easing.Quad.easeOut)
 				.onComplete(function() {
-					if (onCompleteCallback != null) {
-						onCompleteCallback();
-					}
+					Actuate.tween(this, 1.0, {curSize: 0})
+							.delay(1.0)
+							.ease(luxe.tween.easing.Elastic.easeIn)
+							.onComplete(function() {
+								if (onCompleteCallback != null) {
+									onCompleteCallback();
+								}
+							});
 				});
 	}
 
 	function animateFillScreen() {
 		isEditing = false; //hack?
 		curSize = endSize;
-		Actuate.tween(this, 1.0, {curSize: Luxe.screen.width})
-				.ease(luxe.tween.easing.Quad.easeIn)
+		Actuate.tween(this, 0.3, {curSize: (endSize * 1.1)})
+				.ease(luxe.tween.easing.Quad.easeOut)
 				.onComplete(function() {
-					if (onCompleteCallback != null) {
-						onCompleteCallback();
-					}
+					Actuate.tween(this, 1.0, {curSize: Luxe.screen.width})
+							.delay(1.0)
+							.ease(luxe.tween.easing.Quad.easeIn)
+							.onComplete(function() {
+								if (onCompleteCallback != null) {
+									onCompleteCallback();
+								}
+							});
 				});
 	}
 
@@ -411,7 +426,7 @@ class ActionButton extends Visual {
 							{
 								color:illustrationColor,
 								batcher:Luxe.renderer.batcher,
-								depth:50 //arbitrary
+								depth:200 //arbitrary
 							},
 						[]).fromJson(j);
 			p.parent = this;
@@ -422,7 +437,7 @@ class ActionButton extends Visual {
 							{
 								color:illustrationColor,
 								batcher:Luxe.renderer.batcher,
-								depth:50 //arbitrary
+								depth:200 //arbitrary
 							},
 						[]).fromJson(j);
 			p.parent = this;

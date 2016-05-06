@@ -16,6 +16,10 @@ class ScrollInputHandler extends luxe.Entity {
 	override function onmousedown( e:MouseEvent ) {
 		velocitySamples = [];
 
+		for (i in  0 ... 5) { //this avoids sudden stops caused by not having enough samples (but it does "deaden" fast flicks... what's the solution?)
+			velocitySamples.push(new Vector(0,0));
+		}
+
 		prevTouchPos = e.pos;
 		prevTouchTime = e.timestamp;
 	}
@@ -24,6 +28,8 @@ class ScrollInputHandler extends luxe.Entity {
 	}
 
 	override function onmouseup( e:MouseEvent ) {
+		trace(velocitySamples);
+
 		if (velocitySamples.length > samplesMin) {
 			
 			//normal calculations
@@ -44,13 +50,17 @@ class ScrollInputHandler extends luxe.Entity {
 			}
 
 			if (isSuddenStop) {
+				trace("sudden stop!");
 				releaseVelocity = new Vector(0,0);
 			}
 			
 		}
 		else {
+			trace("not enough samples!");
 			releaseVelocity = new Vector(0,0);
 		}
+
+		trace(releaseVelocity);
 	}
 
 	override function update(dt:Float) {

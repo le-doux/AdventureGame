@@ -19,30 +19,53 @@ import haxe.Json;
 
 using adventurlib.ColorExtender;
 
+/*
+TODO DEMO:
+- create more levels
+	X- the street
+	X- bagel entrance
+	X- bagel back
+	- old world house
+	***
+	- old world town
+- create dialog
+	- hello? is anyone there?
+- specialized level logic
+	- match in old world house
+- polish
+	X- player sometimes stops abruptly
+	X- scale of player vs environment
+	- player sprite?
+	X- only switch button frame at 100%
+	X- button 2nd frame always pause on pull
+	- nicer pull on dialog (momentum?)
+		X- easier to see
+		X- other polish
+		- easier to pull
+X- pro / cons for different vector graphics approaches
+	- SVG
+	- build own editor & format
+	- something else?
+- consistent sizing between platforms
+	X- camera resizing settings
+	- make ground stick near ground?
+*/
+
 
 /*
 TODO NEW:
 - erase strokes (level, button, dialog)
-- edit dialog
-- bug w/ white lines
-- bug w/ word sizing
 */
 
 
 /*
 	TODO:
-	- BUG: left overs from action button after scene change
-	- BUG: why is player so jittery???
-	- BUG: where sometimes player never stops moving!!!
 	- tune camera variables
 	- add back slope resistance
 	- pull up / down
 	- get screen view constant stuff working
 	- create camera control class that wraps camera stuffs
-	- need shared lib / classes
 	- need to share file IO stuff
-	- need to create a shared "level" class that wraps some things
-	- UPDATE LUXE STUFF (get up to date w/ community???)
 */
 
 class Main extends luxe.Game {
@@ -68,6 +91,7 @@ class Main extends luxe.Game {
 	var curDialog : Dialog;
 	var dialogPullDist = 0.0;
 	var isDialogMode = false;
+	var dialogPullArrowBounce = 0.0;
 
 	//camera
 	var camera = {
@@ -84,7 +108,7 @@ class Main extends luxe.Game {
 	//screen ratio stuff
 	var wRatio = 16.0;
 	var hRatio = 9.0;
-	var widthInWorldPixels = 800.0;
+	var widthInWorldPixels = 1200.0; //looks good for proto but inconsistent!!
 	var widthToHeight : Float; //calculated
 	var heightInWorldPixels : Float; //calculated (expected = 450px)
 	var zoomForCorrectWidth : Float;
@@ -95,8 +119,8 @@ class Main extends luxe.Game {
 		scrollInput = new ScrollInputHandler();
 
 		player = new Avatar({
-			size : new Vector(20, 60),
-			color : new Color(1,0,0),
+			size : new Vector(40, 100),
+			color : new Color(0,0,0),
 			depth : 100
 		});
 		player.pos = new Vector(0,0);
@@ -104,6 +128,9 @@ class Main extends luxe.Game {
 		widthToHeight = hRatio / wRatio;
 		heightInWorldPixels = widthInWorldPixels * widthToHeight;
 		zoomForCorrectWidth = Luxe.screen.width / widthInWorldPixels;
+
+		Luxe.camera.size = new Vector(widthInWorldPixels,heightInWorldPixels);
+		Luxe.camera.size_mode = luxe.SizeMode.fit;
 
 
 		//
@@ -119,13 +146,13 @@ class Main extends luxe.Game {
 							curLevel = level2;
 							curLevel.showLevel();
 							player.curTerrain = curLevel.terrain;
-							player.terrainPos = curLevel.terrain.length - 10;
+							player.terrainPos = curLevel.terrain.length - 100;
 						}
 
 					curLevel = level1;
 					curLevel.showLevel();
 					player.curTerrain = curLevel.terrain;
-					player.terrainPos = 10;
+					player.terrainPos = 150;
 					Luxe.camera.pos.x = curLevel.terrain.points[0].x;
 					
 				}
@@ -135,117 +162,39 @@ class Main extends luxe.Game {
 				filename: "2_mahjongApt",
 				onLevelInit : function() {
 
-					cast(level2.levelScene.get("button_comeCloser"), ActionButton)
-						.onCompleteCallback = function() {
-							enterDialog("dialog_ladies");
-						}
+					var ladyDialogButton = cast(level2.levelScene.get("button_comeCloser"), ActionButton);
+
+					ladyDialogButton.onCompleteCallback = function() {
+							var focusPos = Vector.Add(ladyDialogButton.pos, new Vector(100,100));
+							enterDialog("dialog_ladies", focusPos);
+						};
 
 				}
 			});
 
-		//
 
-
-		/*
-		var level2 = new Level({
-			filename : "leveltest_whoa",
-			onLevelInit : function() {
-				trace("we did it!");
-			}
-		});
-
-		//loadLevel('leveltest_buttonnames');
-		curLevel = new Level({
-				filename : "leveltest_buttonnames",
-				onLevelInit : function() {
-					trace("level ready!");
-					curLevel.showLevel();
-					player.curTerrain = curLevel.terrain;
-					Luxe.camera.pos.x = curLevel.terrain.points[0].x; //kind of a hack (unecessary too?)
-
-					//TODO attach behaviors to buttons, attach component to level possibly??
-					cast(curLevel.levelScene.get("button_name_1"), ActionButton)
-						.onCompleteCallback = function() {
-							trace("button 1!!");
-							//startDialogTest();
-							enterDialog("helloworld");
-						};
-					cast(curLevel.levelScene.get("button_name_2"), ActionButton)
-						.onCompleteCallback = function() {
-							trace("button 2????");
-							curLevel.hideLevel();
-							curLevel = level2;
-							curLevel.showLevel();
-							player.curTerrain = curLevel.terrain;
-							player.terrainPos = 10;
-							//Luxe.camera.pos.x = curLevel.terrain.points[0].x;
-						};
-
-
-				}
-			});
-		*/
-
-		/*
-		//hack to auto open test file
-			var path = "/Users/adamrossledoux/Code/Haxe/AdventurEd/assets/leveltest7";
-			var fileStr = File.getContent(path);
-			var json = Json.parse(fileStr);
-
-			//rehydrate colors
-			var backgroundColor = (new Color()).fromJson(json.backgroundColor);
-			var terrainColor = (new Color()).fromJson(json.terrainColor);
-			var sceneryColor = (new Color()).fromJson(json.sceneryColor);
-			Luxe.renderer.clear_color = backgroundColor;
-
-			//rehydrate terrain
-			if (curTerrain != null) curTerrain.clear();
-			curTerrain = new Terrain();
-			curTerrain.fromJson(json.terrain);
-			curTerrain.draw(terrainColor);
-
-			//rehydrate scenery
-			for (s in scenery) {
-				s.destroy();
-			}
-			scenery = [];
-			for (s in cast(json.scenery, Array<Dynamic>)) {
-				var p = new Polystroke({color : sceneryColor, batcher : Luxe.renderer.batcher}, []);
-				p.fromJson(s);
-				scenery.push(p); //feels hacky
-			}
-
-			//rehydrate action buttons
-			for (b in actionButtons) {
-				b.clear();
-			}
-			actionButtons = [];
-			for (b in cast(json.buttons, Array<Dynamic>)) {
-				trace(b);
-				var a = (new ActionButton()).fromJson(b);
-				a.terrain = curTerrain;
-				a.curSize = 0; //start invisible
-				actionButtons.push(a);
-			}
-
-			Luxe.camera.pos.x = curTerrain.points[0].x;
-
-			player.curTerrain = curTerrain;
-		//hack to auto open test file
-		*/
+		//Probably a stupid hack
+		Actuate.tween(this, 0.6, {dialogPullArrowBounce:10}).repeat().reflect();
 	} //ready
 
-	function enterDialog(dialogFile:String) {
-		Actuate.tween(Luxe.camera, 1.0, {zoom:1.5}).onComplete(function() {
-				var load = Luxe.resources.load_json('assets/' + dialogFile);
-				load.then(function(jsonRes : JSONResource) {
+	function enterDialog(dialogFile:String, focusPos:Vector) {
+		Actuate.tween(Luxe.camera, 1.0, {zoom:1.5});
+		var load = Luxe.resources.load_json('assets/' + dialogFile);
+		load.then(function(jsonRes : JSONResource) {
+				Actuate.tween(Luxe.camera.pos, 1.0, {x:focusPos.x - Luxe.screen.w/2, y:focusPos.y - Luxe.screen.h/2})
+					.onComplete(function() {
 						var json = jsonRes.asset.json;
-						var worldPos = Luxe.camera.screen_point_to_world(new Vector(100,100));
+						var worldPos = Luxe.camera.screen_point_to_world(new Vector(100,150));
 						trace(worldPos);
-						curDialog = new Dialog({pos:worldPos,scale:new Vector(0.75,0.75)}).fromJson(json);
+						curDialog = new Dialog({
+							pos: worldPos,
+							dialogWidth: widthInWorldPixels-250,
+							wordHeight: 65,
+							scale: new Vector(0.66,0.66)
+						}).fromJson(json);
+
 						curDialog.beginDialog();
 						isDialogMode = curDialog.showNext();
-						//trace(isDialogMode);
 					});
 			});
 	}
@@ -329,7 +278,8 @@ class Main extends luxe.Game {
 	}
 
 	override function onmousedown(e:MouseEvent) {
-		player.changeVelocity(0); //just in case to stop weird always scrolling bug (is this really the problem?)
+		//TODO: fix sudden stop bug
+		//player.changeVelocity(0); //just in case to stop weird always scrolling bug (is this really the problem?)
 	}
 
 	
@@ -337,13 +287,14 @@ class Main extends luxe.Game {
 
 		if (curLevel != null && !curLevel.anyButtonsTouched() && !isDialogMode) {
 
-			if (Math.abs(scrollInput.releaseVelocity.x) > 0) {
+			//if (Math.abs(scrollInput.releaseVelocity.x) > 0) {
 				var scrollSpeed = Maths.clamp(scrollInput.releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed);
 				player.coast(scrollSpeed, 0.75); //on release, coast for 3/4 of a second
-			}
-			else {
-				player.changeVelocity(0); //just in case to stop weird always scrolling bug (is this really the problem?)
-			}
+			//}
+			//else {
+				//TODO: fix sudden stop bug
+				//player.changeVelocity(0); //just in case to stop weird always scrolling bug (is this really the problem?)
+			//}
 
 		}
 
@@ -361,52 +312,77 @@ class Main extends luxe.Game {
 		
 			//connect input to player
 			if (Luxe.input.mousedown(1)) {
+				//trace("scroll velocity!");
 				player.changeVelocity(scrollInput.touchDelta.x / dt); //force velocity to match scrolling
 			}
 		
 		}
 
 		if (isDialogMode) {
-			if (!curDialog.isAnimationInProgress) {
-				//draw down arrow
-				var arrowBottom = Luxe.camera.screen_point_to_world(Luxe.screen.mid);
-				arrowBottom.y -= dialogPullDist;
-				Luxe.draw.line({
-						p0: arrowBottom,
-						p1: new Vector(arrowBottom.x-15, arrowBottom.y-15),
-						immediate: true
-					});
-				Luxe.draw.line({
-						p0: arrowBottom,
-						p1: new Vector(arrowBottom.x+15, arrowBottom.y-15),
-						immediate: true
-					});
-
-				//down arrow logic
-				var maxDownDist = 100;
-				if (Luxe.input.mousedown(1)) {
-					dialogPullDist += scrollInput.touchDelta.y;
-					if (dialogPullDist > 0) dialogPullDist = 0;
-
-					if (dialogPullDist < -maxDownDist) {
-						dialogPullDist = 0;
-						isDialogMode = curDialog.showNext();
-						if (!isDialogMode) {
-							Actuate.tween(Luxe.camera, 0.5, {zoom:1.0});
-						}
-					}
-
-					curDialog.scale.y = 0.75 + ( (dialogPullDist / -maxDownDist) * 0.3 );
-					//curDialog.scale.x = 0.75 + ( (dialogPullDist / -50) * 0.3 );
-				}
-			}
-
-			
+			dialogLogic();
 		}
 
-		cameraLogic(dt);
+		if (!isDialogMode) cameraLogic(dt);
+
+		/*
+		//draw screen box
+		Luxe.draw.rectangle({
+			x : ((Luxe.screen.width - (widthInWorldPixels/Luxe.camera.zoom) ) / 2) + Luxe.camera.pos.x,
+			y : ((Luxe.screen.height - (heightInWorldPixels/Luxe.camera.zoom) ) / 2) + Luxe.camera.pos.y,
+			w : widthInWorldPixels/Luxe.camera.zoom,
+			h : heightInWorldPixels/Luxe.camera.zoom,
+			immediate : true
+		});
+		*/
 
 	} //update
+
+	function dialogLogic() {
+		if (!curDialog.isAnimationInProgress) {
+			//draw down arrow
+			var s = 1.0;
+			if (Luxe.input.mousedown(1)) s = 2.0;
+			var arrowPos = Luxe.camera.screen_point_to_world(Luxe.screen.mid);
+			arrowPos.y -= dialogPullDist;
+
+			if (!Luxe.input.mousedown(1)) {
+				arrowPos.y += dialogPullArrowBounce;
+			}
+
+			Luxe.draw.poly({
+					solid: true,
+					pos: arrowPos,
+					points: [
+						new Vector(0,8),
+						new Vector(-16, -8),
+						new Vector(16, -8)
+					],
+					color: new Color(0,0,0),
+					depth: 200,
+					scale: new Vector(s,s),
+					immediate: true
+				});
+
+			//down arrow logic
+			var maxDownDist = 100;
+			if (Luxe.input.mousedown(1)) {
+				dialogPullDist += scrollInput.touchDelta.y;
+				if (dialogPullDist > 0) dialogPullDist = 0;
+
+				if (dialogPullDist < -maxDownDist) {
+					dialogPullDist = 0;
+					isDialogMode = curDialog.showNext();
+					if (!isDialogMode) {
+						Actuate.tween(Luxe.camera, 0.5, {zoom:1.0});
+					}
+				}
+
+				var s = 0.75 + ( (dialogPullDist / -maxDownDist) * 0.3 );
+				curDialog.scale.y = s;
+				//curDialog.scale.x = 0.75 + ( (dialogPullDist / -50) * 0.3 );
+			}
+		}
+	}
 
 	function cameraLogic(dt : Float) {
 		//CAMERA LOGIC

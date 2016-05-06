@@ -2,6 +2,7 @@ package adventurlib;
 import luxe.Visual;
 import luxe.Vector;
 import luxe.options.VisualOptions;
+import luxe.Color;
 using adventurlib.PolylineExtender;
 
 typedef WordOptions = {
@@ -55,7 +56,7 @@ class Word extends Visual {
 				totalPoints += s.points.length;
 			}
 		}
-		else { //case 2: strokes already correctly positioned relative to parent
+		else { //case 2: fallback
 			initialBounds = Vector.Subtract(bottomRight, topLeft);
 			for (s in strokes) {
 				s.parent = this;
@@ -68,6 +69,7 @@ class Word extends Visual {
 		height = h;
 		var boundsResizeRatio = height / initialBounds.y;
 		width = initialBounds.x * boundsResizeRatio;
+		scale = new Vector(1,1);
 		scale.multiplyScalar(boundsResizeRatio); //fit word to current word height
 		return height;
 	}
@@ -99,7 +101,8 @@ class Word extends Visual {
 			jsonStrokes.push(s.toJson());
 		}
 		return {
-			strokes : jsonStrokes
+			strokes : jsonStrokes,
+			initialBounds : {x:initialBounds.x, y:initialBounds.y}
 		};
 	}
 
@@ -109,7 +112,8 @@ class Word extends Visual {
 			var p = new Polystroke(
 							{
 								batcher:Luxe.renderer.batcher,
-								depth:50 //arbitrary
+								depth:200, //arbitrary,
+								color: new Color(0,0,0) //hack
 							},
 						[]).fromJson(j);
 			jsonStrokes.push(p);
@@ -117,6 +121,9 @@ class Word extends Visual {
 		initStrokes({
 			strokes: jsonStrokes
 		});
+		if (Reflect.hasField(json, "initialBounds")) { //"back compat"
+			initialBounds = new Vector( json.initialBounds.x, json.initialBounds.y );
+		}
 		return this;
 	}
 }

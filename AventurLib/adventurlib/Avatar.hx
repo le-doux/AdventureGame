@@ -32,9 +32,15 @@ class Avatar extends Visual {
 	}
 
 	public function coast(velocityX : Float, time : Float) {
+		//trace("start coasting!");
 		velocity.x = velocityX;
 		isCoasting = true;
-		Actuate.tween(velocity, time, {x: 0}).ease(luxe.tween.easing.Quad.easeOut).onComplete(function() { isCoasting = false; });
+		Actuate.tween(velocity, time, {x: 0}).ease(luxe.tween.easing.Quad.easeOut)
+			.onComplete(function() { 
+							//trace("done coasting!");
+							velocity.x = 0;
+							isCoasting = false; 
+						});
 	}
 
 	//replace with velocity setter?

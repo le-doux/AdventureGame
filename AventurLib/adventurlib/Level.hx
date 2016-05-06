@@ -24,6 +24,7 @@ class Level extends Entity {
 
 	var onLevelInit : Dynamic;
 	var terrainColor : Color;
+	var backgroundColor : Color;
 
 	public var levelScene : Scene;
 
@@ -41,10 +42,10 @@ class Level extends Entity {
 			var json = jsonRes.asset.json;
 
 			//rehydrate colors
-			var backgroundColor = (new Color()).fromJson(json.backgroundColor);
+			backgroundColor = (new Color()).fromJson(json.backgroundColor);
 			terrainColor = (new Color()).fromJson(json.terrainColor);
 			var sceneryColor = (new Color()).fromJson(json.sceneryColor);
-			Luxe.renderer.clear_color = backgroundColor;
+			//Luxe.renderer.clear_color = backgroundColor;
 
 			//rehydrate terrain
 			terrain = new Terrain();
@@ -94,6 +95,7 @@ class Level extends Entity {
 	}
 
 	public function showLevel() {
+		Luxe.renderer.clear_color = backgroundColor;
 		terrain.draw(terrainColor);
 		for (s in scenery) {
 			s.active = true;

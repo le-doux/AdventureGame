@@ -1,8 +1,8 @@
 {
     "sceneryColor": {
-        "b": 0,
+        "b": 1,
         "r": 1,
-        "g": 0
+        "g": 1
     },
     "buttons": [
         {
@@ -1606,9 +1606,9 @@
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 1,
-                "r": 0,
-                "g": 0
+                "b": 0.51,
+                "r": 0.23,
+                "g": 0.50
             },
             "terrainPos": 1331.66666666667,
             "height": 250
@@ -2843,15 +2843,15 @@
             "startSize": 1,
             "name": "button_comeCloser",
             "illustrationColor": {
-                "b": 1,
-                "r": 1,
-                "g": 1
+                "b": 0,
+                "r": 0,
+                "g": 0
             },
             "endSize": 2,
             "backgroundColor": {
                 "b": 1,
-                "r": 0,
-                "g": 0
+                "r": 1,
+                "g": 1
             },
             "terrainPos": 340,
             "height": 280
@@ -3107,16 +3107,17 @@
             "y": 723.333333333333
         }
     ],
-    "backgroundColor": {
-        "b": 0,
-        "r": 0,
-        "g": 0
+    "backgroundColor":
+    {
+        "b": 0.29,
+        "r": 0.96,
+        "g": 0.39
     },
     "type": "level",
     "terrainColor": {
-        "b": 1,
-        "r": 1,
-        "g": 1
+        "b": 0.36,
+        "r": 1.00,
+        "g": 0.61
     },
     "scenery": [
         {

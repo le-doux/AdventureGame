@@ -28,6 +28,8 @@ class Main extends luxe.Game {
 	var isPlayMode = false;
 	var hasNextDialog = false;
 
+	var insertIndex = -1;
+
 	override function ready() {
 
 		dialog = new Dialog({
@@ -54,17 +56,6 @@ class Main extends luxe.Game {
 			Luxe.shutdown();
 		}
 
-		if (e.keycode == Key.space) { //new word
-
-			dialog.addWord(new Word({
-					strokes:curWord,
-					baseline:baseline, //this should really be preprocessed instead of part of the constructor
-					topline:topline
-				}));
-
-			curWord = [];
-		}
-
 		if (isPlayMode) {
 			if (e.keycode == Key.down && !dialog.isAnimationInProgress) {
 				if (hasNextDialog) {
@@ -77,8 +68,25 @@ class Main extends luxe.Game {
 			}
 		}
 		else {
+
+			if (e.keycode == Key.space) { //new word
+
+				dialog.insertWord(new Word({
+						strokes:curWord,
+						baseline:baseline, //this should really be preprocessed instead of part of the constructor
+						topline:topline
+					}),
+					insertIndex
+				);
+
+				curWord = [];
+
+				insertIndex++;
+			}
+
 			if (e.keycode == Key.enter) { //add new sentence
 				dialog.newSentence();
+				insertIndex = -1;
 			}
 			if (e.keycode == Key.rshift) { //test current sentence
 				dialog.animateSentence(5);
@@ -87,6 +95,25 @@ class Main extends luxe.Game {
 				isPlayMode = true;
 				dialog.beginDialog();
 				hasNextDialog = dialog.showNext();
+			}
+			//edit other words
+			if (e.keycode == Key.up) {
+				dialog.prevSentence();
+				insertIndex = -1;
+			}
+			else if (e.keycode == Key.down) {
+				dialog.nextSentence();
+				insertIndex = -1;
+			}
+			else if (e.keycode == Key.left) {
+				insertIndex--;
+			}
+			else if (e.keycode == Key.right) {
+				insertIndex++;
+			}
+			else if (e.keycode == Key.backspace) {
+				dialog.deleteWord(insertIndex);
+				insertIndex--;
 			}
 		}
 
@@ -130,6 +157,19 @@ class Main extends luxe.Game {
 				depth : 50,
 				immediate : true
 			});
+		}
+
+		if (!isPlayMode) {
+			var ip = dialog.insertPoint(insertIndex);
+			ip.add(dialog.pos);
+			ip.x -= 15; //hack
+			Luxe.draw.line({
+					p0 : ip,
+					p1 : new Vector(ip.x, ip.y - 50), //hack
+					color : new Color(1,1,1),
+					depth : 50,
+					immediate : true
+				});
 		}
 
 	} //update
