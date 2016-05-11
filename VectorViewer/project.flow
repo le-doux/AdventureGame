@@ -1,0 +1,26 @@
+{
+
+  project : {
+    name : 'vectorviewer',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'luxe_empty',
+      package : 'org.luxeengine.vectorviewer'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        poly2trihx : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
