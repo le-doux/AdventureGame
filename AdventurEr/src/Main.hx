@@ -132,6 +132,7 @@ class Main extends luxe.Game {
 		Luxe.camera.size = new Vector(widthInWorldPixels,heightInWorldPixels);
 		Luxe.camera.size_mode = luxe.SizeMode.fit;
 
+		Luxe.renderer.state.lineWidth(4);
 
 		//
 		var level1 : Level = null;
