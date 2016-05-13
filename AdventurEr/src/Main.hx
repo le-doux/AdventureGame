@@ -29,7 +29,7 @@ TODO DEMO:
 	***
 	- old world town
 - create dialog
-	- hello? is anyone there?
+	X- hello? is anyone there?
 - specialized level logic
 	- match in old world house
 - polish
@@ -92,6 +92,7 @@ class Main extends luxe.Game {
 	var dialogPullDist = 0.0;
 	var isDialogMode = false;
 	var dialogPullArrowBounce = 0.0;
+	var onExitDialogCallback : Dynamic = null;
 
 	//camera
 	var camera = {
@@ -113,6 +114,10 @@ class Main extends luxe.Game {
 	var heightInWorldPixels : Float; //calculated (expected = 450px)
 	var zoomForCorrectWidth : Float;
 
+	var dialog_scene : luxe.Scene;
+	var dialog_cam : luxe.Camera;
+	var dialog_batcher : phoenix.Batcher;
+
 	override function ready() {
 		instance = this;
 
@@ -131,29 +136,39 @@ class Main extends luxe.Game {
 
 		Luxe.camera.size = new Vector(widthInWorldPixels,heightInWorldPixels);
 		Luxe.camera.size_mode = luxe.SizeMode.fit;
+		Luxe.renderer.state.lineWidth(2);
 
-		Luxe.renderer.state.lineWidth(4);
+		//put the dialog on its own camera & layer, etc etc (seems overly complex to me)
+		dialog_scene = new luxe.Scene("dialog_scene");
+		dialog_cam = new luxe.Camera({name:"dialog_cam", scene:dialog_scene});
+		dialog_cam.size = new Vector(widthInWorldPixels,heightInWorldPixels);
+		dialog_cam.size_mode = luxe.SizeMode.fit;
+		dialog_batcher = Luxe.renderer.create_batcher({name:"dialog_batcher", layer:2, camera:dialog_cam.view});
+		dialog_batcher.on(phoenix.Batcher.BatcherEventType.prerender, function(_) {
+				Luxe.renderer.state.lineWidth(3);
+			});
+		dialog_batcher.on(phoenix.Batcher.BatcherEventType.postrender, function(_) {
+				Luxe.renderer.state.lineWidth(2);
+			});
 
-		//
+
+		//hackety hack hack
 		var level1 : Level = null;
 		var level2 : Level = null;
+		var level3 : Level = null;
+		var level4 : Level = null;
+		var level5 : Level = null;
+
 		level1 = new Level({
 				filename: "1_theOtherKidsFled",
 				onLevelInit : function() {
 
 					cast(level1.levelScene.get("button_openDoorCautiously"), ActionButton)
 						.onCompleteCallback = function() {
-							curLevel.hideLevel();
-							curLevel = level2;
-							curLevel.showLevel();
-							player.curTerrain = curLevel.terrain;
-							player.terrainPos = curLevel.terrain.length - 100;
+							switchLevels(level2, -100);
 						}
 
-					curLevel = level1;
-					curLevel.showLevel();
-					player.curTerrain = curLevel.terrain;
-					player.terrainPos = 150;
+					switchLevels(level1,150);
 					Luxe.camera.pos.x = curLevel.terrain.points[0].x;
 					
 				}
@@ -163,13 +178,95 @@ class Main extends luxe.Game {
 				filename: "2_mahjongApt",
 				onLevelInit : function() {
 
-					var ladyDialogButton = cast(level2.levelScene.get("button_comeCloser"), ActionButton);
+					var exitButton = cast(level2.levelScene.get("button_downStairs"), ActionButton);
+					exitButton.onCompleteCallback = function() {
+						switchLevels(level3, -850);
+					}
 
+					var ladyDialogButton = cast(level2.levelScene.get("button_comeCloser"), ActionButton);
 					ladyDialogButton.onCompleteCallback = function() {
-							var focusPos = Vector.Add(ladyDialogButton.pos, new Vector(100,100));
+							var focusPos = Vector.Add(ladyDialogButton.pos, new Vector(100,150));
 							enterDialog("dialog_ladies", focusPos);
+							onExitDialogCallback = function() {
+								exitButton.active = true;
+							}
 						};
 
+				},
+				onShowLevel : function() {
+					var exitButton = cast(level2.levelScene.get("button_downStairs"), ActionButton);
+					exitButton.active = false;
+				}
+			});
+
+		/*
+			- TODO
+			X thick line width only on dialog
+			- get colors right
+			- pull button colors
+			X button appear animation is annoying
+			X slow zoom as you move across street level
+			- hook up exit / entrance buttons for some directions
+		*/
+
+		level3 = new Level({
+				filename: "3_street_b",
+				onLevelInit: function() {
+					var enterBakeryButton = cast(level3.levelScene.get("button_enterBakery"), ActionButton);
+					enterBakeryButton.onCompleteCallback = function() {
+						switchLevels(level4, 10);
+					}
+				},
+				onLevelUpdate: function(dt:Float) {
+					var d = (player.terrainPos / level3.terrain.length);
+					Luxe.camera.zoom = 1 - (0.75 * d);
+				},
+				onHideLevel: function() {
+					Luxe.camera.zoom = 1;
+				}
+			});
+
+		level4 = new Level({
+				filename: "4_bagelEntrance_b",
+				onLevelInit: function() {
+					var enterBackButton = cast(level4.levelScene.get("button_enterBackBakery"),ActionButton);
+					enterBackButton.onCompleteCallback = function() {
+						switchLevels(level5,10);
+					}
+
+					var leaveButton = cast(level4.levelScene.get("button_exitBakery"),ActionButton);
+
+					var helloButton = cast(level4.levelScene.get("button_hello"),ActionButton);
+					helloButton.onCompleteCallback = function() {
+						var focusPos = Vector.Add(helloButton.pos, new Vector(0,100));
+						enterDialog("dialog_isAnyoneThere", focusPos);
+					}
+				}
+			});
+
+		level5 = new Level({
+				filename: "5_bagelBakery_b",
+				onShowLevel: function() {
+					var bb2 = cast(level5.levelScene.get("button_eatBagel2"),ActionButton);
+					var bb3 = cast(level5.levelScene.get("button_eatBagel3"),ActionButton);
+					bb2.active = false;
+					bb3.active = false;
+				},
+				onLevelInit: function() {
+					var bb1 = cast(level5.levelScene.get("button_eatBagel1"),ActionButton);
+					var bb2 = cast(level5.levelScene.get("button_eatBagel2"),ActionButton);
+					var bb3 = cast(level5.levelScene.get("button_eatBagel3"),ActionButton);
+					bb1.onCompleteCallback = function() { 
+						bb2.active = true; 
+						Actuate.tween(Luxe.camera, 0.6, {zoom:1.2});
+					}
+					bb2.onCompleteCallback = function() { 
+						bb3.active = true; 
+						Actuate.tween(Luxe.camera, 0.6, {zoom:1.4});
+					}
+					bb3.onCompleteCallback = function() { 
+						Actuate.tween(Luxe.camera, 0.6, {zoom:1.6});
+					}
 				}
 			});
 
@@ -178,6 +275,19 @@ class Main extends luxe.Game {
 		Actuate.tween(this, 0.6, {dialogPullArrowBounce:10}).repeat().reflect();
 	} //ready
 
+	function switchLevels(level:Level, terrainPos:Float) {
+		if (curLevel != null) curLevel.hideLevel();
+		curLevel = level;
+		curLevel.showLevel();
+		player.curTerrain = curLevel.terrain;
+		if (terrainPos >= 0) {
+			player.terrainPos = terrainPos;
+		}
+		else {
+			player.terrainPos = curLevel.terrain.length + terrainPos;
+		}
+	}
+
 	function enterDialog(dialogFile:String, focusPos:Vector) {
 		Actuate.tween(Luxe.camera, 1.0, {zoom:1.5});
 		var load = Luxe.resources.load_json('assets/' + dialogFile);
@@ -185,13 +295,24 @@ class Main extends luxe.Game {
 				Actuate.tween(Luxe.camera.pos, 1.0, {x:focusPos.x - Luxe.screen.w/2, y:focusPos.y - Luxe.screen.h/2})
 					.onComplete(function() {
 						var json = jsonRes.asset.json;
+						/*
 						var worldPos = Luxe.camera.screen_point_to_world(new Vector(100,150));
 						trace(worldPos);
+						*/
+						/*
 						curDialog = new Dialog({
 							pos: worldPos,
 							dialogWidth: widthInWorldPixels-250,
 							wordHeight: 65,
 							scale: new Vector(0.66,0.66)
+						}).fromJson(json);
+						*/
+
+						curDialog = new Dialog({
+							pos: new Vector(100,150),
+							dialogWidth: widthInWorldPixels-250,
+							wordHeight: 65,
+							batcher: dialog_batcher
 						}).fromJson(json);
 
 						curDialog.beginDialog();
@@ -343,7 +464,7 @@ class Main extends luxe.Game {
 			//draw down arrow
 			var s = 1.0;
 			if (Luxe.input.mousedown(1)) s = 2.0;
-			var arrowPos = Luxe.camera.screen_point_to_world(Luxe.screen.mid);
+			var arrowPos = new Vector(widthInWorldPixels/2,heightInWorldPixels/2); //Luxe.camera.screen_point_to_world(Luxe.screen.mid);
 			arrowPos.y -= dialogPullDist;
 
 			if (!Luxe.input.mousedown(1)) {
@@ -354,14 +475,15 @@ class Main extends luxe.Game {
 					solid: true,
 					pos: arrowPos,
 					points: [
-						new Vector(0,8),
-						new Vector(-16, -8),
-						new Vector(16, -8)
+						new Vector(0,10),
+						new Vector(-20, -10),
+						new Vector(20, -10)
 					],
 					color: new Color(0,0,0),
 					depth: 200,
 					scale: new Vector(s,s),
-					immediate: true
+					immediate: true,
+					batcher: dialog_batcher
 				});
 
 			//down arrow logic
@@ -375,6 +497,10 @@ class Main extends luxe.Game {
 					isDialogMode = curDialog.showNext();
 					if (!isDialogMode) {
 						Actuate.tween(Luxe.camera, 0.5, {zoom:1.0});
+						if (onExitDialogCallback != null) {
+							onExitDialogCallback();
+							onExitDialogCallback = null; //you have to specify it --- yeah this will likely cause me smack myself later, but whatever
+						}
 					}
 				}
 

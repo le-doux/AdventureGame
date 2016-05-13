@@ -856,7 +856,7 @@
     ],
     "illustration2": [],
     "type": "action",
-    "outro": "FillScreen",
+    "outro": “Disappear”,
     "startSize": 1,
     "name": "button_hello",
     "illustrationColor": {

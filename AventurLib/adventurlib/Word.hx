@@ -20,9 +20,12 @@ class Word extends Visual {
 	public var width (default, null) : Float; //computed
 	public var height (default, set) : Float;
 
+	private var _batcher : phoenix.Batcher;
+
 	public override function new (_options:WordOptions) {
 		_options.no_geometry = true; //doesn't have its own geometry (switch to Entity?)
 		super(_options);
+		_batcher = _options.batcher;
 		if (_options.strokes != null) initStrokes(_options);
 	}
 
@@ -111,7 +114,7 @@ class Word extends Visual {
 		for (j in cast(json.strokes, Array<Dynamic>)) {
 			var p = new Polystroke(
 							{
-								batcher:Luxe.renderer.batcher,
+								batcher: (_batcher != null) ? _batcher : Luxe.renderer.batcher,
 								depth:200, //arbitrary,
 								color: new Color(0,0,0) //hack
 							},

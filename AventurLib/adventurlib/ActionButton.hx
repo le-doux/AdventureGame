@@ -292,7 +292,7 @@ class ActionButton extends Visual {
 		isEditing = false; //hack?
 		curSize = 0;
 		return Actuate.tween(this, 1.0, {curSize: startSize})
-					.ease(luxe.tween.easing.Bounce.easeOut);
+					.ease(luxe.tween.easing.Cubic.easeOut);
 	}
 
 	public function animateLeave() : IGenericActuator {

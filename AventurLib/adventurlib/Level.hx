@@ -12,6 +12,9 @@ typedef LevelOptions = {
 	> EntityOptions,
 	var filename : String;
 	@:optional var onLevelInit : Dynamic;
+	@:optional var onShowLevel : Dynamic;
+	@:optional var onHideLevel : Dynamic;
+	@:optional var onLevelUpdate : Float->Void;
 }
 
 //TODO: give each level its own scene (maybe extend from scene?)
@@ -23,6 +26,10 @@ class Level extends Entity {
 	public var buttons : Array<ActionButton> = [];
 
 	var onLevelInit : Dynamic;
+	var onShowLevel : Dynamic;
+	var onHideLevel : Dynamic;
+	var onLevelUpdate : Float->Void;
+
 	var terrainColor : Color;
 	var backgroundColor : Color;
 
@@ -31,13 +38,19 @@ class Level extends Entity {
 	public override function new(_options:LevelOptions) {
 		super(_options);
 		levelScene = new Scene(_options.filename); //new scene w/ same name as file name
-		loadLevelFromFile(_options.filename);
 		if (_options.onLevelInit != null) onLevelInit = _options.onLevelInit;
+		if (_options.onShowLevel != null) onShowLevel = _options.onShowLevel;
+		if (_options.onHideLevel != null) onHideLevel = _options.onHideLevel;
+		if (_options.onLevelUpdate != null) onLevelUpdate = _options.onLevelUpdate;
+		loadLevelFromFile(_options.filename);
 	}
 
 	function loadLevelFromFile(levelname) {
+		trace("! " + levelname);
 		var load = Luxe.resources.load_json('assets/' + levelname);
 		load.then(function(jsonRes : JSONResource) {
+
+			trace(levelname);
 
 			var json = jsonRes.asset.json;
 
@@ -48,6 +61,7 @@ class Level extends Entity {
 			//Luxe.renderer.clear_color = backgroundColor;
 
 			//rehydrate terrain
+			if (levelname == "4_bagelEntrance_b") trace(json.terrain);
 			terrain = new Terrain();
 			terrain.fromJson(json.terrain);
 
@@ -92,6 +106,8 @@ class Level extends Entity {
 			b.active = false;
 			b.visible = false;
 		}
+		if (onHideLevel != null) onHideLevel();
+		this.active = false;
 	}
 
 	public function showLevel() {
@@ -105,6 +121,8 @@ class Level extends Entity {
 			b.active = true;
 			b.visible = true;
 		}
+		if (onShowLevel != null) onShowLevel();
+		this.active = true;
 	}
 
 	public function anyButtonsTouched() : Bool {
@@ -128,5 +146,7 @@ class Level extends Entity {
 				}
 			}
 		}
+
+		if (onLevelUpdate != null) onLevelUpdate(dt);
 	}
 }

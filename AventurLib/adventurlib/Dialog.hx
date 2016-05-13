@@ -1,19 +1,19 @@
 package adventurlib;
 
-import luxe.Entity;
-import luxe.options.EntityOptions;
+import luxe.Visual;
+import luxe.options.VisualOptions;
 import luxe.tween.Actuate;
 import luxe.Vector;
 
 typedef DialogOptions = {
-	> EntityOptions,
+	> VisualOptions,
 	@:optional var dialogWidth : Float;
 	@:optional var wordHeight : Float;
 	@:optional var spaceWidth : Float;
 }
 
 //TOOD: make this a real class
-class Dialog extends Entity {
+class Dialog extends Visual {
 	public var curSentence (get,null) : Array<Word>;
 	var sentences : Array<Array<Word>> = [];
 	var sentenceIndex = 0;
@@ -24,8 +24,12 @@ class Dialog extends Entity {
 
 	public var isAnimationInProgress = false;
 
+	private var _batcher : phoenix.Batcher;
+
 	public override function new(options:DialogOptions) {
+		options.no_geometry = true;
 		super(options);
+		_batcher = options.batcher;
 
 		if (options.dialogWidth != null) dialogWidth = options.dialogWidth;
 		if (options.wordHeight != null) wordHeight = options.wordHeight;
@@ -194,7 +198,13 @@ class Dialog extends Entity {
 		for (jArr in cast(json.sentences, Array<Dynamic>)) {
 			sentences.push([]);
 			for (j in cast(jArr, Array<Dynamic>)) {
-				var w = new Word({}).fromJson(j);
+				var w : Word;
+				if (_batcher != null) {
+					w = new Word({batcher:_batcher}).fromJson(j);
+				}
+				else {
+					w = new Word({}).fromJson(j);
+				}
 				addWord(w);
 			}
 			hideSentence(sentenceIndex);
