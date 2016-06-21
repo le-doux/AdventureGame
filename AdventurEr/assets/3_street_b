@@ -1,8 +1,8 @@
 {
     "sceneryColor": {
-        "b": 0.19,
-        "r": 0.95,
-        "g": 0.53
+        "b": 0.00,
+        "r": 0.80,
+        "g": 0.32
     },
     "buttons": [
         {
@@ -767,15 +767,15 @@
             "startSize": 0.7,
             "name": "button_enterBakery",
             "illustrationColor": {
-                "b": 1,
-                "r": 1,
-                "g": 1
+                "b": 0,
+                "r": 0,
+                "g": 0
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 1,
-                "r": 0,
-                "g": 0
+                "b": 0.65,
+                "r": 0.82,
+                "g": 0.95
             },
             "terrainPos": 520,
             "height": 160

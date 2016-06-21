@@ -4,6 +4,242 @@
 		"selected_items":
 		[
 			[
+				"eas",
+				"easeOut"
+			],
+			[
+				"hei",
+				"heightInWorldPixels"
+			],
+			[
+				"mi",
+				"p· mid	luxe.Vector"
+			],
+			[
+				"dial",
+				"dialog_cam"
+			],
+			[
+				"b",
+				"p· batcher	Null<phoenix.Batcher>"
+			],
+			[
+				"ba",
+				"p· batchers	Array<phoenix.Batcher>"
+			],
+			[
+				"lin",
+				"lineWidth"
+			],
+			[
+				"dialog_",
+				"dialog_cam"
+			],
+			[
+				"B",
+				"p· Batcher	Batcher"
+			],
+			[
+				"onl",
+				"onLevelUpdate"
+			],
+			[
+				"ac",
+				"active"
+			],
+			[
+				"onLevel",
+				"onShowLevel"
+			],
+			[
+				"ter",
+				"terrain"
+			],
+			[
+				"lv",
+				"level5"
+			],
+			[
+				"hell",
+				"helloButton"
+			],
+			[
+				"switc",
+				"switchLevels"
+			],
+			[
+				"swit",
+				"switchLevels"
+			],
+			[
+				"tre",
+				"terrainPos"
+			],
+			[
+				"Ac",
+				"ActionButton"
+			],
+			[
+				"re",
+				"m· reflect	luxe.tween.actuators.IGenericActuator"
+			],
+			[
+				"arro",
+				"arrowPos"
+			],
+			[
+				"width",
+				"widthInWorldPixels"
+			],
+			[
+				"Di",
+				"DialogOptions"
+			],
+			[
+				"wid",
+				"widthInWorldPixels"
+			],
+			[
+				"vel",
+				"velocity"
+			],
+			[
+				"end",
+				"endSize"
+			],
+			[
+				"sente",
+				"sentenceIndex"
+			],
+			[
+				"ad",
+				"m· add	 "
+			],
+			[
+				"inser",
+				"insertIndex"
+			],
+			[
+				"des",
+				"m· destroy	 "
+			],
+			[
+				"sen",
+				"sentenceIndex"
+			],
+			[
+				"initia",
+				"initialBounds"
+			],
+			[
+				"dia",
+				"dialogPullDist"
+			],
+			[
+				"di",
+				"dialogPullDist"
+			],
+			[
+				"scroll",
+				"scrollInput"
+			],
+			[
+				"scre",
+				"screenCenter"
+			],
+			[
+				"wo",
+				"m· screen_point_to_world	luxe.Vector"
+			],
+			[
+				"dialog",
+				"dialogFile"
+			],
+			[
+				"test",
+				"testDialog"
+			],
+			[
+				"Dia",
+				"Dialogs"
+			],
+			[
+				"File",
+				"FileOutput"
+			],
+			[
+				"file",
+				"m· file_write	Int"
+			],
+			[
+				"mo",
+				"p· module	snow.types.ModuleIO"
+			],
+			[
+				"Wo",
+				"Word"
+			],
+			[
+				"to",
+				"m· toJson	 "
+			],
+			[
+				"jsonS",
+				"jsonSentences"
+			],
+			[
+				"Wor",
+				"Word"
+			],
+			[
+				"len",
+				"length"
+			],
+			[
+				"show",
+				"showSentence"
+			],
+			[
+				"anim",
+				"animateSentence"
+			],
+			[
+				"cl",
+				"m· clear	 "
+			],
+			[
+				"anima",
+				"animateSentenceControl"
+			],
+			[
+				"spac",
+				"spaceWidth"
+			],
+			[
+				"word",
+				"wordPos"
+			],
+			[
+				"add",
+				"m· addWord	 "
+			],
+			[
+				"a",
+				"m· add	add.T"
+			],
+			[
+				"he",
+				"height"
+			],
+			[
+				"draw",
+				"drawIncomplete"
+			],
+			[
+				"Entit",
+				"EntityOptions"
+			],
+			[
 				"comp",
 				"p· components	luxe.structural.OrderedMap_String_luxe_Component"
 			],
@@ -152,20 +388,12 @@
 				"EmojiSpriteOptions"
 			],
 			[
-				"to",
-				"m· toLowerCase	String"
-			],
-			[
 				"load",
 				"m· loadImageFromShortname	 "
 			],
 			[
 				"subt",
 				"m· substring	String"
-			],
-			[
-				"re",
-				"p· resources	luxe.Resources"
 			],
 			[
 				"image",
@@ -194,14 +422,6 @@
 			[
 				"new",
 				"newWord"
-			],
-			[
-				"word",
-				"wordPos"
-			],
-			[
-				"hei",
-				"heightAboveBaseline"
 			],
 			[
 				"P0",
@@ -264,10 +484,6 @@
 				"pullDist"
 			],
 			[
-				"wo",
-				"m· screen_point_to_world	luxe.Vector"
-			],
-			[
 				"isAp",
 				"isAppeared"
 			],
@@ -292,238 +508,94 @@
 				"m· triggerDisappear	 "
 			],
 			[
-				"ter",
-				"p· terrainPos	Float"
-			],
-			[
 				"d",
 				"m· drawImmediate	 "
 			],
 			[
 				"act",
 				"actionButtons"
-			],
-			[
-				"ac",
-				"actionButtons"
-			],
-			[
-				"vel",
-				"velocityX"
-			],
-			[
-				"maxd",
-				"maxDistAheadOfPlayer"
-			],
-			[
-				"sp",
-				"p· edgeSpring	{ velocityX : Float, springConstant : Float, maxDist : Float }"
-			],
-			[
-				"off",
-				"offsetX"
-			],
-			[
-				"dis",
-				"distancePastEdge"
-			],
-			[
-				"camera",
-				"cameraDistancePastBounds"
-			],
-			[
-				"camerad",
-				"cameraDistancePastBounds"
-			],
-			[
-				"camer",
-				"cameraDistanceInBounds"
-			],
-			[
-				"cameradi",
-				"cameraDistancePastBounds"
-			],
-			[
-				"bl",
-				"m· movingBlockedDirection	Bool"
-			],
-			[
-				"direc",
-				"directionOfMovement"
-			],
-			[
-				"dire",
-				"directionOfMovement"
-			],
-			[
-				"min",
-				"m· min	Float"
-			],
-			[
-				"len",
-				"length-1"
-			],
-			[
-				"velo",
-				"velocityX"
-			],
-			[
-				"leng",
-				"length-1"
-			],
-			[
-				"lef",
-				"leftoverDist"
-			],
-			[
-				"clo",
-				"closestIndexToLeft"
-			],
-			[
-				"si",
-				"p· size	luxe.Vector"
-			],
-			[
-				"size",
-				"p· size_mode	luxe.SizeMode"
-			],
-			[
-				"po",
-				"p· pos	luxe.Vector"
-			],
-			[
-				"widh",
-				"widthToHeight"
-			],
-			[
-				"view",
-				"p· viewport	luxe.Rectangle"
-			],
-			[
-				"viw",
-				"p· viewport	luxe.Rectangle"
-			],
-			[
-				"zoom",
-				"zoomForCorrectWidth"
-			],
-			[
-				"wid",
-				"widthInWorldPixels"
-			],
-			[
-				"wi",
-				"widthInWorldPixels"
-			],
-			[
-				"he",
-				"heightInWorldPixels"
-			],
-			[
-				"des",
-				"m· destroy	 "
-			],
-			[
-				"scen",
-				"scenery"
-			],
-			[
-				"scne",
-				"sceneryColor"
-			],
-			[
-				"scene",
-				"scenery"
-			],
-			[
-				"b",
-				"batcher"
-			],
-			[
-				"g",
-				"m· getJson	 "
-			],
-			[
-				"se",
-				"m· setFromJson	luxe.Color"
-			],
-			[
-				"buildT",
-				"buildTerrainAlongLine"
-			],
-			[
-				"preV",
-				"prevCursorPos"
-			],
-			[
-				"pre",
-				"prev_world_point"
-			],
-			[
-				"build",
-				"m· buildTerrainAlongLine	Terrain"
-			],
-			[
-				"Ter",
-				"Terrain"
-			],
-			[
-				"close",
-				"m· closestPointToWorldPos	luxe.Vector"
-			],
-			[
-				"clos",
-				"m· closestPointToWorldPos	luxe.Vector"
-			],
-			[
-				"Terr",
-				"TerrainEditor"
-			],
-			[
-				"setF",
-				"m· setFromJson	luxe.Vector"
-			],
-			[
-				"cl",
-				"m· closestIndexToTerrainPos	Int"
-			],
-			[
-				"scre",
-				"screen_point"
-			],
-			[
-				"Fi",
-				"p· FileSystem	FileSystem"
-			],
-			[
-				"C",
-				"p· Color	Color"
-			],
-			[
-				"Terrain",
-				"TerrainSaveData"
-			],
-			[
-				"Terra",
-				"TerrainSaveData"
-			],
-			[
-				"cle",
-				"clearLevel1SceneryHack"
-			],
-			[
-				"level1",
-				"level1Scenery"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
+			"file": "AdventurEr/adventurer.flow",
+			"settings":
+			{
+				"buffer_size": 327,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AdventurEd/src/Main.hx",
+			"settings":
+			{
+				"buffer_size": 8883,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AdventurEr/src/Main.hx",
+			"settings":
+			{
+				"buffer_size": 16280,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AdventurEr/assets/3_street_b",
+			"settings":
+			{
+				"buffer_size": 471048,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AdventurEr/assets/2_mahjongApt",
+			"settings":
+			{
+				"buffer_size": 361041,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AdventurEr/assets/4_bagelEntrance_b",
+			"settings":
+			{
+				"buffer_size": 603933,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AdventurEr/assets/5_bagelBakery_b",
+			"settings":
+			{
+				"buffer_size": 679019,
+				"line_ending": "Unix"
+			}
+		},
+		{
 			"file": "DialogWriter/dialogwriter.flow",
 			"settings":
 			{
-				"buffer_size": 333,
+				"buffer_size": 361,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AventurLib/adventurlib/ActionButton.hx",
+			"settings":
+			{
+				"buffer_size": 11358,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AventurLib/adventurlib/Level.hx",
+			"settings":
+			{
+				"buffer_size": 4125,
 				"line_ending": "Unix"
 			}
 		},
@@ -531,7 +603,39 @@
 			"file": "DialogWriter/src/Main.hx",
 			"settings":
 			{
-				"buffer_size": 5258,
+				"buffer_size": 4497,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AventurLib/adventurlib/Dialog.hx",
+			"settings":
+			{
+				"buffer_size": 5244,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AventurLib/adventurlib/Avatar.hx",
+			"settings":
+			{
+				"buffer_size": 1578,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AdventurEr/src/ScrollInputHandler.hx",
+			"settings":
+			{
+				"buffer_size": 1748,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AventurLib/adventurlib/Word.hx",
+			"settings":
+			{
+				"buffer_size": 3818,
 				"line_ending": "Unix"
 			}
 		}
@@ -709,6 +813,16 @@
 	},
 	"file_history":
 	[
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/adventuregame.sublime-workspace",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/5_bagelBakery_b",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/4_bagelEntrance_b",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/2_mahjongApt",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/3_street_b",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEd/assets/4_bagelEntrance_b",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEd/assets/4_bagelEntrance_c",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEd/assets/4_bagelEntrance",
+		"/Users/adamrossledoux/Code/Haxe/SVGPrototype/assets/testvex.json",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/1_theOtherKidsFled",
 		"/Users/adamrossledoux/Code/haxelib/luxe/git/luxe/Component.hx",
 		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/assets/emojione/emoji_strategy.json",
 		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/assets/emojione/emoji.json",
@@ -826,21 +940,11 @@
 		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/makefile",
 		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/main.cpp",
 		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/03_event_driven_programming.cpp",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/main.cpp",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/makefile",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/make",
-		"/Users/adamrossledoux/Code/C++/openframeworks/examples/3d/3DPrimitivesExample/3DPrimitivesExample.sublime-project",
-		"/Users/adamrossledoux/Library/Application Support/Sublime Text 3/Packages/User/xcode.sublime-build",
-		"/Users/adamrossledoux/Code/openframeworks/INSTALL.md",
-		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/VectorExtender.hx",
-		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/Player.hx",
-		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/Planet.hx",
-		"/Users/adamrossledoux/Code/Haxe/StarSlam/project.flow",
-		"/Users/adamrossledoux/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings"
+		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/main.cpp"
 	],
 	"find":
 	{
-		"height": 23.0
+		"height": 35.0
 	},
 	"find_in_files":
 	{
@@ -860,6 +964,27 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"disappear",
+			"button_",
+			"backgroundColor",
+			"bounce",
+			"Luxe.camera.pos",
+			"terrainColor",
+			"terrainCo",
+			"color",
+			"Luxe.draw.circle",
+			"camera.pos",
+			"depth",
+			"isCoasting",
+			"changeVelocity",
+			"dialogmode",
+			"backgroundColor",
+			"backgrou",
+			"backgroundColor",
+			"Color",
+			"trace",
+			"isanimationinprogress",
+			"curDialog",
 			"\"category",
 			"curIndex",
 			",\"aliases_ascii\":\\[(.*?)\\],",
@@ -966,28 +1091,7 @@
 			"cast",
 			"generateFrameFrom",
 			"trace",
-			"childPins",
-			"removebones",
-			"addbones",
-			"\"Rigging\"",
-			"boneList",
-			"boneListMap",
-			"update",
-			"componentmanager.",
-			"mapMeshToboneList",
-			"Animation",
-			"multiselectbones",
-			"boneArray = ",
-			"skeleton",
-			"boneBatcher",
-			"add_batch",
-			"batcher",
-			"boneBatcher",
-			"selectBone",
-			"drawer",
-			"shapedraw",
-			"bonebatcher",
-			"activatelayer"
+			"childPins"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1055,24 +1159,24 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 2,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "DialogWriter/dialogwriter.flow",
+					"file": "AdventurEr/adventurer.flow",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 333,
+						"buffer_size": 327,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								266,
+								266
 							]
 						],
 						"settings":
@@ -1090,19 +1194,19 @@
 				},
 				{
 					"buffer": 1,
-					"file": "DialogWriter/src/Main.hx",
+					"file": "AdventurEd/src/Main.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 5258,
+						"buffer_size": 8883,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								415,
+								415
 							]
 						],
 						"settings":
@@ -1114,7 +1218,396 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "AdventurEr/src/Main.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16280,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								635,
+								635
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 388.0,
+						"zoom_level": 1.0
+					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "AdventurEr/assets/3_street_b",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 471048,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								28375,
+								28375
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 11183.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "AdventurEr/assets/2_mahjongApt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 361041,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								60626,
+								60626
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 23858.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "AdventurEr/assets/4_bagelEntrance_b",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 603933,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								282353,
+								282353
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 114563.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "AdventurEr/assets/5_bagelBakery_b",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 679019,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								30122,
+								30129
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 12563.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 1,
+			"sheets":
+			[
+				{
+					"buffer": 7,
+					"file": "DialogWriter/dialogwriter.flow",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 361,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								307,
+								307
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_flow/flow-file.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "AventurLib/adventurlib/ActionButton.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11358,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7744,
+								7744
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 4747.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "AventurLib/adventurlib/Level.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4125,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3833,
+								3833
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1586.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "DialogWriter/src/Main.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4497,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1355,
+								1355
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 12,
+					"type": "text"
+				},
+				{
+					"buffer": 11,
+					"file": "AventurLib/adventurlib/Dialog.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5244,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								610,
+								611
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "AventurLib/adventurlib/Avatar.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1578,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1137,
+								1137
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "AdventurEr/src/ScrollInputHandler.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1748,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								895,
+								895
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 74.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "AventurLib/adventurlib/Word.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3818,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3451,
+								3451
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
 					"type": "text"
 				}
 			]
@@ -1137,11 +1630,18 @@
 				0,
 				1,
 				1
+			],
+			[
+				1,
+				0,
+				2,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
+			0.888366699219,
 			1.0
 		],
 		"rows":
@@ -1153,7 +1653,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 376.0
+		"height": 294.0
 	},
 	"output.find_results":
 	{
@@ -1190,10 +1690,98 @@
 	},
 	"select_symbol":
 	{
-		"height": 247.0,
-		"last_filter": "new",
+		"height": 87.0,
+		"last_filter": "disapp",
 		"selected_items":
 		[
+			[
+				"disapp",
+				"animateDisappear"
+			],
+			[
+				"on",
+				"onwindowresized"
+			],
+			[
+				"enterd",
+				"enterDialog"
+			],
+			[
+				"enter",
+				"enterDialog"
+			],
+			[
+				"enterdi",
+				"enterDialog"
+			],
+			[
+				"up",
+				"update"
+			],
+			[
+				"animatea",
+				"animateAppear"
+			],
+			[
+				"dialogl",
+				"dialogLogic"
+			],
+			[
+				"enterD",
+				"enterDialog"
+			],
+			[
+				"upd",
+				"update"
+			],
+			[
+				"showl",
+				"showLevel"
+			],
+			[
+				"insertp",
+				"insertPoint"
+			],
+			[
+				"set",
+				"set_height"
+			],
+			[
+				"addwo",
+				"addWord"
+			],
+			[
+				"set_v",
+				"set_visible"
+			],
+			[
+				"animateou",
+				"animateOutro"
+			],
+			[
+				"mouse",
+				"onmousedown"
+			],
+			[
+				"drawin",
+				"drawIncomplete"
+			],
+			[
+				"beg",
+				"beginDialog"
+			],
+			[
+				"shown",
+				"showNext"
+			],
+			[
+				"hide",
+				"hideSentence"
+			],
+			[
+				"test",
+				"startDialogTest"
+			],
 			[
 				"new",
 				"new"
@@ -1233,10 +1821,6 @@
 			[
 				"update",
 				"update"
-			],
-			[
-				"animateou",
-				"animateOutro"
 			],
 			[
 				"animated",
@@ -1303,20 +1887,12 @@
 				"randomWaveStartingPosition"
 			],
 			[
-				"up",
-				"update"
-			],
-			[
 				"upda",
 				"update"
 			],
 			[
 				"wave",
 				"waveUpdate"
-			],
-			[
-				"upd",
-				"update"
 			],
 			[
 				"ready",
@@ -1333,10 +1909,6 @@
 			[
 				"neww",
 				"startNewWave"
-			],
-			[
-				"on",
-				"on_quit"
 			],
 			[
 				"re",
@@ -1465,10 +2037,6 @@
 			[
 				"allChil",
 				"allChildPins"
-			],
-			[
-				"set",
-				"set_data"
 			],
 			[
 				"regi",
@@ -1619,10 +2187,6 @@
 				"enterPlayMode"
 			],
 			[
-				"enter",
-				"enterPlayMode"
-			],
-			[
 				"play",
 				"PlayState"
 			],
@@ -1641,70 +2205,6 @@
 			[
 				"drawf",
 				"drawFileName"
-			],
-			[
-				"drawhel",
-				"drawHelpText"
-			],
-			[
-				"act",
-				"activateLayerNavigator"
-			],
-			[
-				"drawla",
-				"drawLayerNavigator"
-			],
-			[
-				"helpm",
-				"setHelpMessage"
-			],
-			[
-				"hel",
-				"helpMessage"
-			],
-			[
-				"ung",
-				"ungroupLayers"
-			],
-			[
-				"gotolay",
-				"goToLayer"
-			],
-			[
-				"keyd",
-				"onkeydown"
-			],
-			[
-				"groupla",
-				"groupLayers"
-			],
-			[
-				"wip",
-				"wipeCurrentScene"
-			],
-			[
-				"groupl",
-				"groupLayers"
-			],
-			[
-				"undo",
-				"undo"
-			],
-			[
-				"keydo",
-				"onkeydown"
-			],
-			[
-				"editg",
-				"editGroup"
-			],
-			[
-				"exitg",
-				"exitCurrentGroup"
-			],
-			[
-				"mreg",
-				"mergeGroup"
 			]
 		],
 		"width": 392.0

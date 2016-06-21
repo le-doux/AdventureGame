@@ -20,6 +20,41 @@ import haxe.Json;
 using adventurlib.ColorExtender;
 
 /*
+NOTES:
+- need player size reference in level editor :/
+- need to fix level editor click bug after losing focus >:(
+- need to have erase strokes in level editor
+///
+how do we light the candles?
+how do we do following family members?
+*/
+
+/*
+v0
+- create all locations
+- hook them up w/ buttons
+*/
+
+/*
+- player sprite change
+- hook up exit room buttons
+- diagnose iOS lag
+scenes:
+- old world house
+- old world town
+- bagel bakery with bakers to talk to (2 scenes)
+- //
+- apartment with note
+- subway station
+- golem cave
+special effects:
+- match
+- dragon
+- boat
+- drive golem?
+*/
+
+/*
 TODO DEMO:
 - create more levels
 	X- the street
@@ -118,6 +153,12 @@ class Main extends luxe.Game {
 	var dialog_cam : luxe.Camera;
 	var dialog_batcher : phoenix.Batcher;
 
+	// BALL
+	var ball : phoenix.geometry.Geometry;
+	var ballRadius = 10.0;
+	var ballVelocity = new Vector(40,40);
+	// BALL
+
 	override function ready() {
 		instance = this;
 
@@ -152,6 +193,19 @@ class Main extends luxe.Game {
 			});
 
 
+		// TEST LEVEL
+		var leveltest = new Level({
+			terrainPoints: [new Vector(0,0), new Vector(200,20), new Vector(400,40), new Vector(600,30), new Vector(800,0)]
+		});
+		switchLevels(leveltest,10);
+		// TEST LEVEL
+
+
+		// TEST BALL STUFF
+		ballInit();
+		// TEST BALL STUFF
+
+
 		//hackety hack hack
 		var level1 : Level = null;
 		var level2 : Level = null;
@@ -159,6 +213,7 @@ class Main extends luxe.Game {
 		var level4 : Level = null;
 		var level5 : Level = null;
 
+		/*
 		level1 = new Level({
 				filename: "1_theOtherKidsFled",
 				onLevelInit : function() {
@@ -168,7 +223,7 @@ class Main extends luxe.Game {
 							switchLevels(level2, -100);
 						}
 
-					switchLevels(level1,150);
+					//switchLevels(level1,150);
 					Luxe.camera.pos.x = curLevel.terrain.points[0].x;
 					
 				}
@@ -198,16 +253,6 @@ class Main extends luxe.Game {
 					exitButton.active = false;
 				}
 			});
-
-		/*
-			- TODO
-			X thick line width only on dialog
-			- get colors right
-			- pull button colors
-			X button appear animation is annoying
-			X slow zoom as you move across street level
-			- hook up exit / entrance buttons for some directions
-		*/
 
 		level3 = new Level({
 				filename: "3_street_b",
@@ -269,7 +314,7 @@ class Main extends luxe.Game {
 					}
 				}
 			});
-
+		*/
 
 		//Probably a stupid hack
 		Actuate.tween(this, 0.6, {dialogPullArrowBounce:10}).repeat().reflect();
@@ -457,6 +502,10 @@ class Main extends luxe.Game {
 		});
 		*/
 
+		// BALL
+		ballUpdate(dt);
+		// BALL
+
 	} //update
 
 	function dialogLogic() {
@@ -563,6 +612,51 @@ class Main extends luxe.Game {
 		var centerX = player.pos.x - 10 - (Luxe.screen.w/2);
 		Luxe.camera.pos.x = centerX + camera.offsetX;
 		Luxe.camera.pos.y = (player.pos.y + 60) - (Luxe.screen.height * 0.66);
+	}
+
+	function ballInit() {
+		ball = Luxe.draw.circle({
+				r : ballRadius,
+				color : new Color(1,0,0),
+				pos : Luxe.screen.mid
+			});
+	}
+
+	function ballUpdate(dt : Float) {
+		ball.transform.pos.add( Vector.Multiply(ballVelocity, dt) );
+
+		//bounce off screen edges
+		var left = Luxe.camera.pos.x;
+		var top = Luxe.camera.pos.y;
+		var right = Luxe.camera.pos.x + Luxe.screen.width;
+		var bottom = Luxe.camera.pos.y + Luxe.screen.height;
+		if (ball.transform.pos.x < left) {
+			trace("wall left");
+			ball.transform.pos.x = left;
+			ballVelocity = reflectVectorByNormal( ballVelocity, new Vector(1,0,0) );
+		}
+		else if (ball.transform.pos.x > right) {
+			trace("wall right");
+			ball.transform.pos.x = right;
+			ballVelocity = reflectVectorByNormal( ballVelocity, new Vector(-1,0,0) );	
+		}
+		if (ball.transform.pos.y < top) {
+			trace("wall up");
+			ball.transform.pos.y = top;
+			ballVelocity = reflectVectorByNormal( ballVelocity, new Vector(0,1,0) );
+		}
+		else if (ball.transform.pos.y > bottom) {
+			trace("wall down");
+			ball.transform.pos.y = bottom;
+			ballVelocity = reflectVectorByNormal( ballVelocity, new Vector(0,-1,0) );	
+		}
+	}
+
+	function reflectVectorByNormal(v : Vector, n : Vector) : Vector {
+		var lengthAlongNormal = n.dot(v);
+		var normalComponentV = Vector.Multiply(n, lengthAlongNormal);
+		var reflectV = Vector.Subtract( v, Vector.Multiply( normalComponentV, 2) );
+		return reflectV;
 	}
 
 

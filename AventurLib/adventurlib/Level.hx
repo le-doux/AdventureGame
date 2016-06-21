@@ -5,16 +5,18 @@ import luxe.Color;
 import luxe.Scene;
 import luxe.options.EntityOptions;
 import luxe.resource.Resource.JSONResource;
+import luxe.Vector;
 
 using adventurlib.ColorExtender;
 
 typedef LevelOptions = {
 	> EntityOptions,
-	var filename : String;
+	@:optional var filename : String;
 	@:optional var onLevelInit : Dynamic;
 	@:optional var onShowLevel : Dynamic;
 	@:optional var onHideLevel : Dynamic;
 	@:optional var onLevelUpdate : Float->Void;
+	@:optional var terrainPoints : Array<Vector>;
 }
 
 //TODO: give each level its own scene (maybe extend from scene?)
@@ -42,7 +44,13 @@ class Level extends Entity {
 		if (_options.onShowLevel != null) onShowLevel = _options.onShowLevel;
 		if (_options.onHideLevel != null) onHideLevel = _options.onHideLevel;
 		if (_options.onLevelUpdate != null) onLevelUpdate = _options.onLevelUpdate;
-		loadLevelFromFile(_options.filename);
+		if (_options.filename != null) loadLevelFromFile(_options.filename);
+		if (_options.terrainPoints != null) {
+			terrain = new Terrain();
+			terrain.points = _options.terrainPoints;
+			terrainColor = new Color(1,1,1);
+			backgroundColor = new Color(0,0,0.5);
+		}
 	}
 
 	function loadLevelFromFile(levelname) {

@@ -865,7 +865,7 @@
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 1,
+                "b": 0,
                 "r": 0,
                 "g": 0
             },
@@ -2464,7 +2464,7 @@
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 1,
+                "b": 0,
                 "r": 0,
                 "g": 0
             },
@@ -4139,7 +4139,7 @@
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 1,
+                "b": 0,
                 "r": 0,
                 "g": 0
             },

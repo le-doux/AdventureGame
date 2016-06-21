@@ -326,9 +326,9 @@ class ActionButton extends Visual {
 		Actuate.tween(this, 0.3, {curSize: (endSize * 1.1)})
 				.ease(luxe.tween.easing.Quad.easeOut)
 				.onComplete(function() {
-					Actuate.tween(this, 1.0, {curSize: 0})
-							.delay(1.0)
-							.ease(luxe.tween.easing.Elastic.easeIn)
+					Actuate.tween(this, 0.4, {curSize: 0})
+							.delay(0.4)
+							.ease(luxe.tween.easing.Cubic.easeOut)
 							.onComplete(function() {
 								if (onCompleteCallback != null) {
 									onCompleteCallback();

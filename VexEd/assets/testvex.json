@@ -1,0 +1,56 @@
+{
+	"type" : "group",
+	"pos" : [300,200],
+	"origin" : [100,100],
+	"children" : [
+		{
+			"type" : "poly",
+			"color" : ["#ffffff"],
+			"path" : [0,0, 40,20, 60,25, 100,0, 50,-3],
+			"scale" : [2]
+		},
+		{
+			"type" : "poly",
+			"color" : ["#f00"],
+			"pos" : [20,40],
+			"path" : [0,0, 10,20, 20,0]
+		},
+		{
+			"type" : "rect",
+			"color" : ["rgb",255,255,0],
+			"pos" : [0,100],
+			"w" : 50, "h" : 10,
+			"rot" : 45
+		},
+		{
+			"type" : "ellipse",
+			"id" : "hello",
+			"pos" : [100,0],
+			"r" : [25],
+			"scale" : [1,3],
+			"color" : ["#a0f"]
+		},
+		{
+			"type" : "group",
+			"pos" : [200,200],
+			"scale" : [1,1],
+			"tags" : ["yo","taggy"],
+			"rot" : 180,
+			"children" : [
+				{
+					"type" : "ellipse",
+					"color" : ["#0ff"],
+					"r" : [20]
+				},
+				{
+					"type" : "rect",
+					"tags" : ["yo"],
+					"id" : "world",
+					"color" : ["#b0f"],
+					"w" : 20, "h" : 20,
+					"pos" : [10,10]
+				}
+			]
+		}
+	]
+}

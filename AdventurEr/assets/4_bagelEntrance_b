@@ -897,9 +897,9 @@
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 1,
-                "r": 0,
-                "g": 0
+                "b": 0.91,
+                "r": 0.41,
+                "g": 0.82
             },
             "terrainPos": 20,
             "height": 90
@@ -7665,9 +7665,9 @@
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 1,
-                "r": 0,
-                "g": 0
+                "b": 0.58,
+                "r": 0.44,
+                "g": 0.55
             },
             "terrainPos": 1216.69398907104,
             "height": 120
@@ -8534,15 +8534,15 @@
             "startSize": 0.8,
             "name": "button_hello",
             "illustrationColor": {
-                "b": 1,
-                "r": 1,
-                "g": 1
+                "b": 0,
+                "r": 0,
+                "g": 0
             },
             "endSize": 2,
             "backgroundColor": {
                 "b": 1,
-                "r": 0,
-                "g": 0
+                "r": 1,
+                "g": 1
             },
             "terrainPos": 667.5,
             "height": 240

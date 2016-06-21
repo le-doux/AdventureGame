@@ -1,0 +1,28 @@
+{
+
+  project : {
+    name : 'vexed',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'luxe_empty',
+      package : 'org.luxeengine.vexed'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        poly2trihx : '*',
+        vexlib : '*',
+        linc_dialogs : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

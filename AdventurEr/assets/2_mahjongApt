@@ -1596,7 +1596,7 @@
                 }
             ],
             "type": "action",
-            "outro": "Emphasize",
+            "outro": "FillScreen",
             "startSize": 0.6,
             "name": "button_downStairs",
             "illustrationColor": {
@@ -1606,9 +1606,9 @@
             },
             "endSize": 2,
             "backgroundColor": {
-                "b": 0.51,
-                "r": 0.23,
-                "g": 0.50
+                "b": 0.91,
+                "r": 0.41,
+                "g": 0.82
             },
             "terrainPos": 1331.66666666667,
             "height": 250

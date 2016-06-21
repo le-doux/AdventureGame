@@ -16,13 +16,13 @@ class Main extends luxe.Game {
     		new Color(0,0,1)
     	];
     	
-    	/*
-    	var load = Luxe.resources.load_json("assets/testvex2.json");
+    	// /*
+    	var load = Luxe.resources.load_json("assets/testvex.json");
     	load.then(function() {
-    			var res = Luxe.resources.json("assets/testvex2.json");
+    			var res = Luxe.resources.json("assets/testvex.json");
     			v = new Vex(res.asset.json);
     		});
-    	*/
+    	// */
     	
     } //ready
 
