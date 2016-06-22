@@ -143,6 +143,11 @@ typedef AnimateableAttributes = {
 	@:optional var animations: Array<AnimateableAttributes>;
 }
 
+typedef PaletteAttributes = {
+	@:optional var type: String;
+	@:optional var colors: Array<Array<Dynamic>>;
+}
+
 class Vex extends Visual {
 	public var attributes : Dynamic;
 
@@ -540,6 +545,18 @@ class Builder {
 			var b = ( (hexInt >> 0x0) & 0xff ) / 255;
 			return new Color(r,g,b);
 		}
+		else { //defaults
+			if (colorArr.length == 1) { //1 number == palette
+				return Vex.Palette.Colors[ colorArr[0] ];
+			}
+			else if (colorArr.length >= 2) { //3+ numbers == rgb
+				var c = new Color(colorArr[0]/255, colorArr[1]/255, colorArr[2]/255);
+				if (colorArr.length > 2) {
+					c.a = colorArr[3];
+				}
+				return c;
+			}
+		}
 		return new Color(1,1,1); //fallback
 	}
 }
@@ -552,4 +569,13 @@ class Palette {
 	// what about colors derived from the palette?
 	// should I encapsulate the actual Luxe colors?
 	public static var Colors : Array<Color>; 
+
+	//this function needs a better name --- and I need to handle multiple palettes
+	public static function Load(attributes:PaletteAttributes) {
+		Colors = [];
+		for (c in attributes.colors) {
+			Colors.push( Builder.ParseColor(c) );
+		}
+		trace(Colors);
+	}
 }

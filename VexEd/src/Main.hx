@@ -7,11 +7,15 @@ import vexlib.Vex;
 import vexlib.Vex.Palette;
 
 import sys.io.File;
-//import sys.io.FileOutput;
-//import sys.io.FileInput;
-
 import haxe.Json;
 import dialogs.Dialogs;
+import luxe.resource.Resource.JSONResource;
+
+/*
+	TODO:
+	- selection
+	- add UI layer for graphics
+*/
 
 class Main extends luxe.Game {
 
@@ -24,6 +28,8 @@ class Main extends luxe.Game {
 	var count = 0;
 
 	var isEditingId = false;
+
+	var curPalIndex = 0;
 
 	override function ready() {
 		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
@@ -44,12 +50,26 @@ class Main extends luxe.Game {
 				p0: new Vector(0, -Luxe.screen.height/2),
 				p1: new Vector(0, Luxe.screen.height/2)
 			});
+
+		//load default palette
+		var load = Luxe.resources.load_json('assets/default.pal');
+		load.then(function(jsonRes : JSONResource) {
+			var json = jsonRes.asset.json;
+			Palette.Load(json);
+		});
 	} //ready
 
 	override function ontextinput(e:TextEvent) {
+		//edit id
 		if (isEditingId) {
 			selected.attributes.id += e.text;
 		}
+
+		//change current color
+		var n = Std.parseInt(e.text);
+		if (n != null && n > 0 && n < 9) {
+			curPalIndex = n - 1;
+		} 
 	}
 
 	override function onkeydown( e:KeyEvent ) {
@@ -109,13 +129,20 @@ class Main extends luxe.Game {
 
 			//get data & write it
 			var saveJson = root.attributes;
-			var saveStr = Json.stringify(saveJson);//, null, "    ");
+			var saveStr = Json.stringify(saveJson, null, "	");
+			//saveStr = unindentLists(saveStr);
+			//trace(saveStr);
 			output.writeString(saveStr);
 
 			//close file
 			output.close();
 		}
 
+	}
+
+	function unindentLists(jsonString : String) : String {
+		//TODO
+		return jsonString;
 	}
 
 	override function onkeyup( e:KeyEvent ) {
@@ -145,7 +172,8 @@ class Main extends luxe.Game {
 			selected = new Vex({
 				type: "poly",
 				path: drawingPath,
-				id: "poly" + count
+				id: "poly" + count,
+				color: [curPalIndex]
 			});
 			//selected.parent = root;
 			root.addChild(selected);
@@ -167,6 +195,16 @@ class Main extends luxe.Game {
 	}
 
 	override function update(dt:Float) {
+		//draw cursor
+		var cursorPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
+		Luxe.draw.ring({
+				x: cursorPos.x,
+				y: cursorPos.y,
+				r: distToClosePath,
+				color: Palette.Colors[curPalIndex],
+				immediate: true
+			});
+
 		renderDrawingPath();
 
 		if (selected != null) {
@@ -187,6 +225,7 @@ class Main extends luxe.Game {
 				x: drawingPath[0],
 				y: drawingPath[1],
 				r: distToClosePath,
+				color: Palette.Colors[curPalIndex],
 				immediate: true 
 			});
 
@@ -197,6 +236,7 @@ class Main extends luxe.Game {
 					Luxe.draw.line({
 							p0: new Vector(drawingPath[i-3], drawingPath[i-2]),
 							p1: new Vector(drawingPath[i-1], drawingPath[i-0]),
+							color: Palette.Colors[curPalIndex],
 							immediate: true
 						});
 					i += 2;
