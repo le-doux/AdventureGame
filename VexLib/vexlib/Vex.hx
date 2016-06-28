@@ -82,25 +82,25 @@ class VexVisual extends Visual {
 //is this even good? necessary?
 typedef VexJsonFormat = {
 	@:optional public var type 		: Property;
-	@:optional public var id 		: String;
-	@:optional public var pos 		: String;
-	@:optional public var origin 	: String;
-	@:optional public var scale 	: String;
-	@:optional public var rot 		: String;
-	@:optional public var color 	: String;
-	@:optional public var path 		: String;
+	@:optional public var id 		: Property;
+	@:optional public var pos 		: Property;
+	@:optional public var origin 	: Property;
+	@:optional public var scale 	: Property;
+	@:optional public var rot 		: Property;
+	@:optional public var color 	: Property;
+	@:optional public var path 		: Property;
 	@:optional public var children 	: Array<VexJsonFormat>;
 }
 
 class VexPropertyInterface {
-	@vex public var type 	(default, set) : Property;
-	@vex public var id 		(default, set) : Property;
-	@vex public var pos 	(default, set) : Property;
-	@vex public var origin 	(default, set) : Property;
-	@vex public var scale 	(default, set) : Property;
-	@vex public var rot 	(default, set) : Property;
-	@vex public var color 	(default, set) : Property;
-	@vex public var path 	(default, set) : Property;
+	public var type 	(default, set) : Null<Property>;
+	public var id 		(default, set) : Null<Property>;
+	public var pos 		(default, set) : Null<Property>;
+	public var origin 	(default, set) : Null<Property>;
+	public var scale 	(default, set) : Null<Property>;
+	public var rot 		(default, set) : Null<Property>;
+	public var color 	(default, set) : Null<Property>;
+	public var path 	(default, set) : Null<Property>;
 
 	var visual : Visual;
 
@@ -108,26 +108,28 @@ class VexPropertyInterface {
 		visual = v;
 	}
 
-	public function serialize() : VexJsonFormat { //does order matter in these operations?
+	public function serialize() : VexJsonFormat {
 		var json : VexJsonFormat = {};
-		var vexFields = getVexFields();
-		while (vexFields.length > 0) {
-			var fieldName = vexFields.pop();
-			var property = Reflect.field(this, fieldName);
-			Reflect.setField(json, fieldName, property);
-		}
+		if (type != null) json.type = type;
+		if (id != null) json.id = id;
+		if (pos != null) json.pos = pos;
+		if (origin != null) json.origin = origin;
+		if (scale != null) json.scale = scale;
+		if (rot != null) json.rot = rot;
+		if (color != null) json.color = color;
+		if (path != null) json.path = path;
 		return json;
 	}
 
-	public function deserialize(json:Dynamic) {
-		var vexFields = getVexFields();
-		for (fieldName in vexFields) {
-			if (Reflect.hasField(json, fieldName)) {
-				var jsonField = Reflect.field(json, fieldName);
-				var prop = new Property(jsonField);
-				Reflect.setProperty(this, fieldName, prop);
-			}
-		}
+	public function deserialize(json:VexJsonFormat) {
+		if (json.type != null) type = json.type;
+		if (json.id != null) id = json.id;
+		if (json.pos != null) pos = json.pos;
+		if (json.origin != null) origin = json.origin;
+		if (json.scale != null) scale = json.scale;
+		if (json.rot != null) rot = json.rot;
+		if (json.path != null) path = json.path;
+		if (json.color != null) color = json.color;
 	}	
 
 	function getVexFields() : Array<String> {
@@ -198,7 +200,7 @@ class VexPropertyInterface {
 	function set_path(prop:Property) : Property {
 		path = prop;
 		if (visual != null) {
-			//if (type == "poly") { //this distinction may be necessary later and might cause problems
+			if (type == "poly") {
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.triangles,
 						batcher: Luxe.renderer.batcher
@@ -231,7 +233,7 @@ class VexPropertyInterface {
 
 					i += 3;
 				}
-			//}
+			}
 		}
 		return path;
 	}

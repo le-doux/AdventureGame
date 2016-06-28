@@ -35,9 +35,11 @@ class Main extends luxe.Game {
 		var v = new VexVisual({
 				type: "poly",
 				color: "pal(0)",
-				path: "10,10 30,10 20,20",
+				path: [new Vector(10,10), new Vector(30,10), new Vector(20,50)], /*"10,10 30,10 20,20",*/
 				pos: "50,50"
 			});
+
+		trace(v.serialize());
 	}
 }
 
