@@ -3,8 +3,9 @@ import luxe.Input;
 import luxe.Visual;
 import luxe.Vector;
 import luxe.Color;
+
 import vexlib.Vex;
-import vexlib.Vex.Palette;
+//import vexlib.Vex.Palette;
 
 import sys.io.File;
 import haxe.Json;
@@ -14,9 +15,55 @@ import luxe.resource.Resource.JSONResource;
 /*
 	TODO:
 	- selection
+	- grouping
+	- update animation file format for easier authoring
+	- update animation so it doesn't rely on tweening lib
 	- add UI layer for graphics
+	- copy paste with JSON
+	- vector viewer app
+	- support multiple palettes in system, by name
 */
 
+//test
+import phoenix.geometry.Geometry;
+import phoenix.geometry.Vertex;
+import phoenix.Batcher;
+
+class Main extends luxe.Game {
+	override function ready() {
+		/*
+		var v = new Vex();
+		var p = new Poly();
+		//trace(v.type.toNonsense());
+		v.type = "group";
+		v.type = "group2";
+		v.type = new Vector(-12,3.1);
+		//v.id = "testId";
+		v.id = new Vector(30,20);
+		trace(v.serialize());
+		trace("---");
+		p.path = [new Vector(0,10), new Vector(30,40), new Vector(5,-5)];
+		trace(p.serialize());
+		*/
+
+		/*
+		var v = new Vex();
+		v.deserialize({
+				type:"test",
+				id:"testAgain"
+			});
+		trace(v.serialize());
+		*/
+
+		var v = new VexVisual({
+				type: "poly",
+				color: "pal(0)",
+				path: "10,10 30,10 20,20"
+			});
+	}
+}
+
+/*
 class Main extends luxe.Game {
 
 	var drawingPath = [];
@@ -24,6 +71,7 @@ class Main extends luxe.Game {
 
 	var root : Vex;
 	var selected : Vex = null;
+	var multiSelection : Array<Vex> = []; //hacky hack hack
 
 	var count = 0;
 
@@ -62,7 +110,7 @@ class Main extends luxe.Game {
 	override function ontextinput(e:TextEvent) {
 		//edit id
 		if (isEditingId) {
-			selected.attributes.id += e.text;
+			selected.attributes.id += e.text; //TODO command-ify
 		}
 
 		//change current color
@@ -97,11 +145,16 @@ class Main extends luxe.Game {
 
 		//edit id
 		if (e.keycode == Key.key_i && e.mod.meta) {
-			trace("1");
 			if (selected != null) {
-				trace("2");
 				isEditingId = !isEditingId;
 				if (isEditingId) selected.attributes.id = "";
+			}
+		}
+
+		//change color
+		if (e.keycode == Key.key_f && e.mod.meta) {
+			if (selected != null) {
+				new ColorCommand(multiSelection, ["#ddd"]); //hack test (need to overcome problems with palette design & selection)
 			}
 		}
 
@@ -130,19 +183,50 @@ class Main extends luxe.Game {
 			//get data & write it
 			var saveJson = root.attributes;
 			var saveStr = Json.stringify(saveJson, null, "	");
-			//saveStr = unindentLists(saveStr);
-			//trace(saveStr);
+			saveStr = unindentLists(saveStr);
+			trace(saveStr);
 			output.writeString(saveStr);
 
 			//close file
 			output.close();
 		}
 
+		//undo redo
+		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
+		if (e.keycode == Key.key_y && e.mod.meta) Command.Redo();
+
 	}
 
 	function unindentLists(jsonString : String) : String {
-		//TODO
-		return jsonString;
+		var prettyString = "";
+		var isInsideList = false;
+		for (i in 0 ... jsonString.length) {
+			var char = jsonString.charAt(i);
+			if (char == "[") {
+				var isListOfObjects = false;
+				var j = i + 1;
+				var nextChar = jsonString.charAt(j);
+				while (nextChar == "\n" || nextChar == "\t") {
+					j++;
+					nextChar = jsonString.charAt(j);
+				}
+				if (nextChar == "{") {
+					isListOfObjects = true;
+				}
+
+				if (!isListOfObjects) {
+					isInsideList = true;
+				}
+			}
+			if (char == "]") isInsideList = false;
+			if (isInsideList && (char == "\t" || char == "\n")) {
+				// do nothing
+			}
+			else {
+				prettyString += char;
+			}
+		}
+		return prettyString;
 	}
 
 	override function onkeyup( e:KeyEvent ) {
@@ -168,15 +252,17 @@ class Main extends luxe.Game {
 		}
 
 		if (isPathClosed) {
-			//create new vex
-			selected = new Vex({
-				type: "poly",
-				path: drawingPath,
-				id: "poly" + count,
-				color: [curPalIndex]
-			});
-			//selected.parent = root;
-			root.addChild(selected);
+			var colorArr : Array<Dynamic> = ["pal", curPalIndex];
+			var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
+				{
+					type: "poly",
+					path: drawingPath,
+					id: "poly" + count,
+					color: colorArr
+				});
+			selected = cmd.vex;
+			multiSelection.push(cmd.vex);
+
 			//clear drawing path
 			drawingPath = [];
 
@@ -197,10 +283,10 @@ class Main extends luxe.Game {
 	override function update(dt:Float) {
 		//draw cursor
 		var cursorPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
-		Luxe.draw.ring({
+		Luxe.draw.circle({
 				x: cursorPos.x,
 				y: cursorPos.y,
-				r: distToClosePath,
+				r: distToClosePath/2,
 				color: Palette.Colors[curPalIndex],
 				immediate: true
 			});
@@ -249,3 +335,97 @@ class Main extends luxe.Game {
 
 } //Main
 
+class Command {
+	static var UndoStack : Array<Command> = [];
+	static var RedoStack : Array<Command> = [];
+
+	public function new() {
+		Perform();
+		UndoStack.push(this);
+		RedoStack = [];
+	}
+
+	public static function Undo() {
+		if (UndoStack.length <= 0) return;
+		var cmd = UndoStack.pop();
+		cmd.UnPerform();
+		RedoStack.push(cmd);
+	}
+
+	public static function Redo() {
+		if (RedoStack.length <= 0) return;
+		var cmd = RedoStack.pop();
+		cmd.Perform();
+		UndoStack.push(cmd);
+	}
+
+	public function Perform() {
+
+	}
+
+	public function UnPerform() {
+
+	}
+}
+
+class DrawVexCommand extends Command {
+	var attributes : Dynamic;
+	var parent : Vex;
+	public var vex : Vex;
+
+	override public function new(parent:Vex, attributes:Dynamic) {
+		this.parent = parent;
+		this.attributes = attributes;
+		super();
+	}
+
+	override public function Perform() {
+		vex = new Vex(attributes);
+		parent.addChild(vex);
+	}
+
+	override public function UnPerform() {
+		vex.destroy(true);
+	}
+}
+
+class SelectionCommand extends Command {
+	var selection : Array<Vex>;
+
+	override public function new(selection:Array<Vex>) {
+		this.selection = selection;
+		super();
+	}
+}
+
+class ColorCommand extends SelectionCommand {
+	var newColor : Array<Dynamic>;
+	var oldColors : Array<Array<Dynamic>> = [];
+
+	override public function new(selection:Array<Vex>, color:Array<Dynamic>) {
+		newColor = color;
+		for (s in selection) {
+			oldColors.push(s.attributes.color);
+		}
+		super(selection);
+	}
+
+	override public function Perform() {
+		for (i in 0 ... selection.length) {
+			var s = selection[i];
+			s.attributes.color = newColor;
+			s = Vex.Rebuild(s); //this process is hacky as fuck
+			selection[i] = s;
+		}
+	}
+
+	override public function UnPerform() {
+		for (i in 0 ... selection.length) {
+			var s = selection[i];
+			s.attributes.color = oldColors[i];
+			s = Vex.Rebuild(s);
+			selection[i] = s;
+		}
+	}
+}
+*/
