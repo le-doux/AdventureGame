@@ -31,34 +31,12 @@ import phoenix.Batcher;
 
 class Main extends luxe.Game {
 	override function ready() {
-		/*
-		var v = new Vex();
-		var p = new Poly();
-		//trace(v.type.toNonsense());
-		v.type = "group";
-		v.type = "group2";
-		v.type = new Vector(-12,3.1);
-		//v.id = "testId";
-		v.id = new Vector(30,20);
-		trace(v.serialize());
-		trace("---");
-		p.path = [new Vector(0,10), new Vector(30,40), new Vector(5,-5)];
-		trace(p.serialize());
-		*/
-
-		/*
-		var v = new Vex();
-		v.deserialize({
-				type:"test",
-				id:"testAgain"
-			});
-		trace(v.serialize());
-		*/
 
 		var v = new VexVisual({
 				type: "poly",
 				color: "pal(0)",
-				path: "10,10 30,10 20,20"
+				path: "10,10 30,10 20,20",
+				pos: "50,50"
 			});
 	}
 }

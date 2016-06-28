@@ -54,11 +54,42 @@ TODO
 class VexVisual extends Visual {
 	public var vex : VexPropertyInterface;
 
-	override public function new(json:Dynamic) {
+	override public function new( json : VexJsonFormat ) {
 		super({no_geometry:true});
 		vex = new VexPropertyInterface(this);
 		vex.deserialize(json);
+
+		if (json.children != null) {
+			for (c in json.children) {
+				children.push( new VexVisual(c) );
+			}
+		}
 	}
+
+	public function serialize() : VexJsonFormat {
+		var json = vex.serialize();
+		for (c in children) {
+			if (Std.is(c, VexVisual)) {
+				var v = cast(c, VexVisual);
+				if (json.children == null) json.children = [];
+				json.children.push( v.serialize() );
+			}
+		}
+		return json;
+	}
+}
+
+//is this even good? necessary?
+typedef VexJsonFormat = {
+	@:optional public var type 		: Property;
+	@:optional public var id 		: String;
+	@:optional public var pos 		: String;
+	@:optional public var origin 	: String;
+	@:optional public var scale 	: String;
+	@:optional public var rot 		: String;
+	@:optional public var color 	: String;
+	@:optional public var path 		: String;
+	@:optional public var children 	: Array<VexJsonFormat>;
 }
 
 class VexPropertyInterface {
@@ -77,8 +108,8 @@ class VexPropertyInterface {
 		visual = v;
 	}
 
-	public function serialize() { //does order matter in these operations?
-		var json = {};
+	public function serialize() : VexJsonFormat { //does order matter in these operations?
+		var json : VexJsonFormat = {};
 		var vexFields = getVexFields();
 		while (vexFields.length > 0) {
 			var fieldName = vexFields.pop();
@@ -194,7 +225,6 @@ class VexPropertyInterface {
 						var z = results.vertices[vIndex + 2];
 
 						var vertex = new Vertex(new Vector(x, y, z));
-						trace(vertex);
 
 						visual.geometry.add(vertex); 
 					}
@@ -285,130 +315,3 @@ abstract Property(String) from String to String {
 class Palette {
 	public static var Colors : Array<Color> = [new Color(1,0,0)];
 }
-
-/*
-@vex
-class Vex {
-
-	public static function Create(json:Dynamic) : Vex {
-		return Type.createInstance(Type.resolveClass("vexlib." + json.type), [json]);
-	}
-
-	var visual : VexVisual;
-
-	@vex public var type : Property;
-	@vex public var id : Property;
-	public var children : Array<Vex>;
-
-	public function attachVisual(visual:VexVisual) {
-		this.visual = visual;
-	}
-
-	public function new(?json:Dynamic) {
-		if (json != null) deserialize(json);
-	}
-
-	function getVexFields() : Array<String> {
-		var fields : Array<String> = [];
-
-		var classType : Class<Dynamic> = Type.getClass(this);
-		var metadata = Meta.getFields(classType);
-		while (metadata != null) {
-			for (fieldName in Reflect.fields(metadata)) {
-				var metaField = Reflect.field(metadata, fieldName);
-				var isVexField = Reflect.hasField(metaField, "vex");
-				if (isVexField) {
-					fields.push(fieldName);
-				}
-			}
-
-			try {
-				classType = Type.getSuperClass(classType);
-				var metaType = Meta.getType(classType);
-				if (Reflect.hasField(metaType, "vex")) {
-					metadata = Meta.getFields(classType);
-				}
-				else {
-					metadata = null;
-				}
-			}
-			catch (e:Dynamic) {
-				metadata = null;
-			}
-		}
-
-		return fields;
-	}
-
-	public function serialize() {
-		var json = {};
-		var vexFields = getVexFields();
-		while (vexFields.length > 0) {
-			var fieldName = vexFields.pop();
-			var property = Reflect.field(this, fieldName);
-			Reflect.setField(json, fieldName, property);
-		}
-		return json;
-	}
-
-	public function deserialize(json:Dynamic) {
-		var vexFields = getVexFields();
-		for (fieldName in vexFields) {
-			if (Reflect.hasField(json, fieldName)) {
-				var jsonField = Reflect.field(json, fieldName);
-				var prop = new Property(jsonField);
-				Reflect.setProperty(this, fieldName, prop);
-			}
-		}
-		if (Reflect.hasField(json, "children")) {
-			var jsonChildren : Array<Dynamic> = Reflect.field(json, "children");
-			for (jsonChild in jsonChildren) {
-				var vexChild = new Vex();
-				if (visual != null) {
-					var visualChild = new VexVisual({parent:visual});
-					vexChild.attachVisual(visualChild);
-				}
-				vexChild.deserialize(jsonChild);
-				children.push(vexChild);
-			}
-		}
-	}
-
-}
-
-@vex
-class Spatial extends Vex {
-	@vex public var pos : Property;
-	@vex public var origin : Property;
-	@vex public var scale : Property;
-	@vex public var rot : Property;
-}
-
-@vex
-class Group extends Spatial {
-
-}
-
-@vex
-class Shape extends Spatial {
-	@vex public var color : Property;
-}
-
-@vex
-class Poly extends Shape {
-	@vex public var path : Property;
-}
-
-@vex
-class Line extends Poly {
-
-}
-
-
-
-
-//this will likely be rewritten soon
-class Palette {
-	public static var Colors : Array<Color>;
-}
-*/
