@@ -5,7 +5,7 @@ import luxe.Vector;
 import luxe.Color;
 
 import vexlib.Vex;
-//import vexlib.Vex.Palette;
+import vexlib.Vex.Palette;
 
 import sys.io.File;
 import haxe.Json;
@@ -13,6 +13,8 @@ import dialogs.Dialogs;
 import luxe.resource.Resource.JSONResource;
 
 /*
+	TODO convert to new vex format
+
 	TODO:
 	- selection
 	- grouping
@@ -24,38 +26,20 @@ import luxe.resource.Resource.JSONResource;
 	- support multiple palettes in system, by name
 */
 
-//test
-import phoenix.geometry.Geometry;
-import phoenix.geometry.Vertex;
-import phoenix.Batcher;
-
-class Main extends luxe.Game {
-	override function ready() {
-
-		var v = new VexVisual({
-				type: "poly",
-				color: "pal(0)",
-				path: [new Vector(10,10), new Vector(30,10), new Vector(20,50)], /*"10,10 30,10 20,20",*/
-				pos: "50,50"
-			});
-
-		trace(v.serialize());
-	}
-}
-
-/*
 class Main extends luxe.Game {
 
-	var drawingPath = [];
+	var drawingPath : Array<Vector> = [];
 	var distToClosePath = 16;
 
 	var root : Vex;
-	var selected : Vex = null;
-	var multiSelection : Array<Vex> = []; //hacky hack hack
+	var selected (get, set) : Vex;
+	var multiSelection : Array<Vex> = [];
 
 	var count = 0;
 
+	/* STATE FLAGS */
 	var isEditingId = false;
+	var isDrawingMode = true;
 
 	var curPalIndex = 0;
 
@@ -65,8 +49,8 @@ class Main extends luxe.Game {
 		//init drawing
 		root = new Vex({
 				type: "group",
-				origin: [0,0],
-				pos: [0,0]
+				origin: "0,0",
+				pos: "0,0"
 			});
 
 		//draw origin
@@ -79,7 +63,7 @@ class Main extends luxe.Game {
 				p1: new Vector(0, Luxe.screen.height/2)
 			});
 
-		//load default palette
+		//load default palette - hacky nonsense
 		var load = Luxe.resources.load_json('assets/default.pal');
 		load.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
@@ -87,10 +71,21 @@ class Main extends luxe.Game {
 		});
 	} //ready
 
+	function get_selected() : Vex {
+		if (multiSelection.length > 0) return multiSelection[0];
+		return null;
+	}
+
+	function set_selected(v:Vex) : Vex {
+		multiSelection = (v != null) ? [v] : [];
+		return v;
+	}
+
 	override function ontextinput(e:TextEvent) {
 		//edit id
 		if (isEditingId) {
-			selected.attributes.id += e.text; //TODO command-ify
+			//WILL THIS WORK?
+			selected.properties.id += e.text; //TODO command-ify
 		}
 
 		//change current color
@@ -102,6 +97,7 @@ class Main extends luxe.Game {
 
 	override function onkeydown( e:KeyEvent ) {
 
+		/*
 		//test animation
 		if (e.keycode == Key.key_a) {
 			root.animate({
@@ -114,12 +110,24 @@ class Main extends luxe.Game {
 					}]
 				}, 1.2);
 		}
+		*/
+
+		//enter edit mode
+		if (e.keycode == Key.key_e && e.mod.meta) {
+			isDrawingMode = false;
+			drawingPath = [];
+		}
+
+		//enter drawing mode
+		if (e.keycode == Key.key_d && e.mod.meta) {
+			isDrawingMode = true;
+		}
 
 		//delete selected element
 		if (e.keycode == Key.backspace) {
-			if (selected != null) {
-				selected.destroy(true);
-				selected = null; //for now (need a stack?)
+			if (multiSelection.length > 0) {
+				new DeleteCommand(multiSelection);
+				multiSelection = [];
 			}
 		}
 
@@ -127,14 +135,14 @@ class Main extends luxe.Game {
 		if (e.keycode == Key.key_i && e.mod.meta) {
 			if (selected != null) {
 				isEditingId = !isEditingId;
-				if (isEditingId) selected.attributes.id = "";
+				if (isEditingId) selected.properties.id = "";
 			}
 		}
 
 		//change color
 		if (e.keycode == Key.key_f && e.mod.meta) {
 			if (selected != null) {
-				new ColorCommand(multiSelection, ["#ddd"]); //hack test (need to overcome problems with palette design & selection)
+				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
 			}
 		}
 
@@ -161,10 +169,8 @@ class Main extends luxe.Game {
 			var output = File.write(path);
 
 			//get data & write it
-			var saveJson = root.attributes;
+			var saveJson = root.serialize();
 			var saveStr = Json.stringify(saveJson, null, "	");
-			saveStr = unindentLists(saveStr);
-			trace(saveStr);
 			output.writeString(saveStr);
 
 			//close file
@@ -175,38 +181,6 @@ class Main extends luxe.Game {
 		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
 		if (e.keycode == Key.key_y && e.mod.meta) Command.Redo();
 
-	}
-
-	function unindentLists(jsonString : String) : String {
-		var prettyString = "";
-		var isInsideList = false;
-		for (i in 0 ... jsonString.length) {
-			var char = jsonString.charAt(i);
-			if (char == "[") {
-				var isListOfObjects = false;
-				var j = i + 1;
-				var nextChar = jsonString.charAt(j);
-				while (nextChar == "\n" || nextChar == "\t") {
-					j++;
-					nextChar = jsonString.charAt(j);
-				}
-				if (nextChar == "{") {
-					isListOfObjects = true;
-				}
-
-				if (!isListOfObjects) {
-					isInsideList = true;
-				}
-			}
-			if (char == "]") isInsideList = false;
-			if (isInsideList && (char == "\t" || char == "\n")) {
-				// do nothing
-			}
-			else {
-				prettyString += char;
-			}
-		}
-		return prettyString;
 	}
 
 	override function onkeyup( e:KeyEvent ) {
@@ -221,38 +195,55 @@ class Main extends luxe.Game {
 
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 
-		//is the path closed?
-		var isPathClosed = false;
-		if (drawingPath.length > 2) {
-			var startPos = new Vector(drawingPath[0], drawingPath[1]);
-			var nextPos = new Vector(p.x, p.y);
-			if ( nextPos.subtract(startPos).length < distToClosePath ) {
-				isPathClosed = true;
+		/* DRAWING MODE */
+		if (isDrawingMode) {
+			//is the path closed?
+			var isPathClosed = false;
+			if (drawingPath.length > 2) {
+				if ( Vector.Subtract(p,drawingPath[0]).length < distToClosePath ) {
+					isPathClosed = true;
+				}
+			}
+
+			if (isPathClosed) {
+				var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
+					{
+						type: "poly",
+						path: drawingPath,
+						id: "poly" + count,
+						color: "pal(" + curPalIndex + ")"
+					});
+				selected = cmd.vex;
+
+				//clear drawing path
+				drawingPath = [];
+
+				count++;
+			}
+			else {
+				//add new point
+				drawingPath.push(p);
+			}
+		}
+		/* EDIT MODE */
+		else {
+			if (Luxe.input.keydown(Key.lshift)) {
+				var v = root.getChildWithPointInside(p);
+				if (v != null) {
+					var alreadySelected = multiSelection.indexOf(v) != -1;
+					if (!alreadySelected) {
+						multiSelection.push(v);
+					}
+					else {
+						// TODO remove if already selected?
+					}
+				}
+			}
+			else {
+				selected = root.getChildWithPointInside(p);
 			}
 		}
 
-		if (isPathClosed) {
-			var colorArr : Array<Dynamic> = ["pal", curPalIndex];
-			var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
-				{
-					type: "poly",
-					path: drawingPath,
-					id: "poly" + count,
-					color: colorArr
-				});
-			selected = cmd.vex;
-			multiSelection.push(cmd.vex);
-
-			//clear drawing path
-			drawingPath = [];
-
-			count++;
-		}
-		else {
-			//add new point
-			drawingPath.push(p.x);
-			drawingPath.push(p.y);
-		}
 	}
 
 	override function onmousewheel(e:MouseEvent) {
@@ -275,11 +266,23 @@ class Main extends luxe.Game {
 
 		if (selected != null) {
 			Luxe.draw.text({
-					text: "id: " + selected.attributes.id,
+					text: "id: " + selected.properties.id,
 					point_size: 16,
 					pos: Vector.Multiply( Luxe.screen.mid, -1),
 					immediate: true
 				});
+		}
+
+		if (!isDrawingMode) {
+			for (s in multiSelection) {
+				var selectedBounds = s.bounds();
+				Luxe.draw.rectangle({
+						x: selectedBounds.x, y: selectedBounds.y,
+						w: selectedBounds.w, h: selectedBounds.h,
+						color: new Color(1,1,1),
+						immediate: true
+					});
+			}
 		}
 	} //update
 
@@ -288,24 +291,22 @@ class Main extends luxe.Game {
 
 			//start circle
 			Luxe.draw.ring({
-				x: drawingPath[0],
-				y: drawingPath[1],
+				x: drawingPath[0].x,
+				y: drawingPath[0].y,
 				r: distToClosePath,
 				color: Palette.Colors[curPalIndex],
 				immediate: true 
 			});
 
 			//draw path
-			if (drawingPath.length > 2) {
-				var i = 3;
-				while (i < drawingPath.length) {
+			if (drawingPath.length > 1) {
+				for (i in 1 ... drawingPath.length) {
 					Luxe.draw.line({
-							p0: new Vector(drawingPath[i-3], drawingPath[i-2]),
-							p1: new Vector(drawingPath[i-1], drawingPath[i-0]),
+							p0: new Vector(drawingPath[i-1].x, drawingPath[i-1].y),
+							p1: new Vector(drawingPath[i].x, drawingPath[i].y),
 							color: Palette.Colors[curPalIndex],
 							immediate: true
 						});
-					i += 2;
 				}
 			}
 
@@ -349,23 +350,38 @@ class Command {
 }
 
 class DrawVexCommand extends Command {
-	var attributes : Dynamic;
+	var properties : VexJsonFormat;
 	var parent : Vex;
 	public var vex : Vex;
 
-	override public function new(parent:Vex, attributes:Dynamic) {
+	override public function new(parent:Vex, properties:VexJsonFormat) {
 		this.parent = parent;
-		this.attributes = attributes;
+		this.properties = properties;
 		super();
 	}
 
 	override public function Perform() {
-		vex = new Vex(attributes);
-		parent.addChild(vex);
+		vex = new Vex(properties);
+		trace("!!! create");
+		trace(vex.name);
+		vex.parent = parent;
 	}
 
 	override public function UnPerform() {
+		trace("!!! uncreate");
+		//THIS IS A HACK because destroy() doesn't work --- log a luxe bug
+		for (v in parent.find(properties.id)) {
+			vex = v;
+		}
 		vex.destroy(true);
+		/*
+		vex = parent.find(properties.id)[0]; //refind this in case it was created as a new object
+		if (vex != null) {
+			trace(vex.name);
+			trace(vex.properties);
+			vex.destroy(true);
+		}
+		*/
 	}
 }
 
@@ -379,33 +395,70 @@ class SelectionCommand extends Command {
 }
 
 class ColorCommand extends SelectionCommand {
-	var newColor : Array<Dynamic>;
-	var oldColors : Array<Array<Dynamic>> = [];
+	var newColor : Property;
+	var oldColors : Array<Property> = [];
 
-	override public function new(selection:Array<Vex>, color:Array<Dynamic>) {
+	override public function new(selection:Array<Vex>, color:Property) {
 		newColor = color;
 		for (s in selection) {
-			oldColors.push(s.attributes.color);
+			oldColors.push(s.properties.color);
 		}
 		super(selection);
 	}
 
 	override public function Perform() {
-		for (i in 0 ... selection.length) {
-			var s = selection[i];
-			s.attributes.color = newColor;
-			s = Vex.Rebuild(s); //this process is hacky as fuck
-			selection[i] = s;
+		for (s in selection) {
+			s.properties.color = newColor;
 		}
 	}
 
 	override public function UnPerform() {
 		for (i in 0 ... selection.length) {
 			var s = selection[i];
-			s.attributes.color = oldColors[i];
-			s = Vex.Rebuild(s);
-			selection[i] = s;
+			s.properties.color = oldColors[i];
 		}
 	}
 }
-*/
+
+class DeleteCommand extends SelectionCommand {
+	var saveDeletedVex : Array<VexJsonFormat> = [];
+	var parent : Vex; //this feels hacky - what if they have different parents?
+
+	override public function new(selection:Array<Vex>) {
+		parent = cast(selection[0].parent,Vex);
+		for (s in selection) {
+			saveDeletedVex.push( s.serialize() );
+		}
+		super(selection);
+	}
+
+	override public function Perform() {
+		trace("--- delete");
+		/*
+		for (s in selection) {
+			trace(s.name);
+			s.destroy(true);
+		}
+		selection = [];
+		*/
+		for (s in saveDeletedVex) {
+			var vex : Vex = null;
+			for (v in parent.find(s.id)) { //ugly hack again
+				vex = v;
+			}
+			if (vex != null) vex.destroy(true);
+		}
+		selection = [];
+	}
+
+	override public function UnPerform() {
+		trace("--- undelete");
+		selection = [];
+		for (json in saveDeletedVex) {
+			var v = new Vex(json);
+			trace(v.name);
+			v.parent = parent;
+			selection.push(v);
+		}
+	}
+}
