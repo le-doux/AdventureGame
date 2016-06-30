@@ -1,0 +1,7 @@
+{
+	"type" : "palette",
+	"id" : "alt",
+	"colors" : [
+		"#888", "#aaa", "#bbb", "#ccc", "#ddd", "#eee", "#fff", "#999"
+	]
+}

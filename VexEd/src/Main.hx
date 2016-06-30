@@ -16,14 +16,13 @@ import luxe.resource.Resource.JSONResource;
 	TODO convert to new vex format
 
 	TODO:
-	- selection
-	- grouping
 	- update animation file format for easier authoring
 	- update animation so it doesn't rely on tweening lib
 	- add UI layer for graphics
 	- copy paste with JSON
 	- vector viewer app
 	- support multiple palettes in system, by name
+	- how do I handle z order?
 */
 
 class Main extends luxe.Game {
@@ -43,6 +42,11 @@ class Main extends luxe.Game {
 
 	var curPalIndex = 0;
 
+
+	/*DEMO*/
+	var isDemo = true;
+	/*DEMO*/
+
 	override function ready() {
 		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
 
@@ -53,21 +57,54 @@ class Main extends luxe.Game {
 				pos: "0,0"
 			});
 
-		//draw origin
-		Luxe.draw.line({
-				p0: new Vector(-Luxe.screen.width/2, 0),
-				p1: new Vector(Luxe.screen.width/2, 0)
-			});
-		Luxe.draw.line({
-				p0: new Vector(0, -Luxe.screen.height/2),
-				p1: new Vector(0, Luxe.screen.height/2)
-			});
+		if (!isDemo) {
+			//draw origin
+			Luxe.draw.line({
+					p0: new Vector(-Luxe.screen.width/2, 0),
+					p1: new Vector(Luxe.screen.width/2, 0)
+				});
+			Luxe.draw.line({
+					p0: new Vector(0, -Luxe.screen.height/2),
+					p1: new Vector(0, Luxe.screen.height/2)
+				});
+		}
 
-		//load default palette - hacky nonsense
+		//load default palettes - hacky nonsense
 		var load = Luxe.resources.load_json('assets/default.pal');
 		load.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
 			Palette.Load(json);
+			Palette.Init("default");
+
+			var load = Luxe.resources.load_json('assets/alt.pal');
+			load.then(function(jsonRes : JSONResource) {
+				var json = jsonRes.asset.json;
+				Palette.Load(json);
+
+				if (isDemo) {
+					var load = Luxe.resources.load_json('assets/shroom.vex');
+					load.then(function(jsonRes : JSONResource) {
+						var json = jsonRes.asset.json;
+						root.destroy();
+						root = new Vex(json);
+
+						Luxe.camera.pos.y += Luxe.screen.mid.y * 0.5;
+
+						Luxe.renderer.clear_color = Palette.Colors[2];
+
+						//hacky looping animation: TODO need better palette animation control?
+						var recurAnim : Dynamic = null;
+						recurAnim = function() {
+							Palette.Swap("alt", 5).onComplete(function () {
+									Palette.Swap("default", 5).onComplete(function() {
+											recurAnim();
+										});
+								});
+						}
+						recurAnim();
+					});
+				}
+			});
 		});
 	} //ready
 
@@ -123,6 +160,35 @@ class Main extends luxe.Game {
 			isDrawingMode = true;
 		}
 
+		//group selected elements
+		if (e.keycode == Key.key_g && e.mod.meta) {
+			if (multiSelection.length > 1) {
+				//make group
+				var g = new Vex({
+						type: "group",
+						pos: "0,0"
+					});
+				for (s in multiSelection) {
+					s.parent = g;
+				}
+				
+				//move pos to top left
+				var curPos : Vector  = g.properties.pos;
+				var bounds = g.bounds();
+				var topLeft : Vector = new Vector(bounds.x, bounds.y);
+				var displacement = Vector.Subtract( topLeft, curPos );
+				for (v in g.getVexChildren()) {
+					var pos : Vector = v.properties.pos;
+					v.properties.pos = pos.subtract(displacement);
+				}
+				g.properties.pos = topLeft;
+
+				//add group to scene
+				g.parent = root;
+				selected = g;
+			}
+		}
+
 		//delete selected element
 		if (e.keycode == Key.backspace) {
 			if (multiSelection.length > 0) {
@@ -144,6 +210,14 @@ class Main extends luxe.Game {
 			if (selected != null) {
 				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
 			}
+		}
+		//for testing: change background color
+		if (e.keycode == Key.key_g && e.mod.meta) {
+			Luxe.renderer.clear_color = Palette.Colors[curPalIndex];
+		}
+		//for testing: swap palettes
+		if (e.keycode == Key.key_p && e.mod.meta) {
+			Palette.Swap("alt", 5);
 		}
 
 		//open
@@ -206,11 +280,24 @@ class Main extends luxe.Game {
 			}
 
 			if (isPathClosed) {
+
+				//find top left point and shift the drawing path to be relative to it
+				var topLeft = drawingPath[0].clone();
+				for (p in drawingPath) {
+					if (p.x < topLeft.x) topLeft.x = p.x;
+					if (p.y < topLeft.y) topLeft.y = p.y;
+				}
+				for (p in drawingPath) {
+					p.subtract(topLeft);
+				}
+
+
 				var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
 					{
 						type: "poly",
+						pos: topLeft,
 						path: drawingPath,
-						id: "poly" + count,
+						id: "poly" + count, //I should get rid of this at some point... not everything needs an id
 						color: "pal(" + curPalIndex + ")"
 					});
 				selected = cmd.vex;
@@ -227,7 +314,23 @@ class Main extends luxe.Game {
 		}
 		/* EDIT MODE */
 		else {
-			if (Luxe.input.keydown(Key.lshift)) {
+			if (Luxe.input.keydown(Key.key_x) && Luxe.input.keydown(Key.lmeta)) {
+				/* SET ORIGIN */
+				if (selected != null) {
+					var newOrigin = p.clone();
+					if (selected.properties.pos != null) newOrigin.subtract(selected.properties.pos);
+					if (selected.properties.origin != null) newOrigin.add(selected.properties.origin);
+
+					var prevOrigin : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
+					var displacement = Vector.Subtract( newOrigin, prevOrigin );
+
+					selected.properties.origin = newOrigin;
+
+					selected.properties.pos = Vector.Add( selected.properties.pos, displacement );
+				}
+			}
+			else if (Luxe.input.keydown(Key.lshift)) {
+				/* MULTISELECT */
 				var v = root.getChildWithPointInside(p);
 				if (v != null) {
 					var alreadySelected = multiSelection.indexOf(v) != -1;
@@ -240,6 +343,7 @@ class Main extends luxe.Game {
 				}
 			}
 			else {
+				/* SELECT */
 				selected = root.getChildWithPointInside(p);
 			}
 		}
@@ -282,6 +386,16 @@ class Main extends luxe.Game {
 						color: new Color(1,1,1),
 						immediate: true
 					});
+
+				if (s.properties.pos != null) {
+					var p : Vector = s.properties.pos;
+					Luxe.draw.ring({
+							x: p.x, y: p.y,
+							r: 8,
+							immediate: true,
+							depth: 100
+						});
+				}
 			}
 		}
 	} //update
@@ -295,7 +409,8 @@ class Main extends luxe.Game {
 				y: drawingPath[0].y,
 				r: distToClosePath,
 				color: Palette.Colors[curPalIndex],
-				immediate: true 
+				immediate: true,
+				depth: 100 //I need a separate UI layer
 			});
 
 			//draw path
@@ -305,7 +420,8 @@ class Main extends luxe.Game {
 							p0: new Vector(drawingPath[i-1].x, drawingPath[i-1].y),
 							p1: new Vector(drawingPath[i].x, drawingPath[i].y),
 							color: Palette.Colors[curPalIndex],
-							immediate: true
+							immediate: true,
+							depth: 100
 						});
 				}
 			}

@@ -19,7 +19,8 @@ class Vex extends Visual {
 
 		if (json.children != null) {
 			for (c in json.children) {
-				children.push( new Vex(c) );
+				var child = new Vex(c);
+				child.parent = this;
 			}
 		}
 	}
@@ -62,7 +63,9 @@ class Vex extends Visual {
 	}
 
 	public function getChildWithPointInside(pt:Vector) : Vex {
-		for (c in getVexChildren()) {
+		var vexChildren = getVexChildren();
+		vexChildren.reverse(); //should I use depth instead to do the sorting?
+		for (c in vexChildren) {
 			if (c.isPointInside(pt)) {
 				return c;
 			}
@@ -88,6 +91,16 @@ class Vex extends Visual {
 			boundingBox.y = yMin;
 			boundingBox.w = xMax - xMin;
 			boundingBox.h = yMax - yMin;
+			if (properties.pos != null) { //likely to be fragile
+				var p : Vector = properties.pos;
+				boundingBox.x += p.x;
+				boundingBox.y += p.y;
+			}
+			if (properties.origin != null) { //likely to be fragile
+				var p : Vector = properties.origin;
+				boundingBox.x -= p.x;
+				boundingBox.y -= p.y;
+			}
 		}
 		else if (properties.type == "group") {
 			var vexChildren = getVexChildren();
@@ -112,6 +125,16 @@ class Vex extends Visual {
 				boundingBox.y = yMin;
 				boundingBox.w = xMax - xMin;
 				boundingBox.h = yMax - yMin;
+				if (properties.pos != null) { //likely to be fragile
+					var p : Vector = properties.pos;
+					boundingBox.x += p.x;
+					boundingBox.y += p.y;
+				}
+				if (properties.origin != null) { //likely to be fragile
+					var p : Vector = properties.origin;
+					boundingBox.x -= p.x;
+					boundingBox.y -= p.y;
+				}
 			}
 		}
 		return boundingBox;
@@ -160,6 +183,7 @@ class VexPropertyInterface {
 	}
 
 	public function deserialize(json:VexJsonFormat) {
+		trace("---");
 		if (json.type != null) type = json.type;
 		if (json.id != null) id = json.id;
 		if (json.pos != null) pos = json.pos;
@@ -171,20 +195,24 @@ class VexPropertyInterface {
 	}
 
 	function set_type(prop:Property) : Property {
+		trace(prop);
 		return type = prop;
 	}
 
 	function set_id(prop:Property) : Property {
+		trace(prop);
 		return id = prop;
 	}
 
 	function set_pos(prop:Property) : Property {
+		trace("pos " + prop);
 		pos = prop;
 		visual.pos = pos;
 		return pos;
 	}
 
 	function set_origin(prop:Property) : Property {
+		trace("origin " + prop);
 		origin = prop;
 		visual.origin = origin;
 		return origin;
@@ -209,6 +237,7 @@ class VexPropertyInterface {
 	}
 
 	function set_path(prop:Property) : Property {
+		trace("make path");
 		path = prop;
 		if (visual != null) {
 			if (type == "poly") {
@@ -377,22 +406,43 @@ abstract Property(String) from String to String {
 	}
 }
 
-//hacky standin
-typedef PaletteAttributes = {
-	@:optional var type: String; //<--- inherit from base at some point?
-	@:optional var id: String;
-	@:optional var colors: Array<String>;
+/* PALETTES */
+// TODO I may need to do some renaming of these classes
+typedef PaletteFormat = {
+	@:optional var type : Property;
+	@:optional var id : Property;
+	@:optional var colors : Array<Property>;
 }
 class Palette {
-	public static var Colors : Array<Color>;
+	public static var Colors : Array<Color> = [];
+	static var paletteMap : Map<String, PaletteFormat> = new Map();
+
 	//this function needs a better name --- and I need to handle multiple palettes
-	public static function Load(attributes:PaletteAttributes) {
-		Colors = [];
-		for (c in attributes.colors) {
-			var colorProp = new Property(c);
-			Colors.push( colorProp );
+	public static function Load(pal:PaletteFormat) {
+		paletteMap.set(pal.id, pal);
+	}
+
+	public static function Init(id:String) {
+		var pal = paletteMap.get(id);
+		for (i in 0 ... pal.colors.length) {
+			Colors.push( pal.colors[i] );
 		}
-		trace(Colors);
+	}
+
+	public static function Swap(id:String, ?t:Float) {
+		if (t == null) t = 0;
+		var pal = paletteMap.get(id);
+		var tweenReturn = null;
+		for (i in 0 ... pal.colors.length) {
+			var nextColor : Color = pal.colors[i];
+			tweenReturn = Colors[i].tween(t, 
+						{ 
+							r: nextColor.r, 
+							g: nextColor.g, 
+							b: nextColor.b 
+						});
+		}
+		return tweenReturn;
 	}
 }
 

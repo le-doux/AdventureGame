@@ -1,0 +1,21 @@
+{
+	"origin": "0,0",
+	"pos": "0,0",
+	"type": "group",
+	"children": [
+		{
+			"pos": "-188,53",
+			"path": "71,93 0,0 101,0",
+			"type": "poly",
+			"id": "poly0",
+			"color": "pal(0)"
+		},
+		{
+			"pos": "-43,-69",
+			"path": "66,132 0,104 9,0 109,0",
+			"type": "poly",
+			"id": "poly1",
+			"color": "pal(0)"
+		}
+	]
+}
