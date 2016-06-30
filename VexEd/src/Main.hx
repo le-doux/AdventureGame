@@ -88,7 +88,7 @@ class Main extends luxe.Game {
 						root.destroy();
 						root = new Vex(json);
 
-						Luxe.camera.pos.y += Luxe.screen.mid.y * 0.5;
+						Luxe.camera.pos.y -= Luxe.screen.mid.y * 0.5;
 
 						Luxe.renderer.clear_color = Palette.Colors[2];
 
