@@ -9,6 +9,8 @@ import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
 import phoenix.Batcher;
 
+import luxe.tween.Actuate;
+
 class Vex extends Visual {
 	public var properties : VexPropertyInterface;
 
@@ -139,6 +141,27 @@ class Vex extends Visual {
 		}
 		return boundingBox;
 	}
+
+	//TODO make animation less hacky
+	public var animation : Animation;
+	public function setAnimation(json:AnimationFormat) {
+		//HACK
+		var hack = find("cap")[0];
+		hack.animation = new Animation(json);
+		hack.animation.vex = hack;
+		/*
+		animation = new Animation(json);
+		animation.vex = this;
+		*/
+	}
+	public function playAnimation(duration:Float) {
+		//HACK
+		var hack = find("cap")[0];
+		return hack.animation.play(duration);
+		/*
+		return animation.play(duration);
+		*/
+	}
 }
 
 typedef VexJsonFormat = {
@@ -183,7 +206,6 @@ class VexPropertyInterface {
 	}
 
 	public function deserialize(json:VexJsonFormat) {
-		trace("---");
 		if (json.type != null) type = json.type;
 		if (json.id != null) id = json.id;
 		if (json.pos != null) pos = json.pos;
@@ -195,24 +217,20 @@ class VexPropertyInterface {
 	}
 
 	function set_type(prop:Property) : Property {
-		trace(prop);
 		return type = prop;
 	}
 
 	function set_id(prop:Property) : Property {
-		trace(prop);
 		return id = prop;
 	}
 
 	function set_pos(prop:Property) : Property {
-		trace("pos " + prop);
 		pos = prop;
 		visual.pos = pos;
 		return pos;
 	}
 
 	function set_origin(prop:Property) : Property {
-		trace("origin " + prop);
 		origin = prop;
 		visual.origin = origin;
 		return origin;
@@ -237,7 +255,6 @@ class VexPropertyInterface {
 	}
 
 	function set_path(prop:Property) : Property {
-		trace("make path");
 		path = prop;
 		if (visual != null) {
 			if (type == "poly") {
@@ -464,3 +481,132 @@ abstract VectorProperty(Vector) from Vector to Vector {
 	}
 }
 */
+
+
+/* ANIMATION */
+typedef AnimationPropertiesFormat = {
+	@:optional public var pos : Property;
+	@:optional public var scale : Property;
+}
+
+typedef KeyframeFormat = {
+	@:optional public var t : Property;
+	@:optional public var props : AnimationPropertiesFormat;
+}
+
+typedef AnimationFormat = {
+	@:optional public var type : Property;
+	@:optional public var id : Property;
+	@:optional public var select : Property;
+	@:optional public var keyframes : Array<KeyframeFormat>;
+	@:optional public var animations : Array<AnimationFormat>;
+}
+
+typedef PosFrame = {
+	public var t : Float;
+	public var pos : Vector;
+}
+
+typedef ScaleFrame = { //too duplicative?
+	public var t : Float;
+	public var scale : Vector;
+}
+
+class Animation {
+	public var type : Null<Property>;
+	public var id : Null<Property>;
+	public var select : Null<Property>;
+
+	public var t (default,set) : Float; //current time
+
+	public var vex : Vex;
+
+	var posFrames : Null<Array<PosFrame>>;
+	var scaleFrames : Null<Array<ScaleFrame>>;
+
+	public function new(json:AnimationFormat) {
+		if (json.type != null) type = json.type;
+		if (json.id != null) id = json.id;
+		if (json.select != null) select = json.select;
+		if (json.keyframes != null) {
+			for (f in json.keyframes) {
+				if (f.props.pos != null) {
+					if (posFrames == null) posFrames = [];
+					posFrames.push({
+							t: f.t,
+							pos: f.props.pos
+						});
+				}
+				if (f.props.scale != null) {
+					if (scaleFrames == null) scaleFrames = [];
+					scaleFrames.push({
+							t: f.t,
+							scale: f.props.scale
+						});
+				}
+			}
+		}
+	}
+
+	public function play(duration:Float) {
+		trace(duration);
+		t = 0;
+		return Actuate.tween(this, duration, {t:1});
+	}
+
+	//TODO
+	public function pause() {}
+
+	function set_t(time:Float) : Float {
+		t = time;
+		trace(t);
+		if (posFrames != null) tweenPos(t);
+		if (scaleFrames != null) tweenScale(t);
+		return t;
+	}
+
+	function tweenPos(t:Float) {
+		trace(t);
+		//TODO what if there are less than two frames?
+		var lastKeyFrame = posFrames[0];
+		var nextKeyFrame = posFrames[1];
+		for (i in 2 ... posFrames.length) {
+			if (nextKeyFrame.t > t) break;
+			lastKeyFrame = posFrames[i-1];
+			nextKeyFrame = posFrames[i];
+		}
+
+		t -= lastKeyFrame.t;
+		var dur = nextKeyFrame.t - lastKeyFrame.t;
+		var d = t / dur;
+
+		var deltaV = Vector.Subtract( nextKeyFrame.pos, lastKeyFrame.pos );
+		var pos = Vector.Add( lastKeyFrame.pos, deltaV.multiplyScalar(d) );
+
+		trace(pos);
+		//TODO what if vex is null
+		vex.pos = pos;
+	}
+
+	//duplicative again!!!
+	function tweenScale(t:Float) {
+		//TODO what if there are less than two frames?
+		var lastKeyFrame = scaleFrames[0];
+		var nextKeyFrame = scaleFrames[1];
+		for (i in 2 ... scaleFrames.length) {
+			if (nextKeyFrame.t > t) break;
+			lastKeyFrame = scaleFrames[i-1];
+			nextKeyFrame = scaleFrames[i];
+		}
+
+		t -= lastKeyFrame.t;
+		var dur = nextKeyFrame.t - lastKeyFrame.t;
+		var d = t / dur;
+
+		var deltaV = Vector.Subtract( nextKeyFrame.scale, lastKeyFrame.scale );
+		var scale = Vector.Add( lastKeyFrame.scale, deltaV.multiplyScalar(d) );
+
+		//TODO what if vex is null
+		vex.scale = scale;
+	}
+}

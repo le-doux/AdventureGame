@@ -23,6 +23,7 @@ import luxe.resource.Resource.JSONResource;
 	- vector viewer app
 	- support multiple palettes in system, by name
 	- how do I handle z order?
+	- why don't grays render the way I expect? color unpacking?
 */
 
 class Main extends luxe.Game {
@@ -102,6 +103,14 @@ class Main extends luxe.Game {
 								});
 						}
 						recurAnim();
+
+
+						var load = Luxe.resources.load_json('assets/anim2.vex');
+						load.then(function(jsonRes : JSONResource) {
+							var json = jsonRes.asset.json;
+							root.setAnimation(json);
+							root.playAnimation(1.5).reflect().repeat();
+						});
 					});
 				}
 			});

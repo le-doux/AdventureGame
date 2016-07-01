@@ -1,0 +1,21 @@
+{
+	"type" : "animation",
+	"id" : "bounce",
+	"select" : "cap",
+	"keyframes" : [
+		{
+			"t" : "0",
+			"props" : {
+				"scale" : "1.2,0.8",
+				"pos" : "-6,-145"
+			}
+		},
+		{
+			"t" : "1",
+			"props" : {
+				"scale" : "0.6,1.2",
+				"pos" : "-6,-171"
+			}
+		}
+	]
+}
