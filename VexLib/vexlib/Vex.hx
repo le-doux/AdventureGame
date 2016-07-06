@@ -3,6 +3,7 @@ package vexlib;
 import luxe.Visual;
 import luxe.Vector;
 import luxe.Rectangle;
+import luxe.tween.Actuate;
 
 import vexlib.VexPropertyInterface;
 import vexlib.Animation;
@@ -141,6 +142,7 @@ class Vex extends Visual {
 	//TODO make animation less hacky
 	//public var animation : Animation;
 	var animations : Map<String, Animation> = new Map<String, Animation>();
+	var curAnimation : Animation;
 	public function addAnimation(json:AnimationFormat, ?name:String) {
 		if (name == null) name = "default";
 		if (json.id != null) name = json.id;
@@ -148,6 +150,11 @@ class Vex extends Visual {
 		animations.set(name, anim);
 	}
 	public function playAnimation(name:String, duration:Float) {
-		return animations.get(name).play(duration);
+		curAnimation = animations.get(name);
+		curAnimation.t = 0;
+		return Actuate.tween(curAnimation, duration, {t:1}); //.play(duration);
+	}
+	public function stopAnimation() { //rename pause?
+		Actuate.stop(curAnimation);
 	}
 }

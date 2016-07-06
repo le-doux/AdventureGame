@@ -10,19 +10,15 @@ import vexlib.VexPropertyInterface;
 
 import sys.io.File;
 import haxe.Json;
-//import dialogs.Dialogs;
+import dialogs.Dialogs;
 import luxe.resource.Resource.JSONResource;
 
+import Command;
 /*
-	TODO convert to new vex format
-
 	TODO:
-	- update animation file format for easier authoring
-	- update animation so it doesn't rely on tweening lib
 	- add UI layer for graphics
 	- copy paste with JSON
-	- vector viewer app
-	- support multiple palettes in system, by name
+	- make vector viewer app
 	- how do I handle z order?
 	- why don't grays render the way I expect? color unpacking?
 */
@@ -46,7 +42,7 @@ class Main extends luxe.Game {
 
 
 	/*DEMO*/
-	var isDemo = true;
+	var isDemo = false;
 	/*DEMO*/
 
 	override function ready() {
@@ -237,7 +233,6 @@ class Main extends luxe.Game {
 			Palette.Swap("alt", 5);
 		}
 
-		/*
 		//open
 		if (e.keycode == Key.key_o && e.mod.meta ) {
 
@@ -268,7 +263,6 @@ class Main extends luxe.Game {
 			//close file
 			output.close();
 		}
-		*/
 
 		//undo redo
 		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
@@ -450,150 +444,3 @@ class Main extends luxe.Game {
 
 
 } //Main
-
-class Command {
-	static var UndoStack : Array<Command> = [];
-	static var RedoStack : Array<Command> = [];
-
-	public function new() {
-		Perform();
-		UndoStack.push(this);
-		RedoStack = [];
-	}
-
-	public static function Undo() {
-		if (UndoStack.length <= 0) return;
-		var cmd = UndoStack.pop();
-		cmd.UnPerform();
-		RedoStack.push(cmd);
-	}
-
-	public static function Redo() {
-		if (RedoStack.length <= 0) return;
-		var cmd = RedoStack.pop();
-		cmd.Perform();
-		UndoStack.push(cmd);
-	}
-
-	public function Perform() {
-
-	}
-
-	public function UnPerform() {
-
-	}
-}
-
-class DrawVexCommand extends Command {
-	var properties : VexJsonFormat;
-	var parent : Vex;
-	public var vex : Vex;
-
-	override public function new(parent:Vex, properties:VexJsonFormat) {
-		this.parent = parent;
-		this.properties = properties;
-		super();
-	}
-
-	override public function Perform() {
-		vex = new Vex(properties);
-		trace("!!! create");
-		trace(vex.name);
-		vex.parent = parent;
-	}
-
-	override public function UnPerform() {
-		trace("!!! uncreate");
-		//THIS IS A HACK because destroy() doesn't work --- log a luxe bug
-		for (v in parent.find(properties.id)) {
-			vex = v;
-		}
-		vex.destroy(true);
-		/*
-		vex = parent.find(properties.id)[0]; //refind this in case it was created as a new object
-		if (vex != null) {
-			trace(vex.name);
-			trace(vex.properties);
-			vex.destroy(true);
-		}
-		*/
-	}
-}
-
-class SelectionCommand extends Command {
-	var selection : Array<Vex>;
-
-	override public function new(selection:Array<Vex>) {
-		this.selection = selection;
-		super();
-	}
-}
-
-class ColorCommand extends SelectionCommand {
-	var newColor : Property;
-	var oldColors : Array<Property> = [];
-
-	override public function new(selection:Array<Vex>, color:Property) {
-		newColor = color;
-		for (s in selection) {
-			oldColors.push(s.properties.color);
-		}
-		super(selection);
-	}
-
-	override public function Perform() {
-		for (s in selection) {
-			s.properties.color = newColor;
-		}
-	}
-
-	override public function UnPerform() {
-		for (i in 0 ... selection.length) {
-			var s = selection[i];
-			s.properties.color = oldColors[i];
-		}
-	}
-}
-
-class DeleteCommand extends SelectionCommand {
-	var saveDeletedVex : Array<VexJsonFormat> = [];
-	var parent : Vex; //this feels hacky - what if they have different parents?
-
-	override public function new(selection:Array<Vex>) {
-		parent = cast(selection[0].parent,Vex);
-		for (s in selection) {
-			saveDeletedVex.push( s.serialize() );
-		}
-		super(selection);
-	}
-
-	override public function Perform() {
-		trace("--- delete");
-		/*
-		for (s in selection) {
-			trace(s.name);
-			s.destroy(true);
-		}
-		selection = [];
-		*/
-		for (s in saveDeletedVex) {
-			var vex : Vex = null;
-			for (v in parent.find(s.id)) { //ugly hack again
-				vex = v;
-			}
-			if (vex != null) vex.destroy(true);
-		}
-		selection = [];
-	}
-
-	override public function UnPerform() {
-		trace("--- undelete");
-		selection = [];
-		for (json in saveDeletedVex) {
-			var v = new Vex(json);
-			trace(v.name);
-			v.parent = parent;
-			selection.push(v);
-		}
-	}
-}
