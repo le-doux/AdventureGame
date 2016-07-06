@@ -5,7 +5,8 @@ import luxe.Vector;
 import luxe.Color;
 
 import vexlib.Vex;
-import vexlib.Vex.Palette;
+import vexlib.Palette;
+import vexlib.VexPropertyInterface;
 
 import sys.io.File;
 import haxe.Json;
