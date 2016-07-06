@@ -9,7 +9,7 @@ import vexlib.Vex.Palette;
 
 import sys.io.File;
 import haxe.Json;
-import dialogs.Dialogs;
+//import dialogs.Dialogs;
 import luxe.resource.Resource.JSONResource;
 
 /*
@@ -105,11 +105,18 @@ class Main extends luxe.Game {
 						recurAnim();
 
 
-						var load = Luxe.resources.load_json('assets/anim2.vex');
+						var load = Luxe.resources.load_json('assets/anim.vex');
 						load.then(function(jsonRes : JSONResource) {
 							var json = jsonRes.asset.json;
-							root.setAnimation(json);
-							root.playAnimation(1.5).reflect().repeat();
+							root.addAnimation(json);
+							root.playAnimation("bounce", 0.5).delay(1.0).repeat();
+
+							var load = Luxe.resources.load_json('assets/rotTestAnim.vex');
+							load.then(function(jsonRes : JSONResource) {
+								var json = jsonRes.asset.json;
+								root.addAnimation(json);
+								root.playAnimation("rotTest", 8).reflect().repeat();
+							});
 						});
 					});
 				}
@@ -229,6 +236,7 @@ class Main extends luxe.Game {
 			Palette.Swap("alt", 5);
 		}
 
+		/*
 		//open
 		if (e.keycode == Key.key_o && e.mod.meta ) {
 
@@ -259,6 +267,7 @@ class Main extends luxe.Game {
 			//close file
 			output.close();
 		}
+		*/
 
 		//undo redo
 		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
