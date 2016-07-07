@@ -14,7 +14,15 @@ import dialogs.Dialogs;
 import luxe.resource.Resource.JSONResource;
 
 import Command;
+
 /*
+	TODO for demo day
+	- animated main char
+	- vex scenery in level editor / player
+		- need to be able to move off origin point in vex editor
+	- ? swipe triggered anims in level
+	- ? parallax layers
+
 	TODO:
 	- add UI layer for graphics
 	- copy paste with JSON
@@ -37,6 +45,7 @@ class Main extends luxe.Game {
 	/* STATE FLAGS */
 	var isEditingId = false;
 	var isDrawingMode = true;
+	var isPanning = false;
 
 	var curPalIndex = 0;
 
@@ -225,7 +234,7 @@ class Main extends luxe.Game {
 			}
 		}
 		//for testing: change background color
-		if (e.keycode == Key.key_g && e.mod.meta) {
+		if (e.keycode == Key.key_b && e.mod.meta) {
 			Luxe.renderer.clear_color = Palette.Colors[curPalIndex];
 		}
 		//for testing: swap palettes
@@ -283,7 +292,11 @@ class Main extends luxe.Game {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 
 		/* DRAWING MODE */
-		if (isDrawingMode) {
+		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
+		if (isShiftHeld) {
+			isPanning = true;
+		}
+		else if (isDrawingMode) {
 			//is the path closed?
 			var isPathClosed = false;
 			if (drawingPath.length > 2) {
@@ -360,12 +373,24 @@ class Main extends luxe.Game {
 				selected = root.getChildWithPointInside(p);
 			}
 		}
+	}
 
+	override function onmousemove(e:MouseEvent) {
+		if (isPanning) {
+			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
+			Luxe.camera.pos.y -= e.yrel / Luxe.camera.zoom;
+		}
+	}
+
+	override function onmouseup(e:MouseEvent) {
+		isPanning = false;
 	}
 
 	override function onmousewheel(e:MouseEvent) {
-		//zoom on scroll
-		Luxe.camera.zoom += e.yrel * 0.1;
+
+		/* ZOOMING */
+		Luxe.camera.zoom += e.yrel * 0.03 * Luxe.camera.zoom;
+		
 	}
 
 	override function update(dt:Float) {
@@ -411,6 +436,24 @@ class Main extends luxe.Game {
 				}
 			}
 		}
+
+
+		//move around document
+		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
+		var panSpeed : Float = 50;
+		if (Luxe.input.keydown(Key.left) && isShiftHeld) {
+			Luxe.camera.pos.x -= panSpeed * dt;
+		}
+		else if (Luxe.input.keydown(Key.right) && isShiftHeld) {
+			Luxe.camera.pos.x += panSpeed * dt;
+		}
+		if (Luxe.input.keydown(Key.up) && isShiftHeld) {
+			Luxe.camera.pos.y -= panSpeed * dt;
+		}
+		else if (Luxe.input.keydown(Key.down) && isShiftHeld) {
+			Luxe.camera.pos.y += panSpeed * dt;
+		}
+
 	} //update
 
 	function renderDrawingPath() {
