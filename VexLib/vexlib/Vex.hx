@@ -152,7 +152,7 @@ class Vex extends Visual {
 	public function playAnimation(name:String, duration:Float) {
 		curAnimation = animations.get(name);
 		curAnimation.t = 0;
-		return Actuate.tween(curAnimation, duration, {t:1}); //.play(duration);
+		return Actuate.tween(curAnimation, duration, {t:1}).ease(luxe.tween.easing.Linear.easeNone); //.play(duration);
 	}
 	public function stopAnimation() { //rename pause?
 		Actuate.stop(curAnimation);

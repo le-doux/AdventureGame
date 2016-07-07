@@ -51,7 +51,7 @@ class Main extends luxe.Game {
 
 
 	/*DEMO*/
-	var isDemo = false;
+	var isDemo = true;
 	/*DEMO*/
 
 	override function ready() {
@@ -89,6 +89,35 @@ class Main extends luxe.Game {
 				Palette.Load(json);
 
 				if (isDemo) {
+
+					var load = Luxe.resources.load_json('assets/guy.vex');
+					load.then(function(jsonRes : JSONResource) {
+						var json = jsonRes.asset.json;
+						root.destroy();
+						root = new Vex(json);
+
+						Luxe.renderer.clear_color = Palette.Colors[2];
+
+						//hacky looping animation: TODO need better palette animation control?
+						var recurAnim : Dynamic = null;
+						recurAnim = function() {
+							Palette.Swap("alt", 5).onComplete(function () {
+									Palette.Swap("default", 5).onComplete(function() {
+											recurAnim();
+										});
+								});
+						}
+						recurAnim();
+
+						var load = Luxe.resources.load_json('assets/walkAnim.vex');
+						load.then(function(jsonRes : JSONResource) {
+							var json = jsonRes.asset.json;
+							root.addAnimation(json);
+							root.playAnimation("walk", 2).repeat();
+						});
+					});
+
+					/*
 					var load = Luxe.resources.load_json('assets/shroom.vex');
 					load.then(function(jsonRes : JSONResource) {
 						var json = jsonRes.asset.json;
@@ -125,6 +154,7 @@ class Main extends luxe.Game {
 							});
 						});
 					});
+					*/
 				}
 			});
 		});
@@ -293,7 +323,8 @@ class Main extends luxe.Game {
 
 		/* DRAWING MODE */
 		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
-		if (isShiftHeld) {
+		var isAltHeld = Luxe.input.keydown(Key.lalt) || Luxe.input.keydown(Key.ralt);
+		if (isAltHeld) {
 			isPanning = true;
 		}
 		else if (isDrawingMode) {
@@ -355,7 +386,7 @@ class Main extends luxe.Game {
 					selected.properties.pos = Vector.Add( selected.properties.pos, displacement );
 				}
 			}
-			else if (Luxe.input.keydown(Key.lshift)) {
+			else if (isShiftHeld) {
 				/* MULTISELECT */
 				var v = root.getChildWithPointInside(p);
 				if (v != null) {
