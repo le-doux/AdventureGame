@@ -17,18 +17,20 @@ import Command;
 
 /*
 	TODO for demo day
-	- animated main char
+	X animated main char
 	- vex scenery in level editor / player
-		- need to be able to move off origin point in vex editor
+		X need to be able to move off origin point in vex editor
 	- ? swipe triggered anims in level
 	- ? parallax layers
 
 	TODO:
 	- add UI layer for graphics
 	- copy paste with JSON
-	- make vector viewer app
+	X make vector viewer app
 	- how do I handle z order?
 	- why don't grays render the way I expect? color unpacking?
+	- sketch layer
+	- need to handle animation edge cases better
 */
 
 class Main extends luxe.Game {
@@ -98,6 +100,7 @@ class Main extends luxe.Game {
 
 						Luxe.renderer.clear_color = Palette.Colors[2];
 
+						/*
 						//hacky looping animation: TODO need better palette animation control?
 						var recurAnim : Dynamic = null;
 						recurAnim = function() {
@@ -108,6 +111,7 @@ class Main extends luxe.Game {
 								});
 						}
 						recurAnim();
+						*/
 
 						var load = Luxe.resources.load_json('assets/walkAnim.vex');
 						load.then(function(jsonRes : JSONResource) {

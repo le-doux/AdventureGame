@@ -16,8 +16,9 @@ class Palette {
 	static var paletteMap : Map<String, PaletteFormat> = new Map();
 
 	//this function needs a better name --- and I need to handle multiple palettes
-	public static function Load(pal:PaletteFormat) {
-		paletteMap.set(pal.id, pal);
+	public static function Load(pal:PaletteFormat, ?name:String) {
+		if (name == null) name = pal.id;
+		paletteMap.set(name, pal);
 	}
 
 	public static function Init(id:String) {

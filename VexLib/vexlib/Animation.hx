@@ -102,7 +102,6 @@ class Animation {
 	}
 
 	public function play(duration:Float) {
-		trace(duration);
 		t = 0;
 		return Actuate.tween(this, duration, {t:1});
 	}
@@ -112,7 +111,6 @@ class Animation {
 
 	function set_t(time:Float) : Float {
 		t = time;
-		trace(t);
 		if (posFrames != null) tweenPos(t);
 		if (scaleFrames != null) tweenScale(t);
 		if (rotFrames != null) tweenRot(t);
@@ -125,7 +123,6 @@ class Animation {
 	}
 
 	function tweenPos(t:Float) {
-		trace(t);
 		//TODO what if there are less than two frames?
 		var lastKeyFrame = posFrames[0];
 		var nextKeyFrame = posFrames[1];
@@ -142,7 +139,6 @@ class Animation {
 		var deltaV = Vector.Subtract( nextKeyFrame.pos, lastKeyFrame.pos );
 		var pos = Vector.Add( lastKeyFrame.pos, deltaV.multiplyScalar(d) );
 
-		trace(pos);
 		//TODO what if vex is null
 		vex.pos = pos;
 	}

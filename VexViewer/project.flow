@@ -1,0 +1,27 @@
+{
+
+  project : {
+    name : 'vexviewer',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'luxe_empty',
+      package : 'org.luxeengine.vexviewer'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        poly2trihx : '*',
+        vexlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

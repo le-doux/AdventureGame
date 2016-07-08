@@ -144,17 +144,24 @@ class Vex extends Visual {
 	var animations : Map<String, Animation> = new Map<String, Animation>();
 	var curAnimation : Animation;
 	public function addAnimation(json:AnimationFormat, ?name:String) {
-		if (name == null) name = "default";
-		if (json.id != null) name = json.id;
+		if (name == null) {
+			if (json.id != null) {
+				name = json.id;
+			}
+			else {
+				name = "default";
+			}
+		}
 		var anim = new Animation(json, this);
 		animations.set(name, anim);
 	}
 	public function playAnimation(name:String, duration:Float) {
 		curAnimation = animations.get(name);
+		trace(curAnimation);
 		curAnimation.t = 0;
 		return Actuate.tween(curAnimation, duration, {t:1}).ease(luxe.tween.easing.Linear.easeNone); //.play(duration);
 	}
 	public function stopAnimation() { //rename pause?
-		Actuate.stop(curAnimation);
+		if (curAnimation != null) Actuate.stop(curAnimation);
 	}
 }

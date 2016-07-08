@@ -1,0 +1,57 @@
+{
+	"type" : "animation",
+	"id" : "surprise",
+	"tracks" : [
+		{
+			"select" : "arm0",
+			"keyframes" : [
+				{
+					"t" : "0",
+					"props" : {"rot":"0"}
+				},
+				{
+					"t" : "0.6",
+					"props" : {"rot":"160"}
+				},
+				{
+					"t" : "1",
+					"props" : {"rot":"160"}
+				}
+			]
+		},
+		{
+			"select" : "arm1",
+			"keyframes" : [
+				{
+					"t" : "0",
+					"props" : {"rot":"0"}
+				},
+				{
+					"t" : "0.6",
+					"props" : {"rot":"-160"}
+				},
+				{
+					"t" : "1",
+					"props" : {"rot":"-160"}
+				}
+			]
+		},
+		{
+			"select" : "head",
+			"keyframes" : [
+				{
+					"t" : "0",
+					"props" : {"pos":"-11.5,-207.6"}
+				},
+				{
+					"t" : "0.6",
+					"props" : {"pos":"-11.5,-207.6"}
+				},
+				{
+					"t" : "1",
+					"props" : {"pos":"-11.5,-237.6"}
+				}
+			]
+		}
+	]
+}

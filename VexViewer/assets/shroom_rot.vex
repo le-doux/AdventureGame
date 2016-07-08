@@ -1,0 +1,18 @@
+{
+	"type" : "animation",
+	"id" : "rotTest",
+	"keyframes" : [
+		{
+			"t" : "0",
+			"props" : {
+				"rot" : "0"
+			}
+		},
+		{
+			"t" : "1",
+			"props" : {
+				"rot" : "360"
+			}
+		}
+	]
+}
