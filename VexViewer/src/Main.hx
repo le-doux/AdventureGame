@@ -4,6 +4,8 @@ import vexlib.Palette;
 
 import luxe.Vector;
 import luxe.Input;
+import luxe.Camera;
+import phoenix.Batcher;
 import luxe.resource.Resource.JSONResource;
 
 class Main extends luxe.Game {
@@ -50,7 +52,7 @@ class Main extends luxe.Game {
 				{
 					src: "guy_surprise.vex",
 					name: "surprise",
-					time: 1.0,
+					time: 0.5,
 					wait: 0.5
 				}
 			]
@@ -63,23 +65,89 @@ class Main extends luxe.Game {
 
 	var root : Vex;
 
+	var uiBatcher : Batcher;
+
 	override function ready() {
-		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
-		//Luxe.camera.size_mode = luxe.SizeMode.fit;
+		Luxe.camera.size = new Vector(800,450);
+		Luxe.camera.center = new Vector(0,0);
+		//Luxe.camera.size_mode = luxe.SizeMode.cover;
+		//Luxe.camera.pos = new Vector(-400,-225); //put 0,0 in the center of the camera
+		//Luxe.camera.pos.subtract(Luxe.screen.mid); 
+
+		var uiCam = new Camera({name:"uiCam"});
+		uiBatcher = Luxe.renderer.create_batcher({name:"uiBatcher", layer:10, camera:uiCam.view});
 
 		loadPalettes();
 		loadImage();
 	}
 
+	override function update(dt:Float) {
+		Luxe.draw.text({
+				text: 'FPS: ' + Math.round(1.0/Luxe.debug.dt_average) + '\n'
+						+ 'Palette: ' + palettes[curPalette].name + '\n'
+						+ 'Image: ' + images[curImage].src + '\n'
+						+ 'Animation: ' + images[curImage].animations[curAnim].name,
+				point_size: 16,
+				batcher: uiBatcher,
+				immediate: true
+			});
+
+		Luxe.draw.text({
+				text: '< Switch Palette >',
+				point_size: 16,
+				pos: new Vector(Luxe.screen.width * 0, Luxe.screen.height - 24),
+				batcher: uiBatcher,
+				immediate: true
+			});
+		Luxe.draw.text({
+				text: '< Switch Animation >',
+				point_size: 16,
+				pos: new Vector(Luxe.screen.width * 0.25, Luxe.screen.height - 24),
+				batcher: uiBatcher,
+				immediate: true
+			});
+		Luxe.draw.text({
+				text: '< Switch Image >',
+				point_size: 16,
+				pos: new Vector(Luxe.screen.width * 0.5, Luxe.screen.height - 24),
+				batcher: uiBatcher,
+				immediate: true
+			});
+
+		Luxe.draw.text({
+				text: '[ Zoom In ]',
+				point_size: 16,
+				pos: new Vector(Luxe.screen.width * 0.75, Luxe.screen.height - 24),
+				batcher: uiBatcher,
+				immediate: true
+			});
+		Luxe.draw.text({
+				text: '[ Zoom Out ]',
+				point_size: 16,
+				pos: new Vector(Luxe.screen.width * 0.75, 6),
+				batcher: uiBatcher,
+				immediate: true
+			});
+	}
+
+	override function onwindowresized(e) {
+		trace(Luxe.camera.pos);
+		Luxe.camera.center = new Vector(0,0);
+		//Luxe.camera.pos = new Vector(-400,-225); //keep it centered LUXE BUG
+	}
+
 	override function onmousedown( e:MouseEvent ) {
-		if (e.x < Luxe.screen.width * 0.3) {
+		if (e.x < Luxe.screen.width * 0.25) {
 			nextPalette();
 		}
-		else if (e.x < Luxe.screen.width * 0.6) {
+		else if (e.x < Luxe.screen.width * 0.5) {
 			nextAnimation();
 		}
-		else {
+		else if (e.x < Luxe.screen.width * 0.75) {
 			nextImage();
+		}
+		else {
+			Luxe.camera.zoom = 0.25 + (1.75 * (e.y / Luxe.screen.height));
 		}
 	}
 

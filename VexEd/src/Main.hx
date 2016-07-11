@@ -31,6 +31,9 @@ import Command;
 	- why don't grays render the way I expect? color unpacking?
 	- sketch layer
 	- need to handle animation edge cases better
+		- edge cases: no start frame, no end frame, ???
+		- need to be able to reset to base "pose"
+	- report luxe bugs
 */
 
 class Main extends luxe.Game {
@@ -53,7 +56,7 @@ class Main extends luxe.Game {
 
 
 	/*DEMO*/
-	var isDemo = true;
+	var isDemo = false;
 	/*DEMO*/
 
 	override function ready() {
