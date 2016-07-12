@@ -21,7 +21,7 @@ import Command;
 	- animation editor
 	- naming scheme for Vex and related formats
 	- load palettes at will
-	- copy / paste command
+	X copy / paste
 	- make bounds work with scale and rotation
 	- ? maybe switch bounds off of a bounding box model to collision polys??
 
