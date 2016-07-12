@@ -4,6 +4,8 @@ import luxe.Visual;
 import luxe.Vector;
 import luxe.Rectangle;
 import luxe.tween.Actuate;
+import luxe.resource.Resource.JSONResource;
+import luxe.resource.Resource.Resource;
 
 import vexlib.VexPropertyInterface;
 import vexlib.Animation;
@@ -16,6 +18,10 @@ class Vex extends Visual {
 		properties = new VexPropertyInterface(this);
 		properties.deserialize(json);
 
+		if (properties.type == "ref") {
+			loadRef( properties.src );
+		}
+
 		if (json.children != null) {
 			for (c in json.children) {
 				var child = new Vex(c);
@@ -26,11 +32,56 @@ class Vex extends Visual {
 
 	public function serialize() : VexJsonFormat {
 		var json = properties.serialize();
-		for (c in getVexChildren()) {
-			if (json.children == null) json.children = [];
-			json.children.push( c.serialize() );
+
+		var shouldSerializeChildren = (json.type != "ref"); //don't serialize children of reference objects
+		if (shouldSerializeChildren) {
+			for (c in getVexChildren()) {
+				if (json.children == null) json.children = [];
+				json.children.push( c.serialize() );
+			}			
 		}
+
 		return json;
+	}
+
+	//TODO clean up this async nonsense -- get advice from snowkit peeps?
+	function loadRef(src:String) {
+		if ( Luxe.resources.has(src) ) {
+			trace("has ref!");
+			var jsonRes = Luxe.resources.json(src);
+			if (jsonRes.state == luxe.Resources.ResourceState.loaded) {
+				trace("load from store");
+				var json = jsonRes.asset.json;
+				deserializeRef(json);
+			}
+			else {
+				//TODO does this event handler stick around?
+				Luxe.resources.on(luxe.Resources.ResourceEvent.loaded, function(r:Resource) {
+						trace("load on event");
+						var json = Luxe.resources.json(r.id).asset.json;
+						deserializeRef(json);
+					});
+			}
+		}
+		else {
+			trace("load ref!");
+			var load = Luxe.resources.load_json(src);
+			load.then(function(jsonRes : JSONResource) {
+				trace("ref loaded!");
+				var json = jsonRes.asset.json;
+				deserializeRef(json);
+			});
+		}
+	}
+
+	function deserializeRef(json) {
+		properties.deserializeRef(json);
+		if (json.children != null) {
+			for (c in json.children) {
+				var child = new Vex(c);
+				child.parent = this;
+			}
+		}
 	}
 
 	public function find(searchStr:String) : Array<Vex> {
@@ -101,7 +152,7 @@ class Vex extends Visual {
 				boundingBox.y -= p.y;
 			}
 		}
-		else if (properties.type == "group") {
+		else if (properties.type == "group" || properties.type == "ref") {
 			var vexChildren = getVexChildren();
 			if (vexChildren.length > 0) {
 				var childBounds = vexChildren[0].bounds();

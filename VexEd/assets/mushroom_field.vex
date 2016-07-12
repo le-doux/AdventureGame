@@ -1,0 +1,123 @@
+{
+	"origin": "0,0",
+	"pos": "0,0",
+	"type": "group",
+	"children": [
+		{
+			"pos": "-334.264190731567,81.3079980216499",
+			"type": "group",
+			"origin": "380.896065023324,308.712269382344",
+			"scale": "0.8,0.8",
+			"children": [
+				{
+					"src": "assets/shroom.vex",
+					"pos": "232,264",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "138,391",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "326,395",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "491,398",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "421,268",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "574,269",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "663,399",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				}
+			],
+			"rot": "350"
+		},
+		{
+			"pos": "296.267796083659,147.556816125589",
+			"type": "group",
+			"origin": "380.896065023324,308.712269382344",
+			"scale": "0.8,0.8",
+			"children": [
+				{
+					"src": "assets/shroom.vex",
+					"pos": "232,264",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "138,391",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "326,395",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "491,398",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "421,268",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "574,269",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				},
+				{
+					"src": "assets/shroom.vex",
+					"pos": "663,399",
+					"type": "ref",
+					"scale": "0.4,0.4",
+					"id": "shroom"
+				}
+			],
+			"rot": "365"
+		}
+	]
+}

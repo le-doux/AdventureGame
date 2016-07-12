@@ -1,0 +1,24 @@
+{
+	"origin": "0,0",
+	"pos": "0,0",
+	"type": "group",
+	"children": [
+		{
+			"pos": "-275,-94",
+			"path": "54,211 0,129 68,0",
+			"type": "poly",
+			"id": "poly0",
+			"color": "pal(0)"
+		},
+		{
+			"src": "assets/shroom.vex",
+			"type": "ref",
+			"id": "shroom"
+		},
+		{
+			"src": "assets/guy.vex",
+			"type": "ref",
+			"id": "guy"
+		}
+	]
+}

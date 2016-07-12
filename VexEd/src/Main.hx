@@ -16,6 +16,30 @@ import luxe.resource.Resource.JSONResource;
 import Command;
 
 /*
+	TODO next
+	- clean up animation format
+	- animation editor
+	- naming scheme for Vex and related formats
+	- load palettes at will
+	- copy / paste command
+	- make bounds work with scale and rotation
+	- ? maybe switch bounds off of a bounding box model to collision polys??
+
+	TODO for getting things in level
+	- ? separate level editor
+	- ? level editor mode in editor
+	- ? draw lines
+		- line thickness control
+	X load / save reference (src) objects
+	X import objects in editor
+	X move objects
+	X rotate objects
+	X resize objects
+	- ? depth control
+	- ? animation references
+	- level file format!
+	- playmode app
+
 	TODO for demo day
 	X animated main char
 	- vex scenery in level editor / player
@@ -54,10 +78,7 @@ class Main extends luxe.Game {
 
 	var curPalIndex = 0;
 
-
-	/*DEMO*/
-	var isDemo = false;
-	/*DEMO*/
+	var clipboard : String;
 
 	override function ready() {
 		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
@@ -69,17 +90,15 @@ class Main extends luxe.Game {
 				pos: "0,0"
 			});
 
-		if (!isDemo) {
-			//draw origin
-			Luxe.draw.line({
-					p0: new Vector(-Luxe.screen.width/2, 0),
-					p1: new Vector(Luxe.screen.width/2, 0)
-				});
-			Luxe.draw.line({
-					p0: new Vector(0, -Luxe.screen.height/2),
-					p1: new Vector(0, Luxe.screen.height/2)
-				});
-		}
+		//draw origin
+		Luxe.draw.line({
+				p0: new Vector(-Luxe.screen.width/2, 0),
+				p1: new Vector(Luxe.screen.width/2, 0)
+			});
+		Luxe.draw.line({
+				p0: new Vector(0, -Luxe.screen.height/2),
+				p1: new Vector(0, Luxe.screen.height/2)
+			});
 
 		//load default palettes - hacky nonsense
 		var load = Luxe.resources.load_json('assets/default.pal');
@@ -87,83 +106,6 @@ class Main extends luxe.Game {
 			var json = jsonRes.asset.json;
 			Palette.Load(json);
 			Palette.Init("default");
-
-			var load = Luxe.resources.load_json('assets/alt.pal');
-			load.then(function(jsonRes : JSONResource) {
-				var json = jsonRes.asset.json;
-				Palette.Load(json);
-
-				if (isDemo) {
-
-					var load = Luxe.resources.load_json('assets/guy.vex');
-					load.then(function(jsonRes : JSONResource) {
-						var json = jsonRes.asset.json;
-						root.destroy();
-						root = new Vex(json);
-
-						Luxe.renderer.clear_color = Palette.Colors[2];
-
-						/*
-						//hacky looping animation: TODO need better palette animation control?
-						var recurAnim : Dynamic = null;
-						recurAnim = function() {
-							Palette.Swap("alt", 5).onComplete(function () {
-									Palette.Swap("default", 5).onComplete(function() {
-											recurAnim();
-										});
-								});
-						}
-						recurAnim();
-						*/
-
-						var load = Luxe.resources.load_json('assets/walkAnim.vex');
-						load.then(function(jsonRes : JSONResource) {
-							var json = jsonRes.asset.json;
-							root.addAnimation(json);
-							root.playAnimation("walk", 2).repeat();
-						});
-					});
-
-					/*
-					var load = Luxe.resources.load_json('assets/shroom.vex');
-					load.then(function(jsonRes : JSONResource) {
-						var json = jsonRes.asset.json;
-						root.destroy();
-						root = new Vex(json);
-
-						Luxe.camera.pos.y -= Luxe.screen.mid.y * 0.5;
-
-						Luxe.renderer.clear_color = Palette.Colors[2];
-
-						//hacky looping animation: TODO need better palette animation control?
-						var recurAnim : Dynamic = null;
-						recurAnim = function() {
-							Palette.Swap("alt", 5).onComplete(function () {
-									Palette.Swap("default", 5).onComplete(function() {
-											recurAnim();
-										});
-								});
-						}
-						recurAnim();
-
-
-						var load = Luxe.resources.load_json('assets/anim.vex');
-						load.then(function(jsonRes : JSONResource) {
-							var json = jsonRes.asset.json;
-							root.addAnimation(json);
-							root.playAnimation("bounce", 0.5).delay(1.0).repeat();
-
-							var load = Luxe.resources.load_json('assets/rotTestAnim.vex');
-							load.then(function(jsonRes : JSONResource) {
-								var json = jsonRes.asset.json;
-								root.addAnimation(json);
-								root.playAnimation("rotTest", 8).reflect().repeat();
-							});
-						});
-					});
-					*/
-				}
-			});
 		});
 	} //ready
 
@@ -192,21 +134,6 @@ class Main extends luxe.Game {
 	}
 
 	override function onkeydown( e:KeyEvent ) {
-
-		/*
-		//test animation
-		if (e.keycode == Key.key_a) {
-			root.animate({
-					animations : [{
-						target : ".world",
-						rot : [
-							{t : 0.60, d : [0]},
-							{t : 1.00, d : [90]}
-						]
-					}]
-				}, 1.2);
-		}
-		*/
 
 		//enter edit mode
 		if (e.keycode == Key.key_e && e.mod.meta) {
@@ -248,6 +175,34 @@ class Main extends luxe.Game {
 			}
 		}
 
+		//rotate selected elements //TODO make command //TODO make rotate handle?
+		if (e.keycode == Key.right && e.mod.meta) {
+			for (sel in multiSelection) {
+				sel.rotation_z += 5;
+				sel.properties.rot = sel.rotation_z; //TODO this makes my properties system look bad...
+			}
+		}
+		if (e.keycode == Key.left && e.mod.meta) {
+			for (sel in multiSelection) {
+				sel.rotation_z -= 5;
+				sel.properties.rot = sel.rotation_z; //this makes my properties system look bad...
+			}
+		}
+
+		//scale selected elements //TODO make command //TODO separate x- and y- axes
+		if (e.keycode == Key.up && e.mod.meta) {
+			for (sel in multiSelection) {
+				sel.scale.add(new Vector(0.1,0.1)); //TODO do I need defaults for properties???
+				sel.properties.scale = sel.scale;
+			}
+		}
+		if (e.keycode == Key.down && e.mod.meta) {
+			for (sel in multiSelection) {
+				sel.scale.subtract(new Vector(0.1,0.1));
+				sel.properties.scale = sel.scale;
+			}
+		}
+
 		//delete selected element
 		if (e.keycode == Key.backspace) {
 			if (multiSelection.length > 0) {
@@ -274,10 +229,13 @@ class Main extends luxe.Game {
 		if (e.keycode == Key.key_b && e.mod.meta) {
 			Luxe.renderer.clear_color = Palette.Colors[curPalIndex];
 		}
+
+		/*
 		//for testing: swap palettes
 		if (e.keycode == Key.key_p && e.mod.meta) {
 			Palette.Swap("alt", 5);
 		}
+		*/
 
 		//open
 		if (e.keycode == Key.key_o && e.mod.meta ) {
@@ -308,6 +266,41 @@ class Main extends luxe.Game {
 
 			//close file
 			output.close();
+		}
+
+		//import ref
+		if (e.keycode == Key.key_r && e.mod.meta) {
+			var path = Dialogs.open("Import dialog");
+			//hacky method - assumes everything lives in assets folder
+			//also - always goes to 0,0
+			var pathSplit = path.split("/assets/"); 
+			var srcString = "assets/" + pathSplit[1];
+			var cmd = new DrawVexCommand(root,
+					{
+						type: "ref",
+						src: srcString
+					});
+			selected = cmd.vex;
+		}
+
+		//copy paste
+		//TODO use real clipboard
+		if (e.keycode == Key.key_c && e.mod.meta) {
+			if (selected != null) {
+				clipboard = Json.stringify( selected.serialize() );
+			}
+			else {
+				clipboard = Json.stringify( root.serialize() ); //not sure this is a great idea actually
+			}
+		}
+		if (e.keycode == Key.key_v && e.mod.meta) {
+			if (clipboard != null) {
+				var json = Json.parse( clipboard );
+				var cmd = new DrawVexCommand(root,json);
+				selected = cmd.vex;
+				selected.pos.add(new Vector(10,10));
+				selected.properties.pos = selected.pos; //there has GOT to be a better way TODO can I override this?
+			}
 		}
 
 		//undo redo
@@ -414,9 +407,26 @@ class Main extends luxe.Game {
 	}
 
 	override function onmousemove(e:MouseEvent) {
+		/* PAN */
 		if (isPanning) {
 			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
 			Luxe.camera.pos.y -= e.yrel / Luxe.camera.zoom;
+		}
+
+		/* TRANSLATE */
+		//TODO turn this into a command?
+		if (!isDrawingMode) { //TODO make states or mode enums or something
+			if (Luxe.input.mousedown(luxe.MouseButton.left)) {
+				if (multiSelection.length > 0) {
+					for (sel in multiSelection) {
+						//TODO live edit the Vex pos, then ON RELEASE update the property
+						var pos = sel.pos.clone(); //this is starting to feel roundabout...
+						pos.x += e.xrel / Luxe.camera.zoom;
+						pos.y += e.yrel / Luxe.camera.zoom;
+						sel.properties.pos = pos;
+					}
+				}
+			}
 		}
 	}
 

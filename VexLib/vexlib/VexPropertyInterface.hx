@@ -17,6 +17,7 @@ typedef VexJsonFormat = {
 	@:optional public var rot 		: Property;
 	@:optional public var color 	: Property;
 	@:optional public var path 		: Property;
+	@:optional public var src 		: Property;
 	@:optional public var children 	: Array<VexJsonFormat>;
 }
 
@@ -29,6 +30,7 @@ class VexPropertyInterface {
 	public var rot 		(default, set) : Null<Property>;
 	public var color 	(default, set) : Null<Property>;
 	public var path 	(default, set) : Null<Property>;
+	public var src 		(default, set) : Null<Property>;
 
 	var visual : Visual;
 
@@ -38,30 +40,66 @@ class VexPropertyInterface {
 
 	public function serialize() : VexJsonFormat {
 		var json : VexJsonFormat = {};
-		if (type != null) json.type = type;
-		if (id != null) json.id = id;
-		if (pos != null) json.pos = pos;
+		if (type != null) 	json.type = type;
+		if (id != null) 	json.id = id;
+		if (pos != null) 	json.pos = pos;
 		if (origin != null) json.origin = origin;
-		if (scale != null) json.scale = scale;
-		if (rot != null) json.rot = rot;
-		if (color != null) json.color = color;
-		if (path != null) json.path = path;
+		if (scale != null) 	json.scale = scale;
+		if (rot != null) 	json.rot = rot;
+		if (color != null) 	json.color = color;
+		if (path != null) 	json.path = path;
+		if (src != null) 	json.src = src;
 		return json;
 	}
 
 	public function deserialize(json:VexJsonFormat) {
-		if (json.type != null) type = json.type;
-		if (json.id != null) id = json.id;
-		if (json.pos != null) pos = json.pos;
-		if (json.origin != null) origin = json.origin;
-		if (json.scale != null) scale = json.scale;
-		if (json.rot != null) rot = json.rot;
-		if (json.path != null) path = json.path;
-		if (json.color != null) color = json.color;
+		if (json.type != null) 		type = json.type;
+		if (json.id != null) 		id = json.id;
+		if (json.pos != null) 		pos = json.pos;
+		if (json.origin != null) 	origin = json.origin;
+		if (json.scale != null) 	scale = json.scale;
+		if (json.rot != null) 		rot = json.rot;
+		if (json.path != null) 		path = json.path;
+		if (json.color != null) 	color = json.color;
+		if (json.src != null) 		src = json.src;
+	}
+
+	public function deserializeRef(json:VexJsonFormat) {
+		// Properties that will be saved
+		// id
+		if (json.id != null && id == null) id = json.id; //is this really a good idea?
+
+		// Properties that will NOT be saved
+		// pos
+		if (json.pos != null && pos == null) {
+			visual.pos = json.pos;
+		}
+		// origin
+		if (json.origin != null && origin == null) {
+			visual.origin = json.origin;
+		}
+		// scale
+		if (json.scale != null && scale == null) {
+			visual.scale = json.scale;
+		}
+		// rot
+		if (json.rot != null && rot == null) {
+			visual.rotation_z = json.rot;
+		}
+
+		// Properties currently not accounted for (probably not needed at all for ref objects)
+		// type
+		// color
+		// path
+		// src
 	}
 
 	function set_type(prop:Property) : Property {
 		return type = prop;
+	}
+
+	function set_src(prop:Property) : Property {
+		return src = prop; //this setter may not be necessary?
 	}
 
 	function set_id(prop:Property) : Property {

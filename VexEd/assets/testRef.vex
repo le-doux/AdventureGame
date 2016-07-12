@@ -1,0 +1,23 @@
+{
+	"id" : "testRef",
+	"type" : "group",
+	"children" : [
+		{
+			"type" : "ref",
+			"src" : "assets/shroom.vex"
+		},
+		{
+			"type" : "ref",
+			"src" : "assets/shroom.vex",
+			"scale" : "0.3,2",
+			"pos" : "-100,100"
+		},
+		{
+			"type" : "ref",
+			"src" : "assets/shroom.vex",
+			"scale" : "1.5,0.5",
+			"pos" : "200,-100",
+			"rot" : "120"
+		}
+	]
+}
