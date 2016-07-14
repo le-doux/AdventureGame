@@ -215,4 +215,12 @@ class Vex extends Visual {
 	public function stopAnimation() { //rename pause?
 		if (curAnimation != null) Actuate.stop(curAnimation);
 	}
+
+	//probably hacky and dumb -- please revisit later you doofus
+	override function set_depth(_v:Float) {
+		for (c in getVexChildren()) {
+			c.depth = _v;
+		}
+		return super.set_depth(_v);
+	}
 }

@@ -21,7 +21,14 @@ class Palette {
 		paletteMap.set(name, pal);
 	}
 
-	public static function Init(id:String) {
+	//default init -- no colors
+	public static function StartBlank() { //needs a new name?
+		for (i in 0 ... 8) { //8 is an arbitrary number I'm currently limiting myself to
+			Colors.push( new Color(0,0,0) ); //all black
+		}
+	}
+
+	public static function Init(id:String) { //should I keep this
 		var pal = paletteMap.get(id);
 		for (i in 0 ... pal.colors.length) {
 			Colors.push( pal.colors[i] );

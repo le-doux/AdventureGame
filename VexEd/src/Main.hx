@@ -37,7 +37,7 @@ import Command;
 	X resize objects
 	- ? depth control
 	- ? animation references
-	- level file format!
+	X level file format!
 	- playmode app
 
 	TODO for demo day
