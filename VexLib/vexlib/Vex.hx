@@ -28,6 +28,8 @@ class Vex extends Visual {
 				child.parent = this;
 			}
 		}
+
+		trace(properties.id);
 	}
 
 	public function serialize() : VexJsonFormat {
@@ -196,6 +198,7 @@ class Vex extends Visual {
 	var curAnimation : Animation;
 	public function addAnimation(json:AnimationFormat, ?name:String) {
 		if (name == null) {
+			trace(json.id);
 			if (json.id != null) {
 				name = json.id;
 			}
@@ -203,6 +206,7 @@ class Vex extends Visual {
 				name = "default";
 			}
 		}
+		trace(name);
 		var anim = new Animation(json, this);
 		animations.set(name, anim);
 	}
@@ -214,6 +218,9 @@ class Vex extends Visual {
 	}
 	public function stopAnimation() { //rename pause?
 		if (curAnimation != null) Actuate.stop(curAnimation);
+	}
+	public function getAnimation(name:String) : Animation {
+		return animations.get(name);
 	}
 
 	//probably hacky and dumb -- please revisit later you doofus
