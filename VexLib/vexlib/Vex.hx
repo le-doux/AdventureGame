@@ -6,6 +6,8 @@ import luxe.Rectangle;
 import luxe.tween.Actuate;
 import luxe.resource.Resource.JSONResource;
 import luxe.resource.Resource.Resource;
+import luxe.collision.shapes.Polygon in CollisionPolygon;
+import luxe.collision.shapes.Circle in CollisionCircle;
 
 import vexlib.VexPropertyInterface;
 import vexlib.Animation;
@@ -111,7 +113,10 @@ class Vex extends Visual {
 	}
 
 	public function isPointInside(pt:Vector) : Bool {
-		return bounds().point_inside(pt);
+		var b = bounds();
+		var col = b.testCircle( new CollisionCircle(pt.x, pt.y, 1) ); //radius = 1 is a temp hack
+		return col != null;
+		//return bounds().point_inside(pt); //old version
 	}
 
 	public function getChildWithPointInside(pt:Vector) : Vex {
@@ -125,10 +130,130 @@ class Vex extends Visual {
 		return null;
 	}
 
-	public function bounds() : Rectangle {
-		var boundingBox = new Rectangle();
+	/* Am I recreating the static extension? Shoudl I move it in here? */
+	// Hooray this works!
+	function pathToWorldSpace(pathArray:Array<Vector>) : Array<Vector> {
+		var worldPath = [];
+		for (p in pathArray) {
+			worldPath.push( p.clone().applyProjection( transform.local.matrix ) );
+		}
+		return worldPath;
+	}
+
+	//weird place to put this helper function
+	function rectangleToPath(rect:Rectangle) : Array<Vector> {
+		var path = [];
+		path.push( new Vector(rect.x,			rect.y) );
+		path.push( new Vector(rect.x + rect.w,	rect.y) );
+		path.push( new Vector(rect.x + rect.w,	rect.y + rect.h) );
+		path.push( new Vector(rect.x, 			rect.y + rect.h) );
+		return path;
+	}
+
+	// TODO - need to store bounds somewhere until they need to update?
+	// TODO bounds don't work right if they have a parent 
+	public function bounds() : CollisionPolygon {
+
+		var path : Array<Vector> = [];
 		if (properties.type == "poly") {
-			var path : Array<Vector> = properties.path;
+			path = properties.path;
+		}
+		else if (properties.type == "group" || properties.type == "ref") {
+			for (c in getVexChildren()) {
+				path = path.concat( c.bounds().transformedVertices );
+			}
+		}
+		if (path.length > 0) {
+			var xMin = path[0].x;
+			var xMax = path[0].x;
+			var yMin = path[0].y;
+			var yMax = path[0].y;
+			for (p in path) {
+				if (p.x < xMin) xMin = p.x;
+				if (p.x > xMax) xMax = p.x;
+				if (p.y < yMin) yMin = p.y;
+				if (p.y > yMax) yMax = p.y;
+			}
+
+			var x = xMin - origin.x; //have to take into account origin in this janky way
+			var y = yMin - origin.y;
+			var w = xMax - xMin;
+			var h = yMax - yMin;
+			var vertices:Array<Vector> = [];
+			vertices.push( new Vector(x,y) );
+			vertices.push( new Vector(x+w,y) );
+			vertices.push( new Vector(x+w,y+h) );
+			vertices.push( new Vector(x,y+h) );
+
+			var boundingBox = new CollisionPolygon(pos.x, pos.y, vertices);
+
+			boundingBox.rotation = rotation_z;
+			boundingBox.scaleX = scale.x;
+			boundingBox.scaleY = scale.y;
+
+			return boundingBox;
+		}
+
+
+		/*
+		if (properties.type == "poly") {
+			var boundingPoly = new CollisionPolygon(pos.x, pos.y, properties.path);
+			boundingPoly.rotation = rotation_z;
+			boundingPoly.scaleX = scale.x;
+			boundingPoly.scaleY = scale.y;
+			return boundingPoly;
+		}
+		else if (properties.type == "group" || properties.type == "ref") {
+			var childCollisionPoints = [];
+			for (c in getVexChildren()) {
+				var childBounds = c.bounds();
+				childCollisionPoints = childCollisionPoints.concat( childBounds.transformedVertices );
+			}
+			if (childCollisionPoints.length > 0) {
+				var xMin = childCollisionPoints[0].x;
+				var xMax = childCollisionPoints[0].x;
+				var yMin = childCollisionPoints[0].y;
+				var yMax = childCollisionPoints[0].y;
+				for (p in childCollisionPoints) {
+					if (p.x < xMin) xMin = p.x;
+					if (p.x > xMax) xMax = p.x;
+					if (p.y < yMin) yMin = p.y;
+					if (p.y > yMax) yMax = p.y;
+				}
+				var boundingBoxPath = [
+							new Vector(xMin, yMin),
+							new Vector(xMax, yMin),
+							new Vector(xMax, yMax),
+							new Vector(xMin, yMax)
+						];
+				var boundingPoly = new CollisionPolygon(pos.x, pos.y, boundingBoxPath);
+				boundingPoly.rotation = rotation_z;
+				boundingPoly.scaleX = scale.x;
+				boundingPoly.scaleY = scale.y;
+				return boundingPoly;
+			}
+
+		}
+		*/
+
+		//error case
+		return new CollisionPolygon(0,0,[]);
+
+		/*
+		var boundingBox = new Rectangle();
+		var path : Array<Vector> = [];
+		if (properties.type == "poly") {
+			path = properties.path;
+			path = pathToWorldSpace( path );
+		}
+		else if (properties.type == "group" || properties.type == "ref") {
+			for (c in getVexChildren()) {
+				var boundsPath = rectangleToPath( c.bounds() );
+				boundsPath = pathToWorldSpace( boundsPath );
+				path = path.concat( boundsPath );
+			}
+		}
+		if (path.length > 0) {
 			var xMin = path[0].x;
 			var xMax = path[0].x;
 			var yMin = path[0].y;
@@ -143,18 +268,31 @@ class Vex extends Visual {
 			boundingBox.y = yMin;
 			boundingBox.w = xMax - xMin;
 			boundingBox.h = yMax - yMin;
-			if (properties.pos != null) { //likely to be fragile
-				var p : Vector = properties.pos;
-				boundingBox.x += p.x;
-				boundingBox.y += p.y;
+		}
+		*/
+
+		//old version -- for posterity?
+		/*
+		if (properties.type == "poly") {
+			var path : Array<Vector> = properties.path;
+			path = pathToWorldSpace(path);
+			var xMin = path[0].x;
+			var xMax = path[0].x;
+			var yMin = path[0].y;
+			var yMax = path[0].y;
+			for (p in path) {
+				if (p.x < xMin) xMin = p.x;
+				if (p.x > xMax) xMax = p.x;
+				if (p.y < yMin) yMin = p.y;
+				if (p.y > yMax) yMax = p.y;
 			}
-			if (properties.origin != null) { //likely to be fragile
-				var p : Vector = properties.origin;
-				boundingBox.x -= p.x;
-				boundingBox.y -= p.y;
-			}
+			boundingBox.x = xMin;
+			boundingBox.y = yMin;
+			boundingBox.w = xMax - xMin;
+			boundingBox.h = yMax - yMin;
 		}
 		else if (properties.type == "group" || properties.type == "ref") {
+			//TODO
 			var vexChildren = getVexChildren();
 			if (vexChildren.length > 0) {
 				var childBounds = vexChildren[0].bounds();
@@ -177,19 +315,10 @@ class Vex extends Visual {
 				boundingBox.y = yMin;
 				boundingBox.w = xMax - xMin;
 				boundingBox.h = yMax - yMin;
-				if (properties.pos != null) { //likely to be fragile
-					var p : Vector = properties.pos;
-					boundingBox.x += p.x;
-					boundingBox.y += p.y;
-				}
-				if (properties.origin != null) { //likely to be fragile
-					var p : Vector = properties.origin;
-					boundingBox.x -= p.x;
-					boundingBox.y -= p.y;
-				}
 			}
 		}
-		return boundingBox;
+		*/
+		//return boundingBox;
 	}
 
 	//TODO make animation less hacky

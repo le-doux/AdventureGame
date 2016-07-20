@@ -16,6 +16,18 @@ import luxe.resource.Resource.JSONResource;
 import Command;
 
 /*
+	TODO for better animated character
+	- animation editor
+	- sketch layer
+	X bounds that work w/ transforms
+	- groups of groups
+	- select into groups
+	- ungroup
+	- insert objects inside of a group
+	- ? clean up animation format
+	- ? tween two animations
+	- ? palette editor
+
 	TODO next
 	- clean up animation format
 	- animation editor
@@ -161,7 +173,7 @@ class Main extends luxe.Game {
 				//move pos to top left
 				var curPos : Vector  = g.properties.pos;
 				var bounds = g.bounds();
-				var topLeft : Vector = new Vector(bounds.x, bounds.y);
+				var topLeft : Vector = bounds.transformedVertices[0]; //hope this works
 				var displacement = Vector.Subtract( topLeft, curPos );
 				for (v in g.getVexChildren()) {
 					var pos : Vector = v.properties.pos;
@@ -374,16 +386,17 @@ class Main extends luxe.Game {
 			if (Luxe.input.keydown(Key.key_x) && Luxe.input.keydown(Key.lmeta)) {
 				/* SET ORIGIN */
 				if (selected != null) {
-					var newOrigin = p.clone();
-					if (selected.properties.pos != null) newOrigin.subtract(selected.properties.pos);
-					if (selected.properties.origin != null) newOrigin.add(selected.properties.origin);
+					var newOriginWorldSpace = p.clone(); //is it world space? or parent space?
+					var newOriginLocalSpace = newOriginWorldSpace.clone().applyProjection( selected.transform.local.matrix.inverse() );
 
-					var prevOrigin : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
-					var displacement = Vector.Subtract( newOrigin, prevOrigin );
+					var prevOriginLocalSpace : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
+					var prevOriginWorldSpace = prevOriginLocalSpace.clone().applyProjection( selected.transform.local.matrix );
 
-					selected.properties.origin = newOrigin;
+					var displacement = Vector.Subtract( newOriginWorldSpace, prevOriginWorldSpace );
 
+					selected.properties.origin = newOriginLocalSpace;
 					selected.properties.pos = Vector.Add( selected.properties.pos, displacement );
+
 				}
 			}
 			else if (isShiftHeld) {
@@ -401,7 +414,21 @@ class Main extends luxe.Game {
 			}
 			else {
 				/* SELECT */
-				selected = root.getChildWithPointInside(p);
+				var newSelection : Vex = null;
+				if (selected != null) newSelection = selected.getChildWithPointInside(p);
+				if (newSelection == null) newSelection = root.getChildWithPointInside(p);
+				selected = newSelection;
+				/*
+				if (selected != null) {
+					var newSelection = selected.getChildWithPointInside(p);
+					if (newSelection == null) newSelection = root.getChildWithPointInside(p);
+					selected = newSelection;
+				}
+				else {
+					selected = root.getChildWithPointInside(p);
+				}
+				*/
+				//selected = root.getChildWithPointInside(p);
 			}
 		}
 	}
@@ -424,6 +451,8 @@ class Main extends luxe.Game {
 						pos.x += e.xrel / Luxe.camera.zoom;
 						pos.y += e.yrel / Luxe.camera.zoom;
 						sel.properties.pos = pos;
+
+						trace(sel.transform.local.matrix);
 					}
 				}
 			}
@@ -466,12 +495,16 @@ class Main extends luxe.Game {
 		if (!isDrawingMode) {
 			for (s in multiSelection) {
 				var selectedBounds = s.bounds();
-				Luxe.draw.rectangle({
-						x: selectedBounds.x, y: selectedBounds.y,
-						w: selectedBounds.w, h: selectedBounds.h,
-						color: new Color(1,1,1),
-						immediate: true
-					});
+				var boundsVertices = selectedBounds.transformedVertices;
+				for (i in 0 ... boundsVertices.length) {
+					var v0 = boundsVertices[ i ];
+					var v1 = boundsVertices[ cast((i+1)%boundsVertices.length) ];
+					Luxe.draw.line({
+							p0: v0, p1: v1,
+							color: new Color(1,1,1),
+							immediate: true
+						});
+				}
 
 				if (s.properties.pos != null) {
 					var p : Vector = s.properties.pos;

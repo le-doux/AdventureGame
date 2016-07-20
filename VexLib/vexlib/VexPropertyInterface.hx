@@ -121,6 +121,7 @@ class VexPropertyInterface {
 	function set_scale(prop:Property) : Property {
 		scale = prop;
 		visual.scale = scale;
+		visual.scale.z = 1; //hack to keep inverse() valid
 		return scale;
 	}
 
