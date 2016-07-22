@@ -18,12 +18,19 @@ import Command;
 /*
 	TODO for better animated character
 	- animation editor
-	- sketch layer
+		- add mode support to editor
+		- create timeline
+		- ? clean up animation format
+		- functionalize editing commands so they don't always update properties
+		- make editing commands update animation frames
+	X sketch layer
 	X bounds that work w/ transforms
-	- groups of groups
-	- select into groups
-	- ungroup
-	- insert objects inside of a group
+	X groups of groups
+	X select into groups
+		- this could be better
+	X ungroup
+	- ? depth control
+	- ? insert objects inside of a group
 	- ? clean up animation format
 	- ? tween two animations
 	- ? palette editor
@@ -34,7 +41,7 @@ import Command;
 	- naming scheme for Vex and related formats
 	- load palettes at will
 	X copy / paste
-	- make bounds work with scale and rotation
+	X make bounds work with scale and rotation
 	- ? maybe switch bounds off of a bounding box model to collision polys??
 
 	TODO for getting things in level
@@ -54,14 +61,14 @@ import Command;
 
 	TODO for demo day
 	X animated main char
-	- vex scenery in level editor / player
+	X vex scenery in level editor / player
 		X need to be able to move off origin point in vex editor
-	- ? swipe triggered anims in level
+	X swipe triggered anims in level
 	- ? parallax layers
 
 	TODO:
 	- add UI layer for graphics
-	- copy paste with JSON
+	X copy paste with JSON
 	X make vector viewer app
 	- how do I handle z order?
 	- why don't grays render the way I expect? color unpacking?
@@ -88,9 +95,16 @@ class Main extends luxe.Game {
 	var isDrawingMode = true;
 	var isPanning = false;
 
+	var isSketchMode = false; //TODO enums or states plz
+	var showSketchLayer = true;
+
 	var curPalIndex = 0;
 
 	var clipboard : String;
+
+	//sketchmode
+	var sketchLines : Array<Array<Vector>> = [];
+	var curSketchLine : Array<Vector>;
 
 	override function ready() {
 		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
@@ -153,6 +167,15 @@ class Main extends luxe.Game {
 			drawingPath = [];
 		}
 
+		//toggle sketch mode
+		if (e.keycode == Key.key_k && e.mod.meta) {
+			isSketchMode = !isSketchMode;
+		}
+		if (e.keycode == Key.key_k && e.mod.lalt) {
+			showSketchLayer = !showSketchLayer;
+		}
+
+
 		//enter drawing mode
 		if (e.keycode == Key.key_d && e.mod.meta) {
 			isDrawingMode = true;
@@ -172,8 +195,8 @@ class Main extends luxe.Game {
 				
 				//move pos to top left
 				var curPos : Vector  = g.properties.pos;
-				var bounds = g.bounds();
-				var topLeft : Vector = bounds.transformedVertices[0]; //hope this works
+				var bounds = g.boundsWorld();
+				var topLeft : Vector = bounds[0]; //bounds.transformedVertices[0]; //hope this works
 				var displacement = Vector.Subtract( topLeft, curPos );
 				for (v in g.getVexChildren()) {
 					var pos : Vector = v.properties.pos;
@@ -184,6 +207,25 @@ class Main extends luxe.Game {
 				//add group to scene
 				g.parent = root;
 				selected = g;
+			}
+		}
+
+		//ungroup selected group
+		if (e.keycode == Key.key_u && e.mod.meta) {
+			if ( selected != null && (selected.properties.type == "group" || selected.properties.type == "ref") ) {
+				for (v in selected.getVexChildren()) {
+					var newPos = selected.toParentSpace( v.pos );
+					var newScale = v.scale.multiply( selected.scale );
+					var newRot = v.rotation_z + selected.rotation_z;
+
+					v.properties.pos = newPos;
+					v.properties.scale = newScale;
+					v.properties.rot = newRot;
+
+					v.parent = selected.parent;
+				}
+				selected.destroy(true);
+				selected = null;
 			}
 		}
 
@@ -217,7 +259,10 @@ class Main extends luxe.Game {
 
 		//delete selected element
 		if (e.keycode == Key.backspace) {
-			if (multiSelection.length > 0) {
+			if (isSketchMode) {
+				sketchLines = [];
+			}
+			else if (multiSelection.length > 0) {
 				new DeleteCommand(multiSelection);
 				multiSelection = [];
 			}
@@ -339,6 +384,11 @@ class Main extends luxe.Game {
 		if (isAltHeld) {
 			isPanning = true;
 		}
+		else if (isSketchMode) {
+			curSketchLine = [];
+			curSketchLine.push(p);
+			sketchLines.push(curSketchLine);
+		}
 		else if (isDrawingMode) {
 			//is the path closed?
 			var isPathClosed = false;
@@ -386,17 +436,16 @@ class Main extends luxe.Game {
 			if (Luxe.input.keydown(Key.key_x) && Luxe.input.keydown(Key.lmeta)) {
 				/* SET ORIGIN */
 				if (selected != null) {
-					var newOriginWorldSpace = p.clone(); //is it world space? or parent space?
-					var newOriginLocalSpace = newOriginWorldSpace.clone().applyProjection( selected.transform.local.matrix.inverse() );
+					var newOriginWorldSpace = p.clone();
+					var newOriginLocalSpace = selected.toLocalSpace( newOriginWorldSpace );
 
 					var prevOriginLocalSpace : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
-					var prevOriginWorldSpace = prevOriginLocalSpace.clone().applyProjection( selected.transform.local.matrix );
+					var prevOriginWorldSpace = selected.toWorldSpace( prevOriginLocalSpace );
 
 					var displacement = Vector.Subtract( newOriginWorldSpace, prevOriginWorldSpace );
 
 					selected.properties.origin = newOriginLocalSpace;
 					selected.properties.pos = Vector.Add( selected.properties.pos, displacement );
-
 				}
 			}
 			else if (isShiftHeld) {
@@ -415,7 +464,7 @@ class Main extends luxe.Game {
 			else {
 				/* SELECT */
 				var newSelection : Vex = null;
-				if (selected != null) newSelection = selected.getChildWithPointInside(p);
+				if (selected != null && selected.properties.type != "ref") newSelection = selected.getChildWithPointInside(p);
 				if (newSelection == null) newSelection = root.getChildWithPointInside(p);
 				selected = newSelection;
 				/*
@@ -434,6 +483,9 @@ class Main extends luxe.Game {
 	}
 
 	override function onmousemove(e:MouseEvent) {
+		var p = Luxe.camera.screen_point_to_world(e.pos);
+		//todo sketching
+
 		/* PAN */
 		if (isPanning) {
 			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
@@ -441,8 +493,13 @@ class Main extends luxe.Game {
 		}
 
 		/* TRANSLATE */
+		if (isSketchMode) {
+			if (Luxe.input.mousedown(luxe.MouseButton.left)) {
+				curSketchLine.push(p);
+			}
+		}
 		//TODO turn this into a command?
-		if (!isDrawingMode) { //TODO make states or mode enums or something
+		else if (!isDrawingMode) { //TODO make states or mode enums or something
 			if (Luxe.input.mousedown(luxe.MouseButton.left)) {
 				if (multiSelection.length > 0) {
 					for (sel in multiSelection) {
@@ -494,30 +551,52 @@ class Main extends luxe.Game {
 
 		if (!isDrawingMode) {
 			for (s in multiSelection) {
+				/*
 				var selectedBounds = s.bounds();
 				var boundsVertices = selectedBounds.transformedVertices;
+				*/
+				var boundsColor = new Color(1,1,1);
+				if (s.properties.type == "group") boundsColor = new Color(1,1,0);
+				if (s.properties.type == "ref") boundsColor = new Color(0,1,1);
+
+				var boundsVertices = s.boundsWorld();
 				for (i in 0 ... boundsVertices.length) {
 					var v0 = boundsVertices[ i ];
 					var v1 = boundsVertices[ cast((i+1)%boundsVertices.length) ];
 					Luxe.draw.line({
 							p0: v0, p1: v1,
-							color: new Color(1,1,1),
+							color: boundsColor,
+							depth:100,
 							immediate: true
 						});
 				}
 
 				if (s.properties.pos != null) {
-					var p : Vector = s.properties.pos;
+					var p = s.toWorldSpace2(s.properties.pos);
 					Luxe.draw.ring({
 							x: p.x, y: p.y,
 							r: 8,
 							immediate: true,
+							color: boundsColor,
 							depth: 100
 						});
 				}
 			}
 		}
 
+		//draw sketch
+		if (showSketchLayer) {
+			for (l in sketchLines) {
+				for (i in 1 ... l.length) {
+					Luxe.draw.line({
+							p0: l[i-1],
+							p1: l[i],
+							depth:100,
+							immediate:true
+						});
+				}
+			}
+		}
 
 		//move around document
 		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
