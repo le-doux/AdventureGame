@@ -1,17 +1,19 @@
 
+import sys.io.File;
+import haxe.Json;
+
 import luxe.Input;
 import luxe.Visual;
 import luxe.Vector;
 import luxe.Color;
+import luxe.Camera;
+import luxe.resource.Resource.JSONResource;
+import phoenix.Batcher;
+import dialogs.Dialogs;
 
 import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
-
-import sys.io.File;
-import haxe.Json;
-import dialogs.Dialogs;
-import luxe.resource.Resource.JSONResource;
 
 import Command;
 
@@ -72,14 +74,27 @@ import Command;
 	X make vector viewer app
 	- how do I handle z order?
 	- why don't grays render the way I expect? color unpacking?
-	- sketch layer
+	X sketch layer
 	- need to handle animation edge cases better
 		- edge cases: no start frame, no end frame, ???
 		- need to be able to reset to base "pose"
 	- report luxe bugs
 */
 
+enum EditorMode {
+	Draw;
+	Edit;
+	Animate;
+	Sketch;
+}
+
 class Main extends luxe.Game {
+
+	var mode : EditorMode = EditorMode.Draw;
+
+	/* BATCHERS */
+	var uiScreenBatcher : Batcher; // UI displayed at screen coords
+	var uiSceneBatcher : Batcher; // UI displayed in scene coords
 
 	var drawingPath : Array<Vector> = [];
 	var distToClosePath = 16;
@@ -92,10 +107,7 @@ class Main extends luxe.Game {
 
 	/* STATE FLAGS */
 	var isEditingId = false;
-	var isDrawingMode = true;
 	var isPanning = false;
-
-	var isSketchMode = false; //TODO enums or states plz
 	var showSketchLayer = true;
 
 	var curPalIndex = 0;
@@ -109,6 +121,10 @@ class Main extends luxe.Game {
 	override function ready() {
 		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
 
+		var uiCam = new Camera({name:"uiCam"});
+		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
+		uiSceneBatcher = Luxe.renderer.create_batcher({name:"uiSceneBatcher", layer:5, camera:Luxe.camera.view});
+
 		//init drawing
 		root = new Vex({
 				type: "group",
@@ -116,6 +132,7 @@ class Main extends luxe.Game {
 				pos: "0,0"
 			});
 
+		/*
 		//draw origin
 		Luxe.draw.line({
 				p0: new Vector(-Luxe.screen.width/2, 0),
@@ -125,6 +142,7 @@ class Main extends luxe.Game {
 				p0: new Vector(0, -Luxe.screen.height/2),
 				p1: new Vector(0, Luxe.screen.height/2)
 			});
+		*/
 
 		//load default palettes - hacky nonsense
 		var load = Luxe.resources.load_json('assets/default.pal');
@@ -135,20 +153,137 @@ class Main extends luxe.Game {
 		});
 	} //ready
 
-	function get_selected() : Vex {
-		if (multiSelection.length > 0) return multiSelection[0];
-		return null;
+	override function onkeydown( e:KeyEvent ) {
+
+		//switch modes
+		var modeCount = 4; //hack
+		if (e.keycode == Key.right && e.mod.lalt) {
+			var modeIndex = mode.getIndex();
+			modeIndex = (modeIndex + 1) % modeCount;
+			switchMode(EditorMode.createByIndex(modeIndex));
+		}
+		if (e.keycode == Key.left && e.mod.lalt) {
+			var modeIndex = mode.getIndex();
+			modeIndex = (modeIndex - 1) % modeCount;
+			if (modeIndex < 0) modeIndex = modeCount - 1;
+			switchMode(EditorMode.createByIndex(modeIndex));
+		}
+
+		switch (mode) {
+			case Draw: onkeydown_draw(e);
+			case Edit: onkeydown_edit(e);
+			case Sketch: onkeydown_sketch(e);
+			case Animate: onkeydown_animate(e);
+		}
+
+		//toggle sketch visibility
+		if (e.keycode == Key.key_k && e.mod.lalt) {
+			showSketchLayer = !showSketchLayer;
+		}
+
+		//for testing: change background color
+		if (e.keycode == Key.key_b && e.mod.meta) {
+			Luxe.renderer.clear_color = Palette.Colors[curPalIndex];
+		}
+
+		/*
+		//for testing: swap palettes
+		if (e.keycode == Key.key_p && e.mod.meta) {
+			Palette.Swap("alt", 5);
+		}
+		*/
+
+		//open
+		if (e.keycode == Key.key_o && e.mod.meta ) {
+
+			//load file
+			var path = Dialogs.open("Open dialog");
+			var fileStr = File.getContent(path);
+			var json = Json.parse(fileStr);
+
+			//destroy current image
+			root.destroy();
+
+			//load new image
+			root = new Vex(json);
+
+		}
+
+		//save
+		if (e.keycode == Key.key_s && e.mod.meta ) {
+			//get path & open file
+			var path = Dialogs.save("Save dialog");
+			var output = File.write(path);
+
+			//get data & write it
+			var saveJson = root.serialize();
+			var saveStr = Json.stringify(saveJson, null, "	");
+			output.writeString(saveStr);
+
+			//close file
+			output.close();
+		}
+
+		//import ref
+		if (e.keycode == Key.key_r && e.mod.meta) {
+			var path = Dialogs.open("Import dialog");
+			//hacky method - assumes everything lives in assets folder
+			//also - always goes to 0,0
+			var pathSplit = path.split("/assets/"); 
+			var srcString = "assets/" + pathSplit[1];
+			var cmd = new DrawVexCommand(root,
+					{
+						type: "ref",
+						src: srcString
+					});
+			selected = cmd.vex;
+		}
+
+		//edit id
+		if (e.keycode == Key.key_i && e.mod.meta) {
+			if (selected != null) {
+				isEditingId = !isEditingId;
+				if (isEditingId) selected.properties.id = "";
+			}
+		}
+
+		//copy paste
+		//TODO use real clipboard
+		if (e.keycode == Key.key_c && e.mod.meta) {
+			if (selected != null) {
+				clipboard = Json.stringify( selected.serialize() );
+			}
+			else {
+				clipboard = Json.stringify( root.serialize() ); //not sure this is a great idea actually
+			}
+		}
+		if (e.keycode == Key.key_v && e.mod.meta) {
+			if (clipboard != null) {
+				var json = Json.parse( clipboard );
+				var cmd = new DrawVexCommand(root,json);
+				selected = cmd.vex;
+				selected.pos.add(new Vector(10,10));
+				selected.properties.pos = selected.pos; //there has GOT to be a better way TODO can I override this?
+			}
+		}
+
+		//undo redo
+		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
+		if (e.keycode == Key.key_y && e.mod.meta) Command.Redo();
+
 	}
 
-	function set_selected(v:Vex) : Vex {
-		multiSelection = (v != null) ? [v] : [];
-		return v;
-	}
+	override function onkeyup( e:KeyEvent ) {
+
+		if(e.keycode == Key.escape) {
+			Luxe.shutdown();
+		}
+
+	} //onkeyup
 
 	override function ontextinput(e:TextEvent) {
 		//edit id
 		if (isEditingId) {
-			//WILL THIS WORK?
 			selected.properties.id += e.text; //TODO command-ify
 		}
 
@@ -159,26 +294,236 @@ class Main extends luxe.Game {
 		} 
 	}
 
-	override function onkeydown( e:KeyEvent ) {
+	override function onmousedown( e:MouseEvent ) {
 
-		//enter edit mode
-		if (e.keycode == Key.key_e && e.mod.meta) {
-			isDrawingMode = false;
+		/* panning */
+		var isAltHeld = Luxe.input.keydown(Key.lalt) || Luxe.input.keydown(Key.ralt);
+		if (isAltHeld) {
+			isPanning = true;
+			return;
+		}
+
+		/* mode specific mouse controls */
+		switch(mode) {
+			case Draw: onmousedown_draw(e);
+			case Edit: onmousedown_edit(e);
+			case Animate: onmousedown_animate(e);
+			case Sketch: onmousedown_sketch(e);
+		}
+	}
+
+	override function onmousemove(e:MouseEvent) {
+		/* PANNING */
+		if (isPanning) {
+			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
+			Luxe.camera.pos.y -= e.yrel / Luxe.camera.zoom;
+			return;
+		}
+
+		/* mode specific mouse controls */
+		switch(mode) {
+			case Edit: onmousemove_edit(e);
+			case Sketch: onmousemove_sketch(e);
+			default: return;
+		}
+	}
+
+	override function onmouseup(e:MouseEvent) {
+		/* PANNING */
+		isPanning = false;
+	}
+
+	override function onmousewheel(e:MouseEvent) {
+		/* ZOOMING */
+		Luxe.camera.zoom += e.yrel * 0.03 * Luxe.camera.zoom;
+	}
+
+	override function update(dt:Float) {
+
+		//current mode
+		Luxe.draw.text({
+				text: "mode: " + mode,
+				point_size: 16,
+				batcher: uiScreenBatcher,
+				immediate: true
+			});
+
+		//id
+		if (selected != null) {
+			Luxe.draw.text({
+					text: "id: " + selected.properties.id,
+					point_size: 16,
+					batcher: uiScreenBatcher,
+					pos: new Vector(0,20),
+					immediate: true
+				});
+		}
+
+		//draw sketch
+		if (showSketchLayer) {
+			for (l in sketchLines) {
+				for (i in 1 ... l.length) {
+					Luxe.draw.line({
+							p0: l[i-1],
+							p1: l[i],
+							batcher: uiSceneBatcher,
+							immediate:true
+						});
+				}
+			}
+		}
+
+		//draw origin (pretty hacky rn)
+		var screenEdgeRightWorldPos = new Vector( Luxe.camera.screen_point_to_world( new Vector(Luxe.screen.w,0)).x, 0 );
+		var screenEdgeLeftWorldPos = new Vector( Luxe.camera.screen_point_to_world( new Vector(0,0)).x, 0 );
+		var screenEdgeTopWorldPos = new Vector( 0, Luxe.camera.screen_point_to_world(new Vector(0,0)).y );
+		var screenEdgeBottomWorldPos = new Vector( 0, Luxe.camera.screen_point_to_world(new Vector(0,Luxe.screen.h)).y );
+		Luxe.draw.line({
+			p0: new Vector(0,0),
+			p1: screenEdgeRightWorldPos,
+			color: new Color(1,1,1,0.5),
+			batcher: uiSceneBatcher,
+			immediate: true
+		});
+		Luxe.draw.line({
+			p0: new Vector(0,0),
+			p1: screenEdgeLeftWorldPos,
+			color: new Color(1,1,1,0.5),
+			batcher: uiSceneBatcher,
+			immediate: true
+		});
+		Luxe.draw.line({
+			p0: new Vector(0,0),
+			p1: screenEdgeTopWorldPos,
+			color: new Color(1,1,1,0.5),
+			batcher: uiSceneBatcher,
+			immediate: true
+		});
+		Luxe.draw.line({
+			p0: new Vector(0,0),
+			p1: screenEdgeBottomWorldPos,
+			color: new Color(1,1,1,0.5),
+			batcher: uiSceneBatcher,
+			immediate: true
+		});
+
+		//move around document
+		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
+		var panSpeed : Float = 50;
+		if (Luxe.input.keydown(Key.left) && isShiftHeld) {
+			Luxe.camera.pos.x -= panSpeed * dt;
+		}
+		else if (Luxe.input.keydown(Key.right) && isShiftHeld) {
+			Luxe.camera.pos.x += panSpeed * dt;
+		}
+		if (Luxe.input.keydown(Key.up) && isShiftHeld) {
+			Luxe.camera.pos.y -= panSpeed * dt;
+		}
+		else if (Luxe.input.keydown(Key.down) && isShiftHeld) {
+			Luxe.camera.pos.y += panSpeed * dt;
+		}
+
+		/* mode specific update functions */
+		switch(mode) {
+			case Draw: update_draw(dt);
+			case Edit: update_edit(dt);
+			default: return;
+		}
+
+	} //update
+
+	/* DRAW */
+	function onkeydown_draw( e:KeyEvent ) {
+		//delete selected element
+		if (e.keycode == Key.backspace) {
+			if (multiSelection.length > 0) {
+				new DeleteCommand(multiSelection);
+				multiSelection = [];
+			}
+		}
+
+		//change color
+		if (e.keycode == Key.key_f && e.mod.meta) {
+			if (selected != null) {
+				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
+			}
+		}
+	}
+
+	function onmousedown_draw( e:MouseEvent ) {
+		var p = Luxe.camera.screen_point_to_world(e.pos);
+
+		//is the path closed?
+		var isPathClosed = false;
+		if (drawingPath.length > 2) {
+			if ( Vector.Subtract(p,drawingPath[0]).length < (distToClosePath / Luxe.camera.zoom) ) {
+				isPathClosed = true;
+			}
+		}
+
+		if (isPathClosed) {
+
+			//find top left point and shift the drawing path to be relative to it
+			var topLeft = drawingPath[0].clone();
+			for (p in drawingPath) {
+				if (p.x < topLeft.x) topLeft.x = p.x;
+				if (p.y < topLeft.y) topLeft.y = p.y;
+			}
+			for (p in drawingPath) {
+				p.subtract(topLeft);
+			}
+
+
+			var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
+				{
+					type: "poly",
+					pos: topLeft,
+					path: drawingPath,
+					id: "poly" + count, //I should get rid of this at some point... not everything needs an id
+					color: "pal(" + curPalIndex + ")"
+				});
+			selected = cmd.vex;
+
+			//clear drawing path
 			drawingPath = [];
+
+			count++;
+		}
+		else {
+			//add new point
+			drawingPath.push(p);
+		}
+	}
+
+	function update_draw( dt:Float ) {
+		//draw cursor
+		Luxe.draw.circle({
+				x: Luxe.screen.cursor.pos.x,
+				y: Luxe.screen.cursor.pos.y,
+				r: distToClosePath/2,
+				color: Palette.Colors[curPalIndex],
+				batcher: uiScreenBatcher,
+				immediate: true
+			});
+
+		renderDrawingPath();
+	}
+
+	/* EDIT */
+	function onkeydown_edit( e:KeyEvent ) {
+		//delete selected element
+		if (e.keycode == Key.backspace) {
+			if (multiSelection.length > 0) {
+				new DeleteCommand(multiSelection);
+				multiSelection = [];
+			}
 		}
 
-		//toggle sketch mode
-		if (e.keycode == Key.key_k && e.mod.meta) {
-			isSketchMode = !isSketchMode;
-		}
-		if (e.keycode == Key.key_k && e.mod.lalt) {
-			showSketchLayer = !showSketchLayer;
-		}
-
-
-		//enter drawing mode
-		if (e.keycode == Key.key_d && e.mod.meta) {
-			isDrawingMode = true;
+		//change color
+		if (e.keycode == Key.key_f && e.mod.meta) {
+			if (selected != null) {
+				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
+			}
 		}
 
 		//group selected elements
@@ -256,377 +601,137 @@ class Main extends luxe.Game {
 				sel.properties.scale = sel.scale;
 			}
 		}
-
-		//delete selected element
-		if (e.keycode == Key.backspace) {
-			if (isSketchMode) {
-				sketchLines = [];
-			}
-			else if (multiSelection.length > 0) {
-				new DeleteCommand(multiSelection);
-				multiSelection = [];
-			}
-		}
-
-		//edit id
-		if (e.keycode == Key.key_i && e.mod.meta) {
-			if (selected != null) {
-				isEditingId = !isEditingId;
-				if (isEditingId) selected.properties.id = "";
-			}
-		}
-
-		//change color
-		if (e.keycode == Key.key_f && e.mod.meta) {
-			if (selected != null) {
-				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
-			}
-		}
-		//for testing: change background color
-		if (e.keycode == Key.key_b && e.mod.meta) {
-			Luxe.renderer.clear_color = Palette.Colors[curPalIndex];
-		}
-
-		/*
-		//for testing: swap palettes
-		if (e.keycode == Key.key_p && e.mod.meta) {
-			Palette.Swap("alt", 5);
-		}
-		*/
-
-		//open
-		if (e.keycode == Key.key_o && e.mod.meta ) {
-
-			//load file
-			var path = Dialogs.open("Open dialog");
-			var fileStr = File.getContent(path);
-			var json = Json.parse(fileStr);
-
-			//destroy current image
-			root.destroy();
-
-			//load new image
-			root = new Vex(json);
-
-		}
-
-		//save
-		if (e.keycode == Key.key_s && e.mod.meta ) {
-			//get path & open file
-			var path = Dialogs.save("Save dialog");
-			var output = File.write(path);
-
-			//get data & write it
-			var saveJson = root.serialize();
-			var saveStr = Json.stringify(saveJson, null, "	");
-			output.writeString(saveStr);
-
-			//close file
-			output.close();
-		}
-
-		//import ref
-		if (e.keycode == Key.key_r && e.mod.meta) {
-			var path = Dialogs.open("Import dialog");
-			//hacky method - assumes everything lives in assets folder
-			//also - always goes to 0,0
-			var pathSplit = path.split("/assets/"); 
-			var srcString = "assets/" + pathSplit[1];
-			var cmd = new DrawVexCommand(root,
-					{
-						type: "ref",
-						src: srcString
-					});
-			selected = cmd.vex;
-		}
-
-		//copy paste
-		//TODO use real clipboard
-		if (e.keycode == Key.key_c && e.mod.meta) {
-			if (selected != null) {
-				clipboard = Json.stringify( selected.serialize() );
-			}
-			else {
-				clipboard = Json.stringify( root.serialize() ); //not sure this is a great idea actually
-			}
-		}
-		if (e.keycode == Key.key_v && e.mod.meta) {
-			if (clipboard != null) {
-				var json = Json.parse( clipboard );
-				var cmd = new DrawVexCommand(root,json);
-				selected = cmd.vex;
-				selected.pos.add(new Vector(10,10));
-				selected.properties.pos = selected.pos; //there has GOT to be a better way TODO can I override this?
-			}
-		}
-
-		//undo redo
-		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
-		if (e.keycode == Key.key_y && e.mod.meta) Command.Redo();
-
 	}
 
-	override function onkeyup( e:KeyEvent ) {
-
-		if(e.keycode == Key.escape) {
-			Luxe.shutdown();
-		}
-
-	} //onkeyup
-
-	override function onmousedown( e:MouseEvent ) {
-
+	function onmousedown_edit( e:MouseEvent ) {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
-
-		/* DRAWING MODE */
 		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
-		var isAltHeld = Luxe.input.keydown(Key.lalt) || Luxe.input.keydown(Key.ralt);
-		if (isAltHeld) {
-			isPanning = true;
-		}
-		else if (isSketchMode) {
-			curSketchLine = [];
-			curSketchLine.push(p);
-			sketchLines.push(curSketchLine);
-		}
-		else if (isDrawingMode) {
-			//is the path closed?
-			var isPathClosed = false;
-			if (drawingPath.length > 2) {
-				if ( Vector.Subtract(p,drawingPath[0]).length < distToClosePath ) {
-					isPathClosed = true;
-				}
-			}
 
-			if (isPathClosed) {
+		if (Luxe.input.keydown(Key.key_x) && Luxe.input.keydown(Key.lmeta)) {
+			/* SET ORIGIN */
+			if (selected != null) {
+				var newOriginWorldSpace = p.clone();
+				var newOriginLocalSpace = selected.toLocalSpace( newOriginWorldSpace );
 
-				//find top left point and shift the drawing path to be relative to it
-				var topLeft = drawingPath[0].clone();
-				for (p in drawingPath) {
-					if (p.x < topLeft.x) topLeft.x = p.x;
-					if (p.y < topLeft.y) topLeft.y = p.y;
-				}
-				for (p in drawingPath) {
-					p.subtract(topLeft);
-				}
+				var prevOriginLocalSpace : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
+				var prevOriginWorldSpace = selected.toWorldSpace( prevOriginLocalSpace );
 
+				var displacement = Vector.Subtract( newOriginWorldSpace, prevOriginWorldSpace );
 
-				var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
-					{
-						type: "poly",
-						pos: topLeft,
-						path: drawingPath,
-						id: "poly" + count, //I should get rid of this at some point... not everything needs an id
-						color: "pal(" + curPalIndex + ")"
-					});
-				selected = cmd.vex;
-
-				//clear drawing path
-				drawingPath = [];
-
-				count++;
-			}
-			else {
-				//add new point
-				drawingPath.push(p);
+				selected.properties.origin = newOriginLocalSpace;
+				selected.properties.pos = Vector.Add( selected.properties.pos, displacement );
 			}
 		}
-		/* EDIT MODE */
-		else {
-			if (Luxe.input.keydown(Key.key_x) && Luxe.input.keydown(Key.lmeta)) {
-				/* SET ORIGIN */
-				if (selected != null) {
-					var newOriginWorldSpace = p.clone();
-					var newOriginLocalSpace = selected.toLocalSpace( newOriginWorldSpace );
-
-					var prevOriginLocalSpace : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
-					var prevOriginWorldSpace = selected.toWorldSpace( prevOriginLocalSpace );
-
-					var displacement = Vector.Subtract( newOriginWorldSpace, prevOriginWorldSpace );
-
-					selected.properties.origin = newOriginLocalSpace;
-					selected.properties.pos = Vector.Add( selected.properties.pos, displacement );
-				}
-			}
-			else if (isShiftHeld) {
-				/* MULTISELECT */
-				var v = root.getChildWithPointInside(p);
-				if (v != null) {
-					var alreadySelected = multiSelection.indexOf(v) != -1;
-					if (!alreadySelected) {
-						multiSelection.push(v);
-					}
-					else {
-						// TODO remove if already selected?
-					}
-				}
-			}
-			else {
-				/* SELECT */
-				var newSelection : Vex = null;
-				if (selected != null && selected.properties.type != "ref") newSelection = selected.getChildWithPointInside(p);
-				if (newSelection == null) newSelection = root.getChildWithPointInside(p);
-				selected = newSelection;
-				/*
-				if (selected != null) {
-					var newSelection = selected.getChildWithPointInside(p);
-					if (newSelection == null) newSelection = root.getChildWithPointInside(p);
-					selected = newSelection;
+		else if (isShiftHeld) {
+			/* MULTISELECT */
+			var v = root.getChildWithPointInside(p);
+			if (v != null) {
+				var alreadySelected = multiSelection.indexOf(v) != -1;
+				if (!alreadySelected) {
+					multiSelection.push(v);
 				}
 				else {
-					selected = root.getChildWithPointInside(p);
+					// TODO remove if already selected?
 				}
-				*/
-				//selected = root.getChildWithPointInside(p);
+			}
+		}
+		else {
+			/* SELECT */
+			var newSelection : Vex = null;
+			if (selected != null && selected.properties.type != "ref") newSelection = selected.getChildWithPointInside(p);
+			if (newSelection == null) newSelection = root.getChildWithPointInside(p);
+			selected = newSelection;
+			/*
+			if (selected != null) {
+				var newSelection = selected.getChildWithPointInside(p);
+				if (newSelection == null) newSelection = root.getChildWithPointInside(p);
+				selected = newSelection;
+			}
+			else {
+				selected = root.getChildWithPointInside(p);
+			}
+			*/
+			//selected = root.getChildWithPointInside(p);
+		}
+	}
+
+	function onmousemove_edit(e:MouseEvent) {
+		/* TRANSLATE SELECTION */
+		if (Luxe.input.mousedown(luxe.MouseButton.left)) {
+			if (multiSelection.length > 0) {
+				for (sel in multiSelection) {
+					//TODO live edit the Vex pos, then ON RELEASE update the property
+					var pos = sel.pos.clone(); //this is starting to feel roundabout...
+					pos.x += e.xrel / Luxe.camera.zoom;
+					pos.y += e.yrel / Luxe.camera.zoom;
+					sel.properties.pos = pos;
+
+					trace(sel.transform.local.matrix);
+				}
 			}
 		}
 	}
 
-	override function onmousemove(e:MouseEvent) {
+	function update_edit( dt:Float ) {
+		renderSelectionBounds();
+	}
+
+	/* ANIMATE */
+	function onkeydown_animate( e:KeyEvent ) {
+	}
+
+	function onmousedown_animate( e:MouseEvent ) {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
-		//todo sketching
+	}
 
-		/* PAN */
-		if (isPanning) {
-			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
-			Luxe.camera.pos.y -= e.yrel / Luxe.camera.zoom;
-		}
-
-		/* TRANSLATE */
-		if (isSketchMode) {
-			if (Luxe.input.mousedown(luxe.MouseButton.left)) {
-				curSketchLine.push(p);
-			}
-		}
-		//TODO turn this into a command?
-		else if (!isDrawingMode) { //TODO make states or mode enums or something
-			if (Luxe.input.mousedown(luxe.MouseButton.left)) {
-				if (multiSelection.length > 0) {
-					for (sel in multiSelection) {
-						//TODO live edit the Vex pos, then ON RELEASE update the property
-						var pos = sel.pos.clone(); //this is starting to feel roundabout...
-						pos.x += e.xrel / Luxe.camera.zoom;
-						pos.y += e.yrel / Luxe.camera.zoom;
-						sel.properties.pos = pos;
-
-						trace(sel.transform.local.matrix);
-					}
-				}
-			}
+	/* SKETCH */
+	function onkeydown_sketch( e:KeyEvent ) {
+		if (e.keycode == Key.backspace) {
+			sketchLines = [];
 		}
 	}
 
-	override function onmouseup(e:MouseEvent) {
-		isPanning = false;
+	function onmousedown_sketch( e:MouseEvent ) {
+		var p = Luxe.camera.screen_point_to_world(e.pos);
+		curSketchLine = [];
+		curSketchLine.push(p);
+		sketchLines.push(curSketchLine);
 	}
 
-	override function onmousewheel(e:MouseEvent) {
-
-		/* ZOOMING */
-		Luxe.camera.zoom += e.yrel * 0.03 * Luxe.camera.zoom;
-		
+	function onmousemove_sketch(e:MouseEvent) {
+		var p = Luxe.camera.screen_point_to_world(e.pos);
+		if (Luxe.input.mousedown(luxe.MouseButton.left)) {
+			curSketchLine.push(p);
+		}
 	}
 
-	override function update(dt:Float) {
-		//draw cursor
-		var cursorPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
-		Luxe.draw.circle({
-				x: cursorPos.x,
-				y: cursorPos.y,
-				r: distToClosePath/2,
-				color: Palette.Colors[curPalIndex],
-				immediate: true
-			});
+	function get_selected() : Vex {
+		if (multiSelection.length > 0) return multiSelection[0];
+		return null;
+	}
 
-		renderDrawingPath();
+	function set_selected(v:Vex) : Vex {
+		multiSelection = (v != null) ? [v] : [];
+		return v;
+	}
 
-		if (selected != null) {
-			Luxe.draw.text({
-					text: "id: " + selected.properties.id,
-					point_size: 16,
-					pos: Vector.Multiply( Luxe.screen.mid, -1),
-					immediate: true
-				});
-		}
-
-		if (!isDrawingMode) {
-			for (s in multiSelection) {
-				/*
-				var selectedBounds = s.bounds();
-				var boundsVertices = selectedBounds.transformedVertices;
-				*/
-				var boundsColor = new Color(1,1,1);
-				if (s.properties.type == "group") boundsColor = new Color(1,1,0);
-				if (s.properties.type == "ref") boundsColor = new Color(0,1,1);
-
-				var boundsVertices = s.boundsWorld();
-				for (i in 0 ... boundsVertices.length) {
-					var v0 = boundsVertices[ i ];
-					var v1 = boundsVertices[ cast((i+1)%boundsVertices.length) ];
-					Luxe.draw.line({
-							p0: v0, p1: v1,
-							color: boundsColor,
-							depth:100,
-							immediate: true
-						});
-				}
-
-				if (s.properties.pos != null) {
-					var p = s.toWorldSpace2(s.properties.pos);
-					Luxe.draw.ring({
-							x: p.x, y: p.y,
-							r: 8,
-							immediate: true,
-							color: boundsColor,
-							depth: 100
-						});
-				}
-			}
-		}
-
-		//draw sketch
-		if (showSketchLayer) {
-			for (l in sketchLines) {
-				for (i in 1 ... l.length) {
-					Luxe.draw.line({
-							p0: l[i-1],
-							p1: l[i],
-							depth:100,
-							immediate:true
-						});
-				}
-			}
-		}
-
-		//move around document
-		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
-		var panSpeed : Float = 50;
-		if (Luxe.input.keydown(Key.left) && isShiftHeld) {
-			Luxe.camera.pos.x -= panSpeed * dt;
-		}
-		else if (Luxe.input.keydown(Key.right) && isShiftHeld) {
-			Luxe.camera.pos.x += panSpeed * dt;
-		}
-		if (Luxe.input.keydown(Key.up) && isShiftHeld) {
-			Luxe.camera.pos.y -= panSpeed * dt;
-		}
-		else if (Luxe.input.keydown(Key.down) && isShiftHeld) {
-			Luxe.camera.pos.y += panSpeed * dt;
-		}
-
-	} //update
+	function switchMode(nextMode:EditorMode) {
+		if (mode == EditorMode.Draw) drawingPath = [];
+		mode = nextMode;
+	}
 
 	function renderDrawingPath() {
 		if (drawingPath.length > 0) {
 
 			//start circle
+			var pathStartWorldPos = Luxe.camera.world_point_to_screen(drawingPath[0]);
 			Luxe.draw.ring({
-				x: drawingPath[0].x,
-				y: drawingPath[0].y,
+				x: pathStartWorldPos.x,
+				y: pathStartWorldPos.y,
 				r: distToClosePath,
-				color: Palette.Colors[curPalIndex],
+				color: new Color(1,1,1),
 				immediate: true,
-				depth: 100 //I need a separate UI layer
+				batcher: uiScreenBatcher
 			});
 
 			//draw path
@@ -637,11 +742,55 @@ class Main extends luxe.Game {
 							p1: new Vector(drawingPath[i].x, drawingPath[i].y),
 							color: Palette.Colors[curPalIndex],
 							immediate: true,
-							depth: 100
+							batcher: uiSceneBatcher
+						});
+
+					var curPointWorldPos = Luxe.camera.world_point_to_screen(drawingPath[i]);
+					Luxe.draw.ring({ //draw path points
+							x:curPointWorldPos.x, y:curPointWorldPos.y,
+							r: 5,
+							color: new Color(1,1,1),
+							immediate: true,
+							batcher: uiScreenBatcher
 						});
 				}
 			}
 
+		}
+	}
+
+	function renderSelectionBounds() {
+		for (s in multiSelection) {
+			/*
+			var selectedBounds = s.bounds();
+			var boundsVertices = selectedBounds.transformedVertices;
+			*/
+			var boundsColor = new Color(1,1,1);
+			if (s.properties.type == "group") boundsColor = new Color(1,1,0);
+			if (s.properties.type == "ref") boundsColor = new Color(0,1,1);
+
+			var boundsVertices = s.boundsWorld();
+			for (i in 0 ... boundsVertices.length) {
+				var v0 = boundsVertices[ i ];
+				var v1 = boundsVertices[ cast((i+1)%boundsVertices.length) ];
+				Luxe.draw.line({
+						p0: v0, p1: v1,
+						color: boundsColor,
+						batcher: uiSceneBatcher,
+						immediate: true
+					});
+			}
+
+			if (s.properties.pos != null) {
+				var p = s.toWorldSpace2(s.properties.pos);
+				Luxe.draw.ring({
+						x: p.x, y: p.y,
+						r: 8,
+						immediate: true,
+						color: boundsColor,
+						batcher: uiSceneBatcher
+					});
+			}
 		}
 	}
 

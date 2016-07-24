@@ -35,6 +35,7 @@ class Command {
 	}
 }
 
+// rename to insert vex command probs
 class DrawVexCommand extends Command {
 	var properties : VexJsonFormat;
 	var parent : Vex;
