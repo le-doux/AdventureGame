@@ -34,6 +34,14 @@ class Vex extends Visual {
 		trace(properties.id);
 	}
 
+	public function resetToBasePose() {
+		trace("??");
+		properties.deserialize( properties.serialize() );
+		for (c in getVexChildren()) {
+			c.resetToBasePose();
+		}
+	}
+
 	public function serialize() : VexJsonFormat {
 		var json = properties.serialize();
 
@@ -232,8 +240,8 @@ class Vex extends Visual {
 	//TODO make animation less hacky
 	//public var animation : Animation;
 	var animations : Map<String, Animation> = new Map<String, Animation>();
-	var curAnimation : Animation;
-	public function addAnimation(json:AnimationFormat, ?name:String) {
+	public var curAnimation : Animation;
+	public function addAnimation(json:AnimationFormat, ?name:String) : Animation {
 		if (name == null) {
 			trace(json.id);
 			if (json.id != null) {
@@ -246,6 +254,7 @@ class Vex extends Visual {
 		trace(name);
 		var anim = new Animation(json, this);
 		animations.set(name, anim);
+		return anim;
 	}
 	public function playAnimation(name:String, duration:Float) {
 		curAnimation = animations.get(name);

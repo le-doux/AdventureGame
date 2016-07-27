@@ -10,17 +10,19 @@ import luxe.Camera;
 import luxe.resource.Resource.JSONResource;
 import phoenix.Batcher;
 import dialogs.Dialogs;
+import luxe.utils.Maths;
 
 import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
+import vexlib.Animation;
 
 import Command;
 
 /*
 	TODO for better animated character
 	- animation editor
-		- add mode support to editor
+		X add mode support to editor
 		- create timeline
 		- ? clean up animation format
 		- functionalize editing commands so they don't always update properties
@@ -427,6 +429,7 @@ class Main extends luxe.Game {
 		switch(mode) {
 			case Draw: update_draw(dt);
 			case Edit: update_edit(dt);
+			case Animate: update_animate(dt);
 			default: return;
 		}
 
@@ -677,11 +680,87 @@ class Main extends luxe.Game {
 	}
 
 	/* ANIMATE */
+	var curAnimation : Animation = null;
+
 	function onkeydown_animate( e:KeyEvent ) {
+		//open animation
+		//TODO overload key_o instead
+		if (e.keycode == Key.key_a && e.mod.meta) {
+			//load file
+			var path = Dialogs.open("Open dialog");
+			var fileStr = File.getContent(path);
+			var json = Json.parse(fileStr);	
+			curAnimation = root.addAnimation(json);
+		}
+
+		//play animation
+		if (e.keycode == Key.key_p && e.mod.meta) {
+			/*
+			root.addAnimation( curAnimation );
+			root.playAnimation( curAnimation.id, 5 )
+				.onComplete(function() {
+						trace("!!!");
+						root.resetToBasePose();
+					});
+			*/
+			root.playAnimation(curAnimation.id, 5);
+		}
 	}
 
 	function onmousedown_animate( e:MouseEvent ) {
+		var screenPos = e.pos;
 		var p = Luxe.camera.screen_point_to_world(e.pos);
+
+		var timelineY = Luxe.screen.h * 0.9;
+		var timelineX = Luxe.screen.w * 0.1;
+		var timelineW = Luxe.screen.w * 0.8;
+
+		// timeline scrubbing
+		// TODO add scrubbing to mouse movement
+		var distFromTimelineY = Math.abs(timelineY - screenPos.y);
+		var isTouchingTimeline = distFromTimelineY < 10;
+		if (isTouchingTimeline) {
+			var timelinePercent = Maths.clamp(screenPos.x - timelineX, 0, timelineW) / timelineW;
+			if (curAnimation != null) {
+				curAnimation.t = timelinePercent;
+			}
+		}
+	}
+
+	function update_animate( dt:Float ) {
+		//draw timeline
+		var timelineY = Luxe.screen.h * 0.9;
+		var timelineX = Luxe.screen.w * 0.1;
+		var timelineW = Luxe.screen.w * 0.8;
+
+		Luxe.draw.line({
+				p0: new Vector(timelineX, timelineY),
+				p1: new Vector(timelineX + timelineW, timelineY),
+				batcher: uiScreenBatcher,
+				immediate: true
+			});
+
+		if (curAnimation != null) {
+			var animationProgressMarkerX = timelineX + (timelineW * curAnimation.t);
+			Luxe.draw.line({
+					p0: new Vector(animationProgressMarkerX, timelineY - 8),
+					p1: new Vector(animationProgressMarkerX, timelineY + 8),
+					batcher: uiScreenBatcher,
+					immediate: true
+				});
+
+			for (t in curAnimation.times()) {
+				var keyframeX = timelineX + (timelineW * t);
+				trace(keyframeX);
+				Luxe.draw.ring({
+						x: keyframeX, 
+						y: timelineY,
+						r: 10,
+						batcher: uiScreenBatcher,
+						immediate: true
+					});
+			}
+		}
 	}
 
 	/* SKETCH */
@@ -717,6 +796,7 @@ class Main extends luxe.Game {
 
 	function switchMode(nextMode:EditorMode) {
 		if (mode == EditorMode.Draw) drawingPath = [];
+		if (mode == EditorMode.Animate) root.resetToBasePose();
 		mode = nextMode;
 	}
 
