@@ -283,6 +283,7 @@ class Animation {
 				keyframes : [frame]
 			};
 			var anim = new Animation(track, vex);
+			if (tracks == null) tracks = [];
 			tracks.push(anim);
 		}
 		else {
@@ -305,9 +306,11 @@ class Animation {
 		for (t in getKeyframeTimes()) {
 			if (times.indexOf(t) == -1) times.push(t);
 		}
-		for (tr in tracks) {
-			for (t in tr.getKeyframeTimes()) {
-				if (times.indexOf(t) == -1) times.push(t);
+		if (tracks != null) {
+			for (tr in tracks) {
+				for (t in tr.getKeyframeTimes()) {
+					if (times.indexOf(t) == -1) times.push(t);
+				}
 			}
 		}
 		times.sort(
@@ -320,8 +323,10 @@ class Animation {
 	}
 
 	public function findTrack(searchStr:String) : Animation {
-		for (t in tracks) {
-			if (t.select != null && t.select == searchStr) return t;
+		if (tracks != null) { //TODO replace nullable arrays with empty arrays?
+			for (t in tracks) {
+				if (t.select != null && t.select == searchStr) return t;
+			}
 		}
 		return null;
 	}
@@ -331,11 +336,14 @@ class Animation {
 			frame: null,
 			index: -1
 		};
-		for (i in 0 ... keyframes.length) {
-			var f = keyframes[i];
-			if (f.t.toFloat() <= t) results.index = i; //TODO seems like toFloat() shouldn't be necessary :(
-			if (f.t.toFloat() == t) results.frame = f;
+		if (keyframes != null) {
+			for (i in 0 ... keyframes.length) {
+				var f = keyframes[i];
+				if (f.t.toFloat() <= t) results.index = i; //TODO seems like toFloat() shouldn't be necessary :(
+				if (f.t.toFloat() == t) results.frame = f;
+			}
 		}
+		results.index += 1;
 		return results;
 	}
 
@@ -349,16 +357,22 @@ class Animation {
 		else {
 			keyframes.insert( findFrameResults.index, keyframe );
 		}
+		trace(findFrameResults.index);
 		separateKeyframesIntoPropertySpecificFrames();
 	}
 
 	public function moveKeyframe(t0:Float, t1:Float) {
+		trace(t0);
+		trace(t1);
 		var findFrameResults = findKeyframe(t0);
 		if (findFrameResults.frame != null) {
 			var keyframe = findFrameResults.frame;
+			trace(keyframe);
 			keyframes.remove(keyframe);
+			trace(keyframes);
 			keyframe.t = t1;
 			setKeyframe(keyframe);
+			trace(keyframes);
 		}
 	}
 
@@ -383,6 +397,10 @@ class Animation {
 
 	// TODO this name is a bit unwieldy
 	function separateKeyframesIntoPropertySpecificFrames() {
+		posFrames = null;
+		scaleFrames = null;
+		rotFrames = null;
+		trace("!!!");
 		for (f in keyframes) {
 			if (f.props.pos != null) {
 				if (posFrames == null) posFrames = [];
@@ -432,6 +450,8 @@ class Animation {
 
 	function tweenPos(t:Float) {
 		//TODO what if there are less than two frames?
+		if (posFrames == null || posFrames.length < 2) return;
+
 		var lastKeyFrame = posFrames[0];
 		var nextKeyFrame = posFrames[1];
 		for (i in 2 ... posFrames.length) {
@@ -454,6 +474,8 @@ class Animation {
 	//duplicative again!!!
 	function tweenScale(t:Float) {
 		//TODO what if there are less than two frames?
+		if (scaleFrames == null || scaleFrames.length < 2) return;
+
 		var lastKeyFrame = scaleFrames[0];
 		var nextKeyFrame = scaleFrames[1];
 		for (i in 2 ... scaleFrames.length) {
@@ -475,6 +497,8 @@ class Animation {
 
 	function tweenRot(t:Float) {
 		//TODO what if there are less than two frames?
+		if (rotFrames == null || rotFrames.length < 2) return;
+
 		var lastKeyFrame = rotFrames[0];
 		var nextKeyFrame = rotFrames[1];
 		for (i in 2 ... rotFrames.length) {

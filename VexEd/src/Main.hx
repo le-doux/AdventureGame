@@ -23,10 +23,13 @@ import Command;
 	TODO for better animated character
 	- animation editor
 		X add mode support to editor
-		- create timeline
-		- ? clean up animation format
-		- functionalize editing commands so they don't always update properties
-		- make editing commands update animation frames
+		X create timeline
+		X ? clean up animation format
+		X functionalize editing commands so they don't always update properties
+		X make editing commands update animation frames
+		- sane defaults for start & end of animations
+		- sane defaults for single frame animations
+		- stop animation "follow through"
 	X sketch layer
 	X bounds that work w/ transforms
 	X groups of groups
@@ -326,6 +329,7 @@ class Main extends luxe.Game {
 		switch(mode) {
 			case Edit: onmousemove_edit(e);
 			case Sketch: onmousemove_sketch(e);
+			case Animate: onmousemove_animate(e);
 			default: return;
 		}
 	}
@@ -333,6 +337,12 @@ class Main extends luxe.Game {
 	override function onmouseup(e:MouseEvent) {
 		/* PANNING */
 		isPanning = false;
+
+		/* mode specific mouse controls */
+		switch(mode) {
+			case Animate: onmouseup_animate(e);
+			default: return;
+		}
 	}
 
 	override function onmousewheel(e:MouseEvent) {
@@ -681,6 +691,8 @@ class Main extends luxe.Game {
 
 	/* ANIMATE */
 	var curAnimation : Animation = null;
+	var isTouchingTimeline = false;
+	var selectedKeyframeOnMousedown = false;
 
 	function onkeydown_animate( e:KeyEvent ) {
 		//open animation
@@ -691,6 +703,11 @@ class Main extends luxe.Game {
 			var fileStr = File.getContent(path);
 			var json = Json.parse(fileStr);	
 			curAnimation = root.addAnimation(json);
+		}
+
+		//make new animation
+		if (e.keycode == Key.key_n && e.mod.meta) {
+			curAnimation = root.addAnimation({id:"newAnimation"});
 		}
 
 		//play animation
@@ -705,26 +722,133 @@ class Main extends luxe.Game {
 			*/
 			root.playAnimation(curAnimation.id, 5);
 		}
+
+		if (curAnimation != null) { //TODO should I ensure that curAnimation is never null?
+			//TODO share code between regular edit & animate edit?
+			//rotate selected elements //TODO make command //TODO make rotate handle?
+			if (e.keycode == Key.right && e.mod.meta) {
+				trace("!!");
+				for (sel in multiSelection) {
+					trace(sel);
+					sel.rotation_z += 5;
+					curAnimation.set({
+							t : curAnimation.t,
+							select : sel.properties.id,
+							rot : sel.rotation_z
+						});
+				}
+			}
+			if (e.keycode == Key.left && e.mod.meta) {
+				for (sel in multiSelection) {
+					sel.rotation_z -= 5;
+					curAnimation.set({
+							t : curAnimation.t,
+							select : sel.properties.id,
+							rot : sel.rotation_z
+						});
+				}
+			}
+
+			//scale selected elements //TODO make command //TODO separate x- and y- axes
+			if (e.keycode == Key.up && e.mod.meta) {
+				for (sel in multiSelection) {
+					sel.scale.add(new Vector(0.1,0.1)); //TODO do I need defaults for properties???
+					curAnimation.set({
+							t : curAnimation.t,
+							select : sel.properties.id,
+							scale : sel.scale
+						});
+				}
+			}
+			if (e.keycode == Key.down && e.mod.meta) {
+				for (sel in multiSelection) {
+					sel.scale.subtract(new Vector(0.1,0.1));
+					curAnimation.set({
+							t : curAnimation.t,
+							select : sel.properties.id,
+							scale : sel.scale
+						});
+				}
+			}	
+		}
+
 	}
 
 	function onmousedown_animate( e:MouseEvent ) {
 		var screenPos = e.pos;
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 
+		// timeline scrubbing
 		var timelineY = Luxe.screen.h * 0.9;
+		var distFromTimelineY = Math.abs(timelineY - screenPos.y);
+		isTouchingTimeline = distFromTimelineY < 15;
+		if (isTouchingTimeline) {
+			selectedKeyframeOnMousedown = animationTimelineSelect(screenPos.x);
+		}
+		else {
+			//TODO add multiselect here
+			/* SELECT */
+			var newSelection : Vex = null;
+			if (selected != null && selected.properties.type != "ref") newSelection = selected.getChildWithPointInside(p);
+			if (newSelection == null) newSelection = root.getChildWithPointInside(p);
+			selected = newSelection;
+		}
+	}
+
+	function onmousemove_animate( e:MouseEvent ) {
+		var screenPos = e.pos;
+		var p = Luxe.camera.screen_point_to_world(e.pos);
+
+		// timeline scrubbing
+		if (selectedKeyframeOnMousedown) {
+			//don't do nothin
+		}
+		else if (isTouchingTimeline) {
+			animationTimelineSelect(screenPos.x);
+		}
+
+	}
+
+	function animationTimelineSelect(x:Float) {
+		var isKeyframeTouched = false;
+
 		var timelineX = Luxe.screen.w * 0.1;
 		var timelineW = Luxe.screen.w * 0.8;
 
-		// timeline scrubbing
-		// TODO add scrubbing to mouse movement
-		var distFromTimelineY = Math.abs(timelineY - screenPos.y);
-		var isTouchingTimeline = distFromTimelineY < 10;
-		if (isTouchingTimeline) {
-			var timelinePercent = Maths.clamp(screenPos.x - timelineX, 0, timelineW) / timelineW;
-			if (curAnimation != null) {
-				curAnimation.t = timelinePercent;
+		var selectX = Maths.clamp(x - timelineX, 0, timelineW);
+		var timelinePercent = selectX / timelineW;
+		
+		if (curAnimation != null) {
+
+			//snap & select
+			for (t in curAnimation.times()) {
+				var keyframeX = (timelineW * t);
+				if (Math.abs(keyframeX - selectX) < 10) {
+					timelinePercent = t;
+					isKeyframeTouched = true;
+				}
 			}
+
+			//move animation marker & update animation
+			curAnimation.t = timelinePercent;
+
 		}
+
+		return isKeyframeTouched;
+	}
+
+	function onmouseup_animate(e:MouseEvent) {
+		if (selectedKeyframeOnMousedown) {
+			var timelineX = Luxe.screen.w * 0.1;
+			var timelineW = Luxe.screen.w * 0.8;
+			var selectX = Maths.clamp(e.pos.x - timelineX, 0, timelineW);
+			var timelinePercent = selectX / timelineW;
+			curAnimation.move(curAnimation.t, timelinePercent);
+			curAnimation.t = timelinePercent;
+		}
+
+		isTouchingTimeline = false;
+		selectedKeyframeOnMousedown = false;
 	}
 
 	function update_animate( dt:Float ) {
@@ -741,26 +865,45 @@ class Main extends luxe.Game {
 			});
 
 		if (curAnimation != null) {
-			var animationProgressMarkerX = timelineX + (timelineW * curAnimation.t);
-			Luxe.draw.line({
-					p0: new Vector(animationProgressMarkerX, timelineY - 8),
-					p1: new Vector(animationProgressMarkerX, timelineY + 8),
-					batcher: uiScreenBatcher,
-					immediate: true
-				});
-
-			for (t in curAnimation.times()) {
-				var keyframeX = timelineX + (timelineW * t);
-				trace(keyframeX);
-				Luxe.draw.ring({
-						x: keyframeX, 
-						y: timelineY,
-						r: 10,
+			if (!selectedKeyframeOnMousedown) {
+				var animationProgressMarkerX = timelineX + (timelineW * curAnimation.t);
+				Luxe.draw.line({
+						p0: new Vector(animationProgressMarkerX, timelineY - 15),
+						p1: new Vector(animationProgressMarkerX, timelineY + 15),
 						batcher: uiScreenBatcher,
 						immediate: true
 					});
 			}
+
+			for (t in curAnimation.times()) {
+				var keyframeX = timelineX + (timelineW * t);
+
+				if (t == curAnimation.t) {
+					if (selectedKeyframeOnMousedown) {
+						var selectX = Maths.clamp(Luxe.screen.cursor.pos.x, timelineX, timelineX + timelineW);
+						keyframeX = selectX;
+					}
+					Luxe.draw.circle({
+							x: keyframeX, 
+							y: timelineY,
+							r: 10,
+							batcher: uiScreenBatcher,
+							immediate: true
+						});
+				}
+				else {
+					Luxe.draw.ring({
+							x: keyframeX, 
+							y: timelineY,
+							r: 10,
+							batcher: uiScreenBatcher,
+							immediate: true
+						});
+				}
+			}
 		}
+
+		renderSelectionBounds();
 	}
 
 	/* SKETCH */
