@@ -36,7 +36,28 @@ class Vex extends Visual {
 
 	public function resetToBasePose() {
 		trace("??");
-		properties.deserialize( properties.serialize() );
+		//properties.deserialize( properties.serialize() );
+		if (properties.scale != null) {
+			scale = properties.scale;
+		}
+		else {
+			scale = new Vector(1,1);
+		}
+		
+		if (properties.pos != null) {
+			pos = properties.pos;
+		}
+		else {
+			pos = new Vector(0,0);
+		}
+
+		if (properties.rot != null) {
+			rotation_z = properties.rot;
+		}
+		else {
+			rotation_z = 0.0;
+		}
+
 		for (c in getVexChildren()) {
 			c.resetToBasePose();
 		}
@@ -258,9 +279,12 @@ class Vex extends Visual {
 	}
 	public function playAnimation(name:String, duration:Float) {
 		curAnimation = animations.get(name);
+		return curAnimation.play(duration).ease(luxe.tween.easing.Linear.easeNone);
+		/*
 		trace(curAnimation);
 		curAnimation.t = 0;
 		return Actuate.tween(curAnimation, duration, {t:1}).ease(luxe.tween.easing.Linear.easeNone); //.play(duration);
+		*/
 	}
 	public function stopAnimation() { //rename pause?
 		if (curAnimation != null) Actuate.stop(curAnimation);

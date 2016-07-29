@@ -151,16 +151,19 @@ typedef AnimationFormat = {
 typedef PosFrame = {
 	public var t : Float;
 	public var pos : Vector;
+	@:optional public var updateValueOnPlayAnim : Bool;
 }
 
 typedef ScaleFrame = { //too duplicative?
 	public var t : Float;
 	public var scale : Vector;
+	@:optional public var updateValueOnPlayAnim : Bool;
 }
 
 typedef RotFrame = {
 	public var t : Float;
 	public var rot : Float;
+	@:optional public var updateValueOnPlayAnim : Bool;
 }
 
 //hacky as fuck
@@ -188,56 +191,31 @@ class Animation {
 
 	var tracks : Null<Array<Animation>>; //does this need to be Null-able?
 
-	//TODO
-	/*
-	public function find(searchStr:String) : Animation {
-		for (t in tracks) {
-			if (t.select != null && t.select == searchStr) return t;
-		}
-		return null;
-	}
-
-	public function setFrame(select:String, frame:KeyframeFormat) {
-		var t = find(select);
-		if (t == null) {
-			tracks.push(
-				new Animation(
-					{
-						select: select,
-						keyframes: [frame]
-					},
-					vex
-				)
-			);
-		}
-		else {
-			if (frame.props.pos != null) t.addPosFrame( {t:frame.t, pos:frame.props.pos} );
-			if (frame.props.scale != null) t.addPosFrame( {t:frame.t, scale:frame.props.scale} );
-			if (frame.props.rot != null) t.addPosFrame( {t:frame.t, rot:frame.props.rot} );
-		}
-	}
-
-	public function addPosFrame(f:PosFrame) {
-		for (i in 0 ... posFrames.length) {
-
-		}
-	}
-
-	public function addScaleFrame(f:ScaleFrame) {
-
-	}
-
-	public function addRotFrame(f:RotFrame) {}
-	*/
-
 	public function new(json:AnimationFormat, root:Vex) {
-		deserialize(json);
+		deserialize(json, root);
+	}
+
+	function deserialize(json:AnimationFormat, root:Vex) { //TODO separate root somehow
+
+		if (json.select != null) select = json.select;
 
 		if (select != null) {
 			vex = root.find(select)[0];
 		}
 		else {
 			vex = root;
+		}
+
+		trace("new anim!!!");
+		trace(root.properties.id);
+		trace(vex.properties.id);
+		
+		if (json.type != null) type = json.type;
+		if (json.id != null) id = json.id;
+
+		if (json.keyframes != null) {
+			keyframes = json.keyframes;
+			separateKeyframesIntoPropertySpecificFrames(); //maybe this shouldn't be part of deserialization
 		}
 
 		if (json.tracks != null) {
@@ -248,19 +226,27 @@ class Animation {
 		}
 	}
 
-	function deserialize(json:AnimationFormat) {
-		if (json.select != null) select = json.select;
+	public function serialize() : AnimationFormat {
+		var json : AnimationFormat = {};
 		
-		if (json.type != null) type = json.type;
-		if (json.id != null) id = json.id;
+		if (type != null) json.type = type;
+		if (id != null) json.id = id;
+		if (select != null) json.select = select;
+		if (keyframes != null) json.keyframes = keyframes;
 
-		if (json.keyframes != null) {
-			keyframes = json.keyframes;
-			separateKeyframesIntoPropertySpecificFrames();
+		if (tracks != null) {
+			json.tracks = [];
+			for (tr in tracks) {
+				json.tracks.push( tr.serialize() );
+			}
 		}
+
+		return json;
 	}
 
 	public function set(options:KeyframeEditOptions) {
+		trace(options);
+
 		//create keyframe data from options
 		var props : AnimationPropertiesFormat = {}; //so much boilerplate this shit could be a steam train
 		if (options.pos != null) props.pos = options.pos;
@@ -275,8 +261,16 @@ class Animation {
 			select = findTrack(options.select); // if a selection is available, update keyframe on that track
 		}
 
+		if (select != null) {
+			(select.select != null) ? trace(select.select) : trace("root");
+		}
+		else {
+			trace("no valid selection yet");
+		}
+
 		if (select == null) {
 			// create track from scratch, if it doesn't exist
+			trace("new track!!!");
 			var track : AnimationFormat = {
 				type : "animation",
 				select : options.select,
@@ -298,7 +292,8 @@ class Animation {
 
 	public function delete(t:Float) {
 		deleteKeyframe(t);
-		for (tr in tracks) tr.deleteKeyframe(t);
+		if (tracks != null)
+			for (tr in tracks) tr.deleteKeyframe(t);
 	}
 
 	public function times() : Array<Float> {
@@ -425,11 +420,93 @@ class Animation {
 			}
 		}
 
+		//create special first and last frames if necessary
+		if (posFrames != null)
+		{
+			var firstPosFrame = posFrames[0];
+			if (firstPosFrame.t > 0) {
+				posFrames.insert(0, {
+						t: 0.0,
+						pos: (vex.properties.pos != null) ? vex.properties.pos : new Vector(0,0),
+						updateValueOnPlayAnim: true
+					});
+			}
+
+			var finalPosFrame = posFrames[posFrames.length-1];
+			if (finalPosFrame.t < 1) {
+				posFrames.push({
+						t: 1.0,
+						pos: finalPosFrame.pos
+					});
+			}
+		}
+		if (scaleFrames != null)
+		{
+			var firstScaleFrame = scaleFrames[0];
+			if (firstScaleFrame.t > 0) {
+				trace(vex);
+				scaleFrames.insert(0, {
+						t: 0.0,
+						scale: (vex.properties.scale != null) ? vex.properties.scale : new Vector(1,1),
+						updateValueOnPlayAnim: true
+					});
+			}
+
+			var finalScaleFrame = scaleFrames[scaleFrames.length-1];
+			if (finalScaleFrame.t < 1) {
+				scaleFrames.push({
+						t: 1.0,
+						scale: finalScaleFrame.scale
+					});
+			}
+		}
+		if (rotFrames != null)
+		{
+			var firstRotFrame = rotFrames[0];
+			if (firstRotFrame.t > 0) {
+				rotFrames.insert(0, {
+						t: 0.0,
+						rot: (vex.properties.rot != null) ? vex.properties.rot : 0.0,
+						updateValueOnPlayAnim: true
+					});
+			}
+
+			var finalRotFrame = rotFrames[rotFrames.length-1];
+			if (finalRotFrame.t < 1) {
+				rotFrames.push({
+						t: 1.0,
+						rot: finalRotFrame.rot
+					});
+			}
+		}
+
+
 	}
 
 	public function play(duration:Float) {
+		updateStartFrames();
 		t = 0;
 		return Actuate.tween(this, duration, {t:1});
+	}
+
+	function updateStartFrames() {
+		if (posFrames != null) {
+			if (posFrames[0].updateValueOnPlayAnim != null && posFrames[0].updateValueOnPlayAnim) {
+				posFrames[0].pos = vex.pos.clone();
+			}
+		}
+
+		if (scaleFrames != null) {
+			if (scaleFrames[0].updateValueOnPlayAnim != null && scaleFrames[0].updateValueOnPlayAnim) {
+				scaleFrames[0].scale = vex.scale.clone();
+			}
+		}
+
+		if (rotFrames != null) {
+			if (rotFrames[0].updateValueOnPlayAnim != null && rotFrames[0].updateValueOnPlayAnim) {
+				rotFrames[0].rot = vex.rotation_z; //aliased?
+			}
+		}
 	}
 
 	//TODO

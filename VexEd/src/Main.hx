@@ -20,16 +20,20 @@ import vexlib.Animation;
 import Command;
 
 /*
+	TODO next
+	- fix seleciton bug (happens after running animation???)
+
 	TODO for better animated character
-	- animation editor
+	X animation editor
 		X add mode support to editor
 		X create timeline
 		X ? clean up animation format
 		X functionalize editing commands so they don't always update properties
 		X make editing commands update animation frames
-		- sane defaults for start & end of animations
-		- sane defaults for single frame animations
-		- stop animation "follow through"
+		X sane defaults for start & end of animations
+		X sane defaults for single frame animations
+		X stop animation "follow through"
+		- save animations
 	X sketch layer
 	X bounds that work w/ transforms
 	X groups of groups
@@ -693,6 +697,7 @@ class Main extends luxe.Game {
 	var curAnimation : Animation = null;
 	var isTouchingTimeline = false;
 	var selectedKeyframeOnMousedown = false;
+	var isTranslatingSelection = false;
 
 	function onkeydown_animate( e:KeyEvent ) {
 		//open animation
@@ -720,10 +725,36 @@ class Main extends luxe.Game {
 						root.resetToBasePose();
 					});
 			*/
-			root.playAnimation(curAnimation.id, 5);
+			root.playAnimation(curAnimation.id, 5)
+					.onComplete(function() {
+							trace("animation complete!");
+							root.resetToBasePose();
+						});
 		}
 
 		if (curAnimation != null) { //TODO should I ensure that curAnimation is never null?
+
+			//export animation //TODO overload cmd+s
+			if (e.keycode == Key.key_e && e.mod.meta) {
+				//get path & open file
+				var path = Dialogs.save("Save dialog");
+				var output = File.write(path);
+
+				//get data & write it
+				var saveJson = curAnimation.serialize();
+				var saveStr = Json.stringify(saveJson, null, "	");
+				output.writeString(saveStr);
+
+				//close file
+				output.close();
+			}
+
+			//delete current keyframe
+			if (e.keycode == Key.backspace) {
+				curAnimation.delete(curAnimation.t);
+				curAnimation.t = curAnimation.t; //update the view
+			}
+
 			//TODO share code between regular edit & animate edit?
 			//rotate selected elements //TODO make command //TODO make rotate handle?
 			if (e.keycode == Key.right && e.mod.meta) {
@@ -806,6 +837,16 @@ class Main extends luxe.Game {
 		else if (isTouchingTimeline) {
 			animationTimelineSelect(screenPos.x);
 		}
+		/* TRANSLATE SELECTION */
+		else if (Luxe.input.mousedown(luxe.MouseButton.left)) {
+			if (multiSelection.length > 0) {
+				for (sel in multiSelection) {
+					sel.pos.x += e.xrel / Luxe.camera.zoom;
+					sel.pos.y += e.yrel / Luxe.camera.zoom;
+					isTranslatingSelection = true;
+				}
+			}
+		}
 
 	}
 
@@ -847,8 +888,19 @@ class Main extends luxe.Game {
 			curAnimation.t = timelinePercent;
 		}
 
+		if (isTranslatingSelection) {
+			for (sel in multiSelection) {
+				curAnimation.set({
+					t : curAnimation.t,
+					select : sel.properties.id, //do I rely too much on everything having a unique id?
+					pos : sel.pos
+				});
+			}
+		}
+
 		isTouchingTimeline = false;
 		selectedKeyframeOnMousedown = false;
+		isTranslatingSelection = false;
 	}
 
 	function update_animate( dt:Float ) {
