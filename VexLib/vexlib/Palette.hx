@@ -14,6 +14,7 @@ typedef PaletteFormat = {
 class Palette {
 	public static var Colors : Array<Color> = [];
 	static var paletteMap : Map<String, PaletteFormat> = new Map();
+	static var curPal;
 
 	//this function needs a better name --- and I need to handle multiple palettes
 	public static function Load(pal:PaletteFormat, ?name:String) {
@@ -33,6 +34,7 @@ class Palette {
 		for (i in 0 ... pal.colors.length) {
 			Colors.push( pal.colors[i] );
 		}
+		curPal = id;
 	}
 
 	public static function Swap(id:String, ?t:Float) {
@@ -48,6 +50,31 @@ class Palette {
 							b: nextColor.b 
 						});
 		}
+		curPal = id;
 		return tweenReturn;
+	}
+
+	public static function SwapNext(?t:Float) {
+		trace(curPal);
+		var firstPal : String = null;
+		var prevPal : String = null;
+		var nextPal : String = null;
+		for (k in paletteMap.keys()) {
+			trace("cur " + curPal);
+			trace("prev " + prevPal);
+			trace("next " + nextPal);
+			trace("-");
+			if (curPal != null && prevPal != null && prevPal == curPal) nextPal = k;
+			if (firstPal == null) firstPal = k;
+			prevPal = k;
+			trace("cur " + curPal);
+			trace("prev " + prevPal);
+			trace("next " + nextPal);
+			trace("---");
+		}
+		trace("first " + firstPal);
+		if (nextPal == null) nextPal = firstPal;
+		if (nextPal != null) Swap(nextPal, t);
+		trace(curPal);
 	}
 }

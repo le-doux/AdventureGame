@@ -247,10 +247,15 @@ abstract Property(String) from String to String {
 			else {
 				//you're fucked
 			}
+			trace("HEXXXX!!!");
+			trace(hexStr);
 			var hexInt = Std.parseInt( hexStr );
-			var r = ( (hexInt >> 0xf) & 0xff ) / 255;
-			var g = ( (hexInt >> 0x8) & 0xff ) / 255;
-			var b = ( (hexInt >> 0x0) & 0xff ) / 255;
+			var r = ( (hexInt >> 16) & 0xff ) / 255;
+			var g = ( (hexInt >>  8) & 0xff ) / 255;
+			var b = ( (hexInt >>  0) & 0xff ) / 255;
+			trace(r);
+			trace(g);
+			trace(b);
 			return new Color(r,g,b);
 		}
 

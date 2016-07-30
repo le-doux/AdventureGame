@@ -20,74 +20,29 @@ import vexlib.Animation;
 import Command;
 
 /*
-	TODO next
-	- fix seleciton bug (happens after running animation???)
+	TODO Next
 
-	TODO for better animated character
-	X animation editor
-		X add mode support to editor
-		X create timeline
-		X ? clean up animation format
-		X functionalize editing commands so they don't always update properties
-		X make editing commands update animation frames
-		X sane defaults for start & end of animations
-		X sane defaults for single frame animations
-		X stop animation "follow through"
-		- save animations
-	X sketch layer
-	X bounds that work w/ transforms
-	X groups of groups
-	X select into groups
-		- this could be better
-	X ungroup
-	- ? depth control
-	- ? insert objects inside of a group
-	- ? clean up animation format
-	- ? tween two animations
-	- ? palette editor
 
-	TODO next
+	TODO Backlog
+	- fix selection bug (happens after running animation???)
+	- improve select-into-groups
+	- z depth control
+	- insert objects inside of a group
 	- clean up animation format
-	- animation editor
+	- tween two animations
+	- palette editor
 	- naming scheme for Vex and related formats
-	- load palettes at will
-	X copy / paste
-	X make bounds work with scale and rotation
+	X load palettes at will
 	- ? maybe switch bounds off of a bounding box model to collision polys??
-
-	TODO for getting things in level
+	- path point editor mode
 	- ? separate level editor
 	- ? level editor mode in editor
-	- ? draw lines
+	- draw lines
 		- line thickness control
-	X load / save reference (src) objects
-	X import objects in editor
-	X move objects
-	X rotate objects
-	X resize objects
-	- ? depth control
-	- ? animation references
-	X level file format!
-	- playmode app
-
-	TODO for demo day
-	X animated main char
-	X vex scenery in level editor / player
-		X need to be able to move off origin point in vex editor
-	X swipe triggered anims in level
-	- ? parallax layers
-
-	TODO:
-	- add UI layer for graphics
-	X copy paste with JSON
-	X make vector viewer app
-	- how do I handle z order?
-	- why don't grays render the way I expect? color unpacking?
-	X sketch layer
-	- need to handle animation edge cases better
-		- edge cases: no start frame, no end frame, ???
-		- need to be able to reset to base "pose"
-	- report luxe bugs
+	- animation references
+	- parallax layers
+	X why don't grays render the way I expect? color unpacking?
+	- animate palette colors
 */
 
 enum EditorMode {
@@ -141,18 +96,6 @@ class Main extends luxe.Game {
 				pos: "0,0"
 			});
 
-		/*
-		//draw origin
-		Luxe.draw.line({
-				p0: new Vector(-Luxe.screen.width/2, 0),
-				p1: new Vector(Luxe.screen.width/2, 0)
-			});
-		Luxe.draw.line({
-				p0: new Vector(0, -Luxe.screen.height/2),
-				p1: new Vector(0, Luxe.screen.height/2)
-			});
-		*/
-
 		//load default palettes - hacky nonsense
 		var load = Luxe.resources.load_json('assets/default.pal');
 		load.then(function(jsonRes : JSONResource) {
@@ -201,6 +144,19 @@ class Main extends luxe.Game {
 			Palette.Swap("alt", 5);
 		}
 		*/
+
+		//load a different palette
+		if (e.keycode == Key.key_p && e.mod.lalt) {
+			//load file
+			var path = Dialogs.open("Open dialog");
+			var fileStr = File.getContent(path);
+			var json = Json.parse(fileStr);
+			Palette.Load(json);
+			Palette.Swap(json.id, 1);
+		}
+		if (e.keycode == Key.key_p && e.mod.lshift) {
+			Palette.SwapNext(1);
+		}
 
 		//open
 		if (e.keycode == Key.key_o && e.mod.meta ) {
