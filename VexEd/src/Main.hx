@@ -21,7 +21,11 @@ import Command;
 
 /*
 	TODO Next
-
+	- vector vs. raster (tiling) decision
+	- attempt better character animation w/ vector
+	- script for dialog-only game/scene
+		- vex-based dialog editor?
+	- create new dialog system (raster font)?
 
 	TODO Backlog
 	- fix selection bug (happens after running animation???)
@@ -39,10 +43,30 @@ import Command;
 	- ? level editor mode in editor
 	- draw lines
 		- line thickness control
-	- animation references
+	- animation references in models
 	- parallax layers
 	X why don't grays render the way I expect? color unpacking?
-	- animate palette colors
+	- animate palette colors (e.g. pal1 ---> pal2)
+	- commandify new actions to allow undo/redo
+	- rotate and scale "handles"
+	- add real clipboard support
+	- allow de-selection in multiselect
+	- update translation property on release only?
+	- make it so common vector commands (.add .subtract) work on properties
+	- query what kind of property a property is (how?)
+	- stop duplication in code between edit / animation modes
+	- consolidate control shortcut keys
+	- allow cmd+o / cmd+s to mean different things in different modes
+	- ?create different file extensions for different vex formats? (.vex, .vxa, .vxp)
+	- allow multiple animations to be loaded in the editor at once
+	- figure out reliable way to make undo/redo work
+	- clean up async loading code in Vex
+	- clean up world space / local space code in Vex (make a transform helper again?)
+	- rename ___Format typedef names to something more descriptive?
+	- general cleanup of animation code
+		- reduce Null-able objects in animation code
+		- why do I need toFloat() to use <= for Properties?
+	- allow pause()-ing animations
 */
 
 enum EditorMode {

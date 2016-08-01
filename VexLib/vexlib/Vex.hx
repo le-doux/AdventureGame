@@ -257,8 +257,6 @@ class Vex extends Visual {
 		return pathToParentSpace( boundsLocal() );
 	}
 
-
-	//TODO make animation less hacky
 	//public var animation : Animation;
 	var animations : Map<String, Animation> = new Map<String, Animation>();
 	public var curAnimation : Animation;
