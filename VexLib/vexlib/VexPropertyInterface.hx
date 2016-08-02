@@ -17,6 +17,7 @@ typedef VexJsonFormat = {
 	@:optional public var rot 		: Property;
 	@:optional public var color 	: Property;
 	@:optional public var path 		: Property;
+	@:optional public var weight	: Property; //only for lines
 	@:optional public var src 		: Property;
 	@:optional public var children 	: Array<VexJsonFormat>;
 }
@@ -30,6 +31,7 @@ class VexPropertyInterface {
 	public var rot 		(default, set) : Null<Property>;
 	public var color 	(default, set) : Null<Property>;
 	public var path 	(default, set) : Null<Property>;
+	public var weight	(default, set) : Null<Property>;
 	public var src 		(default, set) : Null<Property>;
 
 	var visual : Visual;
@@ -47,6 +49,7 @@ class VexPropertyInterface {
 		if (scale != null) 	json.scale = scale;
 		if (rot != null) 	json.rot = rot;
 		if (color != null) 	json.color = color;
+		if (weight != null) json.weight = weight;
 		if (path != null) 	json.path = path;
 		if (src != null) 	json.src = src;
 		return json;
@@ -59,6 +62,7 @@ class VexPropertyInterface {
 		if (json.origin != null) 	origin = json.origin;
 		if (json.scale != null) 	scale = json.scale;
 		if (json.rot != null) 		rot = json.rot;
+		if (json.weight != null)	weight = json.weight;
 		if (json.path != null) 		path = json.path;
 		if (json.color != null) 	color = json.color;
 		if (json.src != null) 		src = json.src;
@@ -137,6 +141,10 @@ class VexPropertyInterface {
 		return color;
 	}
 
+	function set_weight(prop:Property) : Property {
+		return weight = prop;
+	}
+
 	function set_path(prop:Property) : Property {
 		path = prop;
 		if (visual != null) {
@@ -172,6 +180,29 @@ class VexPropertyInterface {
 					}
 
 					i += 3;
+				}
+			}
+			else if (type == "line") { //best name? other options: stroke, outline
+				var lineBatcher = Main.instance.lineThinBatcher;
+				if (weight != null) {
+					if (weight == "regular") {
+						lineBatcher = Main.instance.lineRegularBatcher;
+					}
+					else if (weight == "thick") {
+						lineBatcher = Main.instance.lineThickBatcher;
+					}
+				}
+
+				visual.geometry = new Geometry({
+						primitive_type: PrimitiveType.line_strip,
+						batcher: Luxe.renderer.batcher //hack just for for now
+						//batcher: lineBatcher //what we really want
+					});
+				
+				var pathAsVectors : Array<Vector> = path;
+				for (v in pathAsVectors) {
+					var vertex = new Vertex(v);
+					visual.geometry.add(vertex);
 				}
 			}
 		}

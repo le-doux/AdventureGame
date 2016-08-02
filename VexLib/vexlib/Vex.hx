@@ -214,7 +214,7 @@ class Vex extends Visual {
 
 	public function boundsLocal() : Array<Vector> {
 		var path : Array<Vector> = [];
-		if (properties.type == "poly") {
+		if (properties.type == "poly" || properties.type == "line") {
 			path = properties.path;
 		}
 		else if (properties.type == "group" || properties.type == "ref") {

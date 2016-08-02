@@ -25,12 +25,16 @@ import Command;
 	- attempt better character animation w/ vector
 	- script for dialog-only game/scene
 		- vex-based dialog editor?
-	- create new dialog system (raster font)?
+		- create new dialog system (raster font)?
+	- universal input handler
+	- z depth control
+	X draw lines
+		~ line thickness control [started]
+	- path point editor mode
 
 	TODO Backlog
 	- fix selection bug (happens after running animation???)
 	- improve select-into-groups
-	- z depth control
 	- insert objects inside of a group
 	- clean up animation format
 	- tween two animations
@@ -38,11 +42,8 @@ import Command;
 	- naming scheme for Vex and related formats
 	X load palettes at will
 	- ? maybe switch bounds off of a bounding box model to collision polys??
-	- path point editor mode
 	- ? separate level editor
 	- ? level editor mode in editor
-	- draw lines
-		- line thickness control
 	- animation references in models
 	- parallax layers
 	X why don't grays render the way I expect? color unpacking?
@@ -78,11 +79,16 @@ enum EditorMode {
 
 class Main extends luxe.Game {
 
+	public static var instance : Main; //hacky
+
 	var mode : EditorMode = EditorMode.Draw;
 
 	/* BATCHERS */
 	var uiScreenBatcher : Batcher; // UI displayed at screen coords
 	var uiSceneBatcher : Batcher; // UI displayed in scene coords
+	public var lineThinBatcher : Batcher;
+	public var lineRegularBatcher : Batcher;
+	public var lineThickBatcher : Batcher;
 
 	var drawingPath : Array<Vector> = [];
 	var distToClosePath = 16;
@@ -106,12 +112,38 @@ class Main extends luxe.Game {
 	var sketchLines : Array<Array<Vector>> = [];
 	var curSketchLine : Array<Vector>;
 
+	//drawing tools
+	var currentTool = "poly";
+	var curLineWeight = 0;
+	var lineWeights = ["thin", "regular", "thick"];
+
 	override function ready() {
+		instance = this;
+
 		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
+
+		Luxe.renderer.batcher.layer = 0;
 
 		var uiCam = new Camera({name:"uiCam"});
 		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
 		uiSceneBatcher = Luxe.renderer.create_batcher({name:"uiSceneBatcher", layer:5, camera:Luxe.camera.view});
+
+		/* line batchers */
+		//TODO make liens exist on same plane as geometry
+		lineThinBatcher = Luxe.renderer.create_batcher({name:"lineThinBatcher", layer:0, camera:Luxe.camera.view});
+		lineThinBatcher.on(prerender, untyped function(b) { b.renderer.state.lineWidth(1); });
+		lineThinBatcher.on(postrender, untyped function(b) { b.renderer.state.lineWidth(1); });
+
+		lineRegularBatcher = Luxe.renderer.create_batcher({name:"lineRegularBatcher", layer:0, camera:Luxe.camera.view});
+		lineRegularBatcher.on(prerender, untyped function(b) { b.renderer.state.lineWidth(2); });
+		lineRegularBatcher.on(postrender, untyped function(b) { b.renderer.state.lineWidth(1); });
+
+		lineThickBatcher = Luxe.renderer.create_batcher({name:"lineThickBatcher", layer:0, camera:Luxe.camera.view});
+		lineThickBatcher.on(prerender, untyped function(b) { b.renderer.state.lineWidth(4); });
+		lineThickBatcher.on(postrender, untyped function(b) { b.renderer.state.lineWidth(1); });
+
+		//TODO doublethick lines?
+
 
 		//init drawing
 		root = new Vex({
@@ -445,6 +477,20 @@ class Main extends luxe.Game {
 				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
 			}
 		}
+
+		//change tool
+		if (e.keycode == Key.key_t && e.mod.meta) {
+			if (currentTool == "poly") {
+				currentTool = "line";
+			}
+			else {
+				currentTool = "poly";
+			}
+		}
+		//change weight
+		if (currentTool == "line" && e.keycode == Key.key_w && e.mod.meta) {
+			curLineWeight = (curLineWeight + 1) % lineWeights.length;
+		}
 	}
 
 	function onmousedown_draw( e:MouseEvent ) {
@@ -455,11 +501,18 @@ class Main extends luxe.Game {
 		if (drawingPath.length > 2) {
 			if ( Vector.Subtract(p,drawingPath[0]).length < (distToClosePath / Luxe.camera.zoom) ) {
 				isPathClosed = true;
+				if (currentTool == "line") {
+					drawingPath.push(drawingPath[0].clone());
+				}
 			}
 		}
 
-		if (isPathClosed) {
+		//when drawing with a line you can end the path by right clicking anywhere?
+		if (e.button == luxe.Input.MouseButton.right && currentTool == "line") {
+			isPathClosed = true;
+		}
 
+		if (isPathClosed) {
 			//find top left point and shift the drawing path to be relative to it
 			var topLeft = drawingPath[0].clone();
 			for (p in drawingPath) {
@@ -473,12 +526,14 @@ class Main extends luxe.Game {
 
 			var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
 				{
-					type: "poly",
+					type: currentTool, //"line", //"poly",
+					weight: (currentTool == "line") ? lineWeights[curLineWeight] : null, //TODO ok this is hacky
 					pos: topLeft,
 					path: drawingPath,
 					id: "poly" + count, //I should get rid of this at some point... not everything needs an id
 					color: "pal(" + curPalIndex + ")"
 				});
+
 			selected = cmd.vex;
 
 			//clear drawing path
@@ -493,6 +548,27 @@ class Main extends luxe.Game {
 	}
 
 	function update_draw( dt:Float ) {
+		//tool
+		Luxe.draw.text({
+				text: "tool: " + currentTool,
+				point_size: 16,
+				batcher: uiScreenBatcher,
+				pos: new Vector(0,40),
+				immediate: true
+			});
+		//line thickness
+		if (currentTool == "line") {
+			if (selected != null) {
+				Luxe.draw.text({
+						text: "weight: " + lineWeights[curLineWeight],
+						point_size: 16,
+						batcher: uiScreenBatcher,
+						pos: new Vector(0,60),
+						immediate: true
+					});
+			}
+		}
+
 		//draw cursor
 		Luxe.draw.circle({
 				x: Luxe.screen.cursor.pos.x,
