@@ -17,18 +17,21 @@ class Vex extends Visual {
 
 	override public function new( json : VexJsonFormat ) {
 		super({no_geometry:true});
-		properties = new VexPropertyInterface(this);
-		properties.deserialize(json);
 
-		if (properties.type == "ref") {
-			loadRef( properties.src );
-		}
-
+		// create children first, so that properties
+		// we set in the parent (like depth) can trickle down to them
 		if (json.children != null) {
 			for (c in json.children) {
 				var child = new Vex(c);
 				child.parent = this;
 			}
+		}
+
+		properties = new VexPropertyInterface(this);
+		properties.deserialize(json);
+
+		if (properties.type == "ref") {
+			loadRef( properties.src );
 		}
 
 		trace(properties.id);

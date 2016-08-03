@@ -15,6 +15,7 @@ typedef VexJsonFormat = {
 	@:optional public var origin 	: Property;
 	@:optional public var scale 	: Property;
 	@:optional public var rot 		: Property;
+	@:optional public var depth		: Property;
 	@:optional public var color 	: Property;
 	@:optional public var path 		: Property;
 	@:optional public var weight	: Property; //only for lines
@@ -29,6 +30,7 @@ class VexPropertyInterface {
 	public var origin 	(default, set) : Null<Property>;
 	public var scale 	(default, set) : Null<Property>;
 	public var rot 		(default, set) : Null<Property>;
+	public var depth	(default, set) : Null<Property>;
 	public var color 	(default, set) : Null<Property>;
 	public var path 	(default, set) : Null<Property>;
 	public var weight	(default, set) : Null<Property>;
@@ -48,6 +50,7 @@ class VexPropertyInterface {
 		if (origin != null) json.origin = origin;
 		if (scale != null) 	json.scale = scale;
 		if (rot != null) 	json.rot = rot;
+		if (depth != null)	json.depth = depth;
 		if (color != null) 	json.color = color;
 		if (weight != null) json.weight = weight;
 		if (path != null) 	json.path = path;
@@ -62,6 +65,7 @@ class VexPropertyInterface {
 		if (json.origin != null) 	origin = json.origin;
 		if (json.scale != null) 	scale = json.scale;
 		if (json.rot != null) 		rot = json.rot;
+		if (json.depth != null)		depth = json.depth;
 		if (json.weight != null)	weight = json.weight;
 		if (json.path != null) 		path = json.path;
 		if (json.color != null) 	color = json.color;
@@ -96,6 +100,7 @@ class VexPropertyInterface {
 		// color
 		// path
 		// src
+		// depth
 	}
 
 	function set_type(prop:Property) : Property {
@@ -133,6 +138,18 @@ class VexPropertyInterface {
 		rot = prop;
 		visual.rotation_z = rot;
 		return rot;
+	}
+
+	function set_depth(prop:Property) : Property {
+		depth = prop;
+		if (visual.parent != null) {
+			var vexParent : Vex = cast(visual.parent);
+			visual.depth = vexParent.depth + depth.toFloat(); //TODO toFloat() necessary?
+		}
+		else {
+			visual.depth = depth;
+		}
+		return depth;
 	}
 
 	function set_color(prop:Property) : Property {
@@ -184,6 +201,9 @@ class VexPropertyInterface {
 			}
 			else if (type == "line") { //best name? other options: stroke, outline
 				var lineBatcher = Main.instance.lineThinBatcher;
+
+				//TODO make this actually work right
+				/*
 				if (weight != null) {
 					if (weight == "regular") {
 						lineBatcher = Main.instance.lineRegularBatcher;
@@ -192,6 +212,7 @@ class VexPropertyInterface {
 						lineBatcher = Main.instance.lineThickBatcher;
 					}
 				}
+				*/
 
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.line_strip,

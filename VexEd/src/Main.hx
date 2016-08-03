@@ -27,7 +27,9 @@ import Command;
 		- vex-based dialog editor?
 		- create new dialog system (raster font)?
 	- universal input handler
-	- z depth control
+	X z depth control
+		- allow relative depths for children vs parent
+		X keyboard controls
 	X draw lines
 		~ line thickness control [started]
 	- path point editor mode
@@ -435,6 +437,7 @@ class Main extends luxe.Game {
 			immediate: true
 		});
 
+		/*
 		//move around document
 		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
 		var panSpeed : Float = 50;
@@ -450,6 +453,7 @@ class Main extends luxe.Game {
 		else if (Luxe.input.keydown(Key.down) && isShiftHeld) {
 			Luxe.camera.pos.y += panSpeed * dt;
 		}
+		*/
 
 		/* mode specific update functions */
 		switch(mode) {
@@ -527,7 +531,7 @@ class Main extends luxe.Game {
 			var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
 				{
 					type: currentTool, //"line", //"poly",
-					weight: (currentTool == "line") ? lineWeights[curLineWeight] : null, //TODO ok this is hacky
+					//weight: (currentTool == "line") ? lineWeights[curLineWeight] : null, //TODO ok this is hacky
 					pos: topLeft,
 					path: drawingPath,
 					id: "poly" + count, //I should get rid of this at some point... not everything needs an id
@@ -584,6 +588,22 @@ class Main extends luxe.Game {
 
 	/* EDIT */
 	function onkeydown_edit( e:KeyEvent ) {
+		//z order
+		if (e.keycode == Key.up && e.mod.lshift) {
+			for (sel in multiSelection) { //TODO commandify
+				var depth = sel.depth + 1;
+				sel.properties.depth = depth; //hacky?
+				trace(sel.depth);
+			}
+		}
+		else if (e.keycode == Key.down && e.mod.lshift) {
+			for (sel in multiSelection) {
+				var depth = sel.depth - 1;
+				sel.properties.depth = depth;
+				trace(sel.depth);
+			}
+		}
+
 		//delete selected element
 		if (e.keycode == Key.backspace) {
 			if (multiSelection.length > 0) {
