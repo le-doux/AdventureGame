@@ -11,6 +11,7 @@ import luxe.resource.Resource.JSONResource;
 import phoenix.Batcher;
 import dialogs.Dialogs;
 import luxe.utils.Maths;
+import phoenix.geometry.Geometry;
 
 import vexlib.Vex;
 import vexlib.Palette;
@@ -33,6 +34,9 @@ import Command;
 	X draw lines
 		~ line thickness control [started]
 	- path point editor mode
+	X TODO automatic DEPTH
+	X TODO sketch perf
+	- better default palette for main char
 
 	TODO Backlog
 	- fix selection bug (happens after running animation???)
@@ -113,6 +117,7 @@ class Main extends luxe.Game {
 	//sketchmode
 	var sketchLines : Array<Array<Vector>> = [];
 	var curSketchLine : Array<Vector>;
+	var sketchGeo : Array<Geometry> = [];
 
 	//drawing tools
 	var currentTool = "poly";
@@ -189,6 +194,14 @@ class Main extends luxe.Game {
 		//toggle sketch visibility
 		if (e.keycode == Key.key_k && e.mod.lalt) {
 			showSketchLayer = !showSketchLayer;
+			for (g in sketchGeo) {
+				if (showSketchLayer) {
+					uiSceneBatcher.add(g);
+				}
+				else {
+					uiSceneBatcher.remove(g);
+				}
+			}
 		}
 
 		//for testing: change background color
@@ -359,6 +372,7 @@ class Main extends luxe.Game {
 		/* mode specific mouse controls */
 		switch(mode) {
 			case Animate: onmouseup_animate(e);
+			case Sketch: onmouseup_sketch(e);
 			default: return;
 		}
 	}
@@ -390,6 +404,7 @@ class Main extends luxe.Game {
 		}
 
 		//draw sketch
+		/*
 		if (showSketchLayer) {
 			for (l in sketchLines) {
 				for (i in 1 ... l.length) {
@@ -402,6 +417,7 @@ class Main extends luxe.Game {
 				}
 			}
 		}
+		*/
 
 		//draw origin (pretty hacky rn)
 		var screenEdgeRightWorldPos = new Vector( Luxe.camera.screen_point_to_world( new Vector(Luxe.screen.w,0)).x, 0 );
@@ -460,6 +476,7 @@ class Main extends luxe.Game {
 			case Draw: update_draw(dt);
 			case Edit: update_edit(dt);
 			case Animate: update_animate(dt);
+			case Sketch: update_sketch(dt);
 			default: return;
 		}
 
@@ -535,7 +552,8 @@ class Main extends luxe.Game {
 					pos: topLeft,
 					path: drawingPath,
 					id: "poly" + count, //I should get rid of this at some point... not everything needs an id
-					color: "pal(" + curPalIndex + ")"
+					color: "pal(" + curPalIndex + ")",
+					depth: count //is this the best way to determine starting depth? at least it's the easiest
 				});
 
 			selected = cmd.vex;
@@ -1037,7 +1055,11 @@ class Main extends luxe.Game {
 	/* SKETCH */
 	function onkeydown_sketch( e:KeyEvent ) {
 		if (e.keycode == Key.backspace) {
-			sketchLines = [];
+			//sketchLines = [];
+			for (g in sketchGeo) {
+				uiSceneBatcher.remove(g);
+			}
+			sketchGeo = [];
 		}
 	}
 
@@ -1045,13 +1067,42 @@ class Main extends luxe.Game {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 		curSketchLine = [];
 		curSketchLine.push(p);
-		sketchLines.push(curSketchLine);
+		//sketchLines.push(curSketchLine);
 	}
 
 	function onmousemove_sketch(e:MouseEvent) {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 		if (Luxe.input.mousedown(luxe.MouseButton.left)) {
 			curSketchLine.push(p);
+		}
+	}
+
+	function onmouseup_sketch(e:MouseEvent) {
+		//make line permanent
+		if (curSketchLine.length >= 2) {
+			for (i in 1 ... curSketchLine.length) {
+				sketchGeo.push( Luxe.draw.line({
+						p0: curSketchLine[i-1],
+						p1: curSketchLine[i],
+						batcher: uiSceneBatcher
+					}) );
+			}
+		}
+		curSketchLine = [];
+	}
+
+	function update_sketch(dt:Float) {
+		//draw line in progress
+		if (curSketchLine == null) return;
+		if (curSketchLine.length >= 2) {
+			for (i in 1 ... curSketchLine.length) {
+				Luxe.draw.line({
+						p0: curSketchLine[i-1],
+						p1: curSketchLine[i],
+						batcher: uiSceneBatcher,
+						immediate:true
+					});
+			}
 		}
 	}
 
