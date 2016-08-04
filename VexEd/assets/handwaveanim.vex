@@ -1,0 +1,41 @@
+{
+	"tracks": [
+		{
+			"select": "rarm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-65"
+					},
+					"t": "0.510416666666667"
+				},
+				{
+					"props": {
+						"rot": "-5.00000000000001"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "rforearm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-45"
+					},
+					"t": "0.510416666666667"
+				},
+				{
+					"props": {
+						"rot": "5"
+					},
+					"t": "1"
+				}
+			]
+		}
+	],
+	"id": "newAnimation"
+}

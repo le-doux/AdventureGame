@@ -26,6 +26,7 @@ import Command;
 	- attempt better character animation w/ vector
 	- script for dialog-only game/scene
 		- vex-based dialog editor?
+			- line smoothing
 		- create new dialog system (raster font)?
 	- universal input handler
 	X z depth control
@@ -33,6 +34,7 @@ import Command;
 		X keyboard controls
 	X draw lines
 		~ line thickness control [started]
+		- line drawn with mesh
 	- path point editor mode
 	X TODO automatic DEPTH
 	X TODO sketch perf
@@ -160,11 +162,14 @@ class Main extends luxe.Game {
 			});
 
 		//load default palettes - hacky nonsense
-		var load = Luxe.resources.load_json('assets/default.pal');
+		var load = Luxe.resources.load_json('assets/testpal.vex');
 		load.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
+			trace("palette!");
+			trace(json);
 			Palette.Load(json);
-			Palette.Init("default");
+			Palette.Init("test");
+			Luxe.renderer.clear_color = Palette.Colors[0];
 		});
 	} //ready
 
@@ -1079,16 +1084,18 @@ class Main extends luxe.Game {
 
 	function onmouseup_sketch(e:MouseEvent) {
 		//make line permanent
-		if (curSketchLine.length >= 2) {
-			for (i in 1 ... curSketchLine.length) {
-				sketchGeo.push( Luxe.draw.line({
-						p0: curSketchLine[i-1],
-						p1: curSketchLine[i],
-						batcher: uiSceneBatcher
-					}) );
+		if (curSketchLine != null) {
+			if (curSketchLine.length >= 2) {
+				for (i in 1 ... curSketchLine.length) {
+					sketchGeo.push( Luxe.draw.line({
+							p0: curSketchLine[i-1],
+							p1: curSketchLine[i],
+							batcher: uiSceneBatcher
+						}) );
+				}
 			}
+			curSketchLine = [];	
 		}
-		curSketchLine = [];
 	}
 
 	function update_sketch(dt:Float) {
