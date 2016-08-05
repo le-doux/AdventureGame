@@ -3,6 +3,7 @@ package vexlib;
 import luxe.Vector;
 import luxe.Color;
 import luxe.Visual;
+import luxe.utils.Maths;
 
 import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
@@ -214,6 +215,7 @@ class VexPropertyInterface {
 				}
 				*/
 
+				/*
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.line_strip,
 						batcher: Luxe.renderer.batcher //hack just for for now
@@ -224,6 +226,63 @@ class VexPropertyInterface {
 				for (v in pathAsVectors) {
 					var vertex = new Vertex(v);
 					visual.geometry.add(vertex);
+				}
+				*/
+
+				/* MESH LINES */
+				var linewidth = 1.0;
+				if (weight == "regular") linewidth = 2.0; //better way to control this?
+				if (weight == "thick") linewidth = 4.0;
+				trace("line width " + linewidth);
+
+				var pathAsVectors : Array<Vector> = path;
+
+				if (pathAsVectors.length >= 2) {
+					visual.geometry = new Geometry({
+						primitive_type: PrimitiveType.triangles,
+						batcher: Luxe.renderer.batcher
+					});
+
+
+					var left0 : Vector = null;
+					var right0 : Vector = null;
+					var left1 : Vector = null;
+					var right1 : Vector = null;
+
+					for (i in 1 ... pathAsVectors.length) {
+						var p0 = pathAsVectors[i-1];
+						var p1 = pathAsVectors[i];
+
+						var p0_to_p1 = Vector.Subtract(p1, p0);
+						var unitForward = p0_to_p1.normalized;
+						var radiansForward = unitForward.angle2D;
+						var degreesForward = Maths.degrees(radiansForward);
+						var degreesRight = degreesForward + 90;
+						var radiansRight = Maths.radians(degreesRight);
+						var unitRight = (new Vector(1,0));
+						unitRight.angle2D = radiansRight;
+						var rightward = Vector.Multiply(unitRight, linewidth);
+						var leftward = Vector.Multiply(rightward, -1);
+
+						if (left1 == null) {
+							left0 = Vector.Add(p0, leftward);
+							right0 = Vector.Add(p0, rightward);
+						}
+						else {
+							left0 = left1;
+							right0 = right1;
+						}
+						left1 = Vector.Add(p1, leftward);
+						right1 = Vector.Add(p1, rightward);
+
+						//line segment quad
+						visual.geometry.add(new Vertex(left0)); //left triangle
+						visual.geometry.add(new Vertex(right0));
+						visual.geometry.add(new Vertex(left1));
+						visual.geometry.add(new Vertex(right0)); //right triangle
+						visual.geometry.add(new Vertex(left1));
+						visual.geometry.add(new Vertex(right1));
+					}
 				}
 			}
 		}

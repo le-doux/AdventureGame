@@ -33,12 +33,29 @@ import Command;
 		- allow relative depths for children vs parent
 		X keyboard controls
 	X draw lines
-		~ line thickness control [started]
-		- line drawn with mesh
+		X line thickness control [started]
+		X line drawn with mesh
 	- path point editor mode
 	X TODO automatic DEPTH
 	X TODO sketch perf
-	- better default palette for main char
+	~ better default palette for main char [started] (is there enough colors for a whole scene?)
+	- improved lines
+		- multipath vex
+		X mesh lines
+		- interpolateable paths
+		X different line widths
+		- line smoothing
+
+	TODO
+	- commandify and catch errors gracefully
+	- text command palette
+	- right click pan
+	- z order vex children
+	- morph
+	- nongroup children
+	- temp file
+	- auto saving
+	- transparent sketch mode
 
 	TODO Backlog
 	- fix selection bug (happens after running animation???)
@@ -553,7 +570,7 @@ class Main extends luxe.Game {
 			var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
 				{
 					type: currentTool, //"line", //"poly",
-					//weight: (currentTool == "line") ? lineWeights[curLineWeight] : null, //TODO ok this is hacky
+					weight: (currentTool == "line") ? lineWeights[curLineWeight] : null, //TODO ok this is hacky
 					pos: topLeft,
 					path: drawingPath,
 					id: "poly" + count, //I should get rid of this at some point... not everything needs an id
@@ -1107,6 +1124,7 @@ class Main extends luxe.Game {
 						p0: curSketchLine[i-1],
 						p1: curSketchLine[i],
 						batcher: uiSceneBatcher,
+						color : new Color(1,1,1,0.5),
 						immediate:true
 					});
 			}
