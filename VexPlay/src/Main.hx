@@ -27,12 +27,12 @@ import vexlib.VexPropertyInterface;
 
 class Main extends luxe.Game {
 	/* PALETTE */
-	public var paletteSrc = "assets/defaultpal.vex";
+	public var paletteSrc = "assets/testpal.vex";
 
 	/* PLAYER */
 	var scrollInput : ScrollInputHandler;
 	var maxScrollSpeed = 1200;
-	public var playerSrc = "assets/guy.vex";
+	public var playerSrc = "assets/girl_v4.vex";
 	public var player : Vex;
 	public var playerProps = {
 		stagePos : 300.0,
@@ -45,7 +45,7 @@ class Main extends luxe.Game {
 	};
 
 	/* STAGE */
-	public var stageSrc = "assets/shroomstage.vex";
+	public var stageSrc = "assets/playgroundstage.vex";
 	public var set : Vex;
 	public var path : Array<Vector>;
 
@@ -82,7 +82,7 @@ class Main extends luxe.Game {
 		loadPalette.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
 			Palette.Load(json);
-			Palette.Swap("default");
+			Palette.Swap("test");
 		});
 
 		/* PLAYER */
@@ -91,13 +91,15 @@ class Main extends luxe.Game {
 			var json = jsonRes.asset.json;
 			player = new Vex(json);
 			player.scale = new Vector(0.3,0.3);
-			player.depth = 1;
+			//player.depth = 1; //need a better way to control "general depth"
 		});
+		/*
 		var loadPlayerAnim = Luxe.resources.load_json( "assets/guy_walk.vex" );
 		loadPlayerAnim.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
 			player.addAnimation(json);
 		});
+		*/
 
 		/* STAGE */
 		var loadStage = Luxe.resources.load_json( stageSrc );
@@ -114,6 +116,7 @@ class Main extends luxe.Game {
 				set = new Vex(json);
 				set.depth = 0;
 
+				/*
 				var loadShroomAnim = Luxe.resources.load_json( "assets/shroom_bounce.vex" );
 				loadShroomAnim.then(function(jsonRes : JSONResource) {
 					var json = jsonRes.asset.json;
@@ -126,6 +129,7 @@ class Main extends luxe.Game {
 					}
 					trace("anim loaded!");
 				});
+				*/
 			});
 		});
 	}
@@ -134,12 +138,14 @@ class Main extends luxe.Game {
 		var scrollSpeed = Maths.clamp(scrollInput.releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed);
 		playerCoast(scrollSpeed, 0.75);
 
+		/*
 		var pullPercent = Math.abs(pullDelta)/pullMaxDistance;
 		if (pullPercent > 0.5) {
 			for (shroom in set.find("shroom")) {
 				shroom.playAnimation("bounce", 0.5);
 			}
 		}
+		*/
 	}
 
 	override function update(dt:Float) {
@@ -160,6 +166,8 @@ class Main extends luxe.Game {
 			//keep player facing the right direction
 			if (playerProps.velocity.x > 0 && player.scale.x < 0) player.scale.x *= -1;
 			if (playerProps.velocity.x < 0 && player.scale.x > 0) player.scale.x *= -1;
+
+			/*
 			//update layer walk cycle
 			var absSpeed = Math.abs(playerProps.velocity.x);
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
@@ -169,6 +177,8 @@ class Main extends luxe.Game {
 				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
 				player.getAnimation("walk").t = nextWalkT;
 			}
+			*/
+
 			//connect input to player
 			if (Luxe.input.mousedown(1)) playerChangeVelocity(scrollInput.touchDelta.x / dt); //force velocity to match scrolling
 			//update terrain pos
@@ -271,7 +281,12 @@ class Main extends luxe.Game {
 		var segDelt = Vector.Subtract(seg1, seg0);
 		var segDeltPercent = Vector.Multiply(segDelt, leftoverDistPercent);
 
-		return Vector.Add(seg0, segDeltPercent);
+		var worldPos = Vector.Add(seg0, segDeltPercent);
+
+		//hack
+		worldPos.add(new Vector(-0.746,-1262.069)); //hack specific to playground (need to adjust for space)
+
+		return worldPos;
 	}
 
 	function pathLength(path:Array<Vector>) {

@@ -45,17 +45,23 @@ import Command;
 		- interpolateable paths
 		X different line widths
 		- line smoothing
+		- improve mesh line corners
+
+	BUGS
+	- flashing vex bits
+	- phantom leg bug
+	X selection bug
 
 	TODO
 	- commandify and catch errors gracefully
 	- text command palette
 	- right click pan
-	- z order vex children
+	X z order vex children
 	- morph
 	- nongroup children
 	- temp file
 	- auto saving
-	- transparent sketch mode
+	X transparent sketch mode
 
 	TODO Backlog
 	- fix selection bug (happens after running animation???)
@@ -111,9 +117,6 @@ class Main extends luxe.Game {
 	/* BATCHERS */
 	var uiScreenBatcher : Batcher; // UI displayed at screen coords
 	var uiSceneBatcher : Batcher; // UI displayed in scene coords
-	public var lineThinBatcher : Batcher;
-	public var lineRegularBatcher : Batcher;
-	public var lineThickBatcher : Batcher;
 
 	var drawingPath : Array<Vector> = [];
 	var distToClosePath = 16;
@@ -129,7 +132,7 @@ class Main extends luxe.Game {
 	var isPanning = false;
 	var showSketchLayer = true;
 
-	var curPalIndex = 0;
+	var curPalIndex = 1; //using 0 for the bg
 
 	var clipboard : String;
 
@@ -154,23 +157,6 @@ class Main extends luxe.Game {
 		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
 		uiSceneBatcher = Luxe.renderer.create_batcher({name:"uiSceneBatcher", layer:5, camera:Luxe.camera.view});
 
-		/* line batchers */
-		//TODO make liens exist on same plane as geometry
-		lineThinBatcher = Luxe.renderer.create_batcher({name:"lineThinBatcher", layer:0, camera:Luxe.camera.view});
-		lineThinBatcher.on(prerender, untyped function(b) { b.renderer.state.lineWidth(1); });
-		lineThinBatcher.on(postrender, untyped function(b) { b.renderer.state.lineWidth(1); });
-
-		lineRegularBatcher = Luxe.renderer.create_batcher({name:"lineRegularBatcher", layer:0, camera:Luxe.camera.view});
-		lineRegularBatcher.on(prerender, untyped function(b) { b.renderer.state.lineWidth(2); });
-		lineRegularBatcher.on(postrender, untyped function(b) { b.renderer.state.lineWidth(1); });
-
-		lineThickBatcher = Luxe.renderer.create_batcher({name:"lineThickBatcher", layer:0, camera:Luxe.camera.view});
-		lineThickBatcher.on(prerender, untyped function(b) { b.renderer.state.lineWidth(4); });
-		lineThickBatcher.on(postrender, untyped function(b) { b.renderer.state.lineWidth(1); });
-
-		//TODO doublethick lines?
-
-
 		//init drawing
 		root = new Vex({
 				type: "group",
@@ -182,8 +168,6 @@ class Main extends luxe.Game {
 		var load = Luxe.resources.load_json('assets/testpal.vex');
 		load.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
-			trace("palette!");
-			trace(json);
 			Palette.Load(json);
 			Palette.Init("test");
 			Luxe.renderer.clear_color = Palette.Colors[0];
@@ -355,8 +339,14 @@ class Main extends luxe.Game {
 	override function onmousedown( e:MouseEvent ) {
 
 		/* panning */
+		/*
 		var isAltHeld = Luxe.input.keydown(Key.lalt) || Luxe.input.keydown(Key.ralt);
 		if (isAltHeld) {
+			isPanning = true;
+			return;
+		}
+		*/
+		if (e.button == luxe.Input.MouseButton.right) {
 			isPanning = true;
 			return;
 		}
@@ -541,18 +531,23 @@ class Main extends luxe.Game {
 
 		//is the path closed?
 		var isPathClosed = false;
-		if (drawingPath.length > 2) {
-			if ( Vector.Subtract(p,drawingPath[0]).length < (distToClosePath / Luxe.camera.zoom) ) {
-				isPathClosed = true;
-				if (currentTool == "line") {
-					drawingPath.push(drawingPath[0].clone());
+		if (drawingPath.length > 0) {
+			var isCloseToStartPoint = Vector.Subtract(p,drawingPath[0]).length < (distToClosePath / Luxe.camera.zoom);
+			if (currentTool == "poly") {
+				if (drawingPath.length > 2 && isCloseToStartPoint) {
+					isPathClosed = true;
 				}
 			}
-		}
-
-		//when drawing with a line you can end the path by right clicking anywhere?
-		if (e.button == luxe.Input.MouseButton.right && currentTool == "line") {
-			isPathClosed = true;
+			else if (currentTool == "line") {
+				var isCloseToEndPoint = Vector.Subtract(p,drawingPath[drawingPath.length-1]).length < (distToClosePath / Luxe.camera.zoom);
+				if (drawingPath.length > 2 && isCloseToStartPoint) {
+					drawingPath.push(drawingPath[0].clone());
+					isPathClosed = true;
+				}
+				else if (drawingPath.length > 1 && isCloseToEndPoint) {
+					isPathClosed = true;
+				}
+			}
 		}
 
 		if (isPathClosed) {
@@ -1107,6 +1102,7 @@ class Main extends luxe.Game {
 					sketchGeo.push( Luxe.draw.line({
 							p0: curSketchLine[i-1],
 							p1: curSketchLine[i],
+							color: new Color(1,1,1,0.5),
 							batcher: uiSceneBatcher
 						}) );
 				}
@@ -1160,6 +1156,19 @@ class Main extends luxe.Game {
 				immediate: true,
 				batcher: uiScreenBatcher
 			});
+
+			if (currentTool == "line" && drawingPath.length > 1) {
+				//end circle
+				var pathEndWorldPos = Luxe.camera.world_point_to_screen(drawingPath[drawingPath.length-1]);
+				Luxe.draw.ring({
+					x: pathEndWorldPos.x,
+					y: pathEndWorldPos.y,
+					r: distToClosePath,
+					color: new Color(1,1,1),
+					immediate: true,
+					batcher: uiScreenBatcher
+				});
+			}
 
 			//draw path
 			if (drawingPath.length > 1) {

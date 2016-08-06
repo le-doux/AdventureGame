@@ -201,34 +201,6 @@ class VexPropertyInterface {
 				}
 			}
 			else if (type == "line") { //best name? other options: stroke, outline
-				var lineBatcher = Main.instance.lineThinBatcher;
-
-				//TODO make this actually work right
-				/*
-				if (weight != null) {
-					if (weight == "regular") {
-						lineBatcher = Main.instance.lineRegularBatcher;
-					}
-					else if (weight == "thick") {
-						lineBatcher = Main.instance.lineThickBatcher;
-					}
-				}
-				*/
-
-				/*
-				visual.geometry = new Geometry({
-						primitive_type: PrimitiveType.line_strip,
-						batcher: Luxe.renderer.batcher //hack just for for now
-						//batcher: lineBatcher //what we really want
-					});
-				
-				var pathAsVectors : Array<Vector> = path;
-				for (v in pathAsVectors) {
-					var vertex = new Vertex(v);
-					visual.geometry.add(vertex);
-				}
-				*/
-
 				/* MESH LINES */
 				var linewidth = 1.0;
 				if (weight == "regular") linewidth = 2.0; //better way to control this?

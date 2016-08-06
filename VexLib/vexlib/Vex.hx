@@ -40,11 +40,12 @@ class Vex extends Visual {
 	public function resetToBasePose() {
 		trace("??");
 		//properties.deserialize( properties.serialize() );
+
 		if (properties.scale != null) {
 			scale = properties.scale;
 		}
 		else {
-			scale = new Vector(1,1);
+			scale = new Vector(1,1,1); //fuck z scale - it always causes the weirdest bugs
 		}
 		
 		if (properties.pos != null) {
@@ -141,6 +142,12 @@ class Vex extends Visual {
 				}
 			}
 		}
+		vexChildren.sort(
+			function(a,b) {
+				if (a.depth > b.depth) return -1;
+				if (a.depth < b.depth) return 1;
+				return 0;
+			});
 		return vexChildren;
 	}
 
@@ -177,7 +184,6 @@ class Vex extends Visual {
 
 	public function getChildWithPointInside(pt:Vector) : Vex {
 		var vexChildren = getVexChildren();
-		vexChildren.reverse(); //should I use depth instead to do the sorting?
 		for (c in vexChildren) {
 			if (c.isPointInside(pt)) {
 				return c;
