@@ -21,6 +21,28 @@ import vexlib.Animation;
 import Command;
 
 /*
+	TODO
+	- test main char movement
+		- animations
+			X walk
+			- run
+			- walk / run transition?
+			- turn around transition?
+			- hit wall
+			- suddent stop (same?)
+			- standing / waiting
+		- particle effects
+		X fix bugs
+			X flashing vex bits [fixed?]
+			X phantom leg [fixed?]
+	- dialog only vignette
+		- script
+		- new dialog bulder tool
+	- other bugs
+		- origin drawn position gets off after translate
+		- !!! need to make movement/translation like this: click once to select, again to move
+		- be able to rationally control z-order of grouped objects...
+
 	TODO Next
 	- vector vs. raster (tiling) decision
 	- attempt better character animation w/ vector

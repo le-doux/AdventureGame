@@ -32,7 +32,7 @@ class Main extends luxe.Game {
 	/* PLAYER */
 	var scrollInput : ScrollInputHandler;
 	var maxScrollSpeed = 1200;
-	public var playerSrc = "assets/girl_v4.vex";
+	public var playerSrc = "assets/girl.vex";
 	public var player : Vex;
 	public var playerProps = {
 		stagePos : 300.0,
@@ -93,13 +93,13 @@ class Main extends luxe.Game {
 			player.scale = new Vector(0.3,0.3);
 			//player.depth = 1; //need a better way to control "general depth"
 		});
-		/*
-		var loadPlayerAnim = Luxe.resources.load_json( "assets/guy_walk.vex" );
+		var loadPlayerAnim = Luxe.resources.load_json( "assets/walkanim0.vex" );
 		loadPlayerAnim.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
 			player.addAnimation(json);
+
+			//player.playAnimation("walk", 1).repeat();
 		});
-		*/
 
 		/* STAGE */
 		var loadStage = Luxe.resources.load_json( stageSrc );
@@ -114,22 +114,7 @@ class Main extends luxe.Game {
 			loadSet.then(function(jsonRes : JSONResource) {
 				var json = jsonRes.asset.json;
 				set = new Vex(json);
-				set.depth = 0;
-
-				/*
-				var loadShroomAnim = Luxe.resources.load_json( "assets/shroom_bounce.vex" );
-				loadShroomAnim.then(function(jsonRes : JSONResource) {
-					var json = jsonRes.asset.json;
-					trace(json);
-					var shrooms = set.find("shroom");
-					trace(shrooms);
-					for (shroom in shrooms) {
-						shroom.addAnimation(json);
-						trace("!");
-					}
-					trace("anim loaded!");
-				});
-				*/
+				set.depth = 0; //TODO this is likely broken...
 			});
 		});
 	}
@@ -147,6 +132,9 @@ class Main extends luxe.Game {
 		}
 		*/
 	}
+
+	var stupidTimer : Float = 0;
+	var animHolder = null;
 
 	override function update(dt:Float) {
 		if (player != null && path != null) { //eventually need a smarter way to handle this
@@ -167,29 +155,46 @@ class Main extends luxe.Game {
 			if (playerProps.velocity.x > 0 && player.scale.x < 0) player.scale.x *= -1;
 			if (playerProps.velocity.x < 0 && player.scale.x > 0) player.scale.x *= -1;
 
-			/*
-			//update layer walk cycle
-			var absSpeed = Math.abs(playerProps.velocity.x);
-			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
-				var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
-				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
-				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
-				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
-				player.getAnimation("walk").t = nextWalkT;
+			trace("update!");
+			///*
+			//update player walk cycle
+			stupidTimer += dt;
+			if (stupidTimer > 0.4) {
+
+				/*
+				var absSpeed = Math.abs(playerProps.velocity.x);
+				if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
+					var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
+					//var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
+					var walkAnimSpeed = 1;
+					var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
+					if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
+					player.getAnimation("walk").t = nextWalkT;
+				}
+				*/
+
+				stupidTimer = 0;
+
+				//player.getAnimation("walk").t = Math.random(); // 1.0 * dt;
 			}
-			*/
+			//*/
+
+			//Reflect.setProperty(player.getAnimation("walk"), "t", player.getAnimation("walk").t + dt);
+			if (animHolder == null) animHolder = player.getAnimation("walk");
+			animHolder.t += dt;
 
 			//connect input to player
 			if (Luxe.input.mousedown(1)) playerChangeVelocity(scrollInput.touchDelta.x / dt); //force velocity to match scrolling
 			//update terrain pos
 			playerProps.stagePos += playerProps.velocity.x * dt;
 			//keep player in bounds
-			playerProps.blocked.left = playerProps.stagePos <= 0;
-			playerProps.blocked.right = playerProps.stagePos >= pathLength(path);
-			playerProps.stagePos = Maths.clamp(playerProps.stagePos, 0, pathLength(path));
+			playerProps.blocked.left = (playerProps.stagePos <= 0);
+			playerProps.blocked.right = (playerProps.stagePos >= pathLength(path));
 			//update world pos
 			playerProps.stagePos = Maths.clamp(playerProps.stagePos, 0, pathLength(path));
-			player.pos = worldPosFromPathPos(path, playerProps.stagePos);
+			//player.pos = worldPosFromPathPos(path, playerProps.stagePos);
+			player.pos.x += 1000 * dt;
+			//player.pos = Vector.Add( player.pos.clone(), new Vector(1000*dt, 0));
 
 			/* CAMERA */
 			//calc camera distance this frame

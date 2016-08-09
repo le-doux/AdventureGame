@@ -486,7 +486,9 @@ class Animation {
 	public function play(duration:Float) {
 		updateStartFrames();
 		t = 0;
-		return Actuate.tween(this, duration, {t:1});
+		return Actuate.tween(this, duration, {t:1}).onUpdate(function() {
+				trace("update anim!");
+			});
 	}
 
 	function updateStartFrames() {
@@ -515,8 +517,8 @@ class Animation {
 	function set_t(time:Float) : Float {
 		t = time;
 		if (posFrames != null) tweenPos(t);
-		if (scaleFrames != null) tweenScale(t);
-		if (rotFrames != null) tweenRot(t);
+		//if (scaleFrames != null) tweenScale(t);
+		//if (rotFrames != null) tweenRot(t);
 		if (tracks != null) {
 			for (track in tracks) {
 				track.t = t;
