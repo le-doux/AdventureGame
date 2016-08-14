@@ -68,6 +68,10 @@ class Main extends luxe.Game {
 	var pullZoomDelta = 0.10; // is this even having an impact?
 
 	override function ready() {
+
+		Luxe.fixed_timestep = false;
+		Luxe.fixed_frame_time = 0.5;
+
 		/* INPUT */
 		scrollInput = new ScrollInputHandler();
 		pullMaxDistance = Luxe.screen.height / 6;
@@ -75,6 +79,8 @@ class Main extends luxe.Game {
 		/* CAMERA */
 		Luxe.camera.size = new Vector(800,450);
 		Luxe.camera.center = new Vector(0,0);
+
+		//Luxe.camera.pos.y -= 1000;
 
 		/* PALETTE */
 		Palette.StartBlank(); //rename
@@ -90,15 +96,30 @@ class Main extends luxe.Game {
 		loadPlayer.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
 			player = new Vex(json);
-			player.scale = new Vector(0.3,0.3);
+			player.scale = new Vector(0.3,0.3,1);
 			//player.depth = 1; //need a better way to control "general depth"
-		});
-		var loadPlayerAnim = Luxe.resources.load_json( "assets/walkanim0.vex" );
-		loadPlayerAnim.then(function(jsonRes : JSONResource) {
-			var json = jsonRes.asset.json;
-			player.addAnimation(json);
 
-			//player.playAnimation("walk", 1).repeat();
+			/*
+			player.addAnimation({
+					id: "test0",
+					type: "animation",
+					tracks: [
+						{
+							select: "rleg",
+							keyframes: [{ t:"0.0", props: {rot:"-60"} },{ t:"1.0", props: {rot:"180"} }]
+						}
+					]
+				});
+			*/
+
+			
+			var loadPlayerAnim = Luxe.resources.load_json( "assets/walkanim0.vex" );
+			loadPlayerAnim.then(function(jsonRes : JSONResource) {
+				var json = jsonRes.asset.json;
+				player.addAnimation(json);
+				//player.playAnimation("walk", 1).repeat();
+			});
+			
 		});
 
 		/* STAGE */
@@ -133,10 +154,36 @@ class Main extends luxe.Game {
 		*/
 	}
 
-	var stupidTimer : Float = 0;
-	var animHolder = null;
+	/*
+	//hacky workaround for now
+	var baseWalkCycleTime = 0.5;
+	var walkCycleTimeRange = 1.5; //effective range: 0.5 - 2.0
+	var isWalkAnimationPlaying = false;
+	function repeatWalkCycle() {
+		trace("start walk cycle!");
+
+		isWalkAnimationPlaying = true;
+
+		var absSpeed = Math.abs(playerProps.velocity.x);
+		var maxPlayerSpeedPercent = 1 - (absSpeed / maxScrollSpeed);
+		var walkCycleTime = baseWalkCycleTime + (walkCycleTimeRange * maxPlayerSpeedPercent);
+		
+		player.playAnimation("walk", walkCycleTime).onComplete(function() {
+				isWalkAnimationPlaying = false;
+				var absSpeed = Math.abs(playerProps.velocity.x);
+				if (absSpeed > 0) repeatWalkCycle();
+			});
+	}
+
+	//more hacks - this time to stop sudden animation stops
+	var counterToStopWalkAnimation = 0.0;
+	var maxTimeBeforeStopWalkAnimation = 0.1; //gives us 1/10 a sec of leeway
+
+	var crazyHackTest = true;
+	*/
 
 	override function update(dt:Float) {
+
 		if (player != null && path != null) { //eventually need a smarter way to handle this
 			/* PULL UP DOWN */
 			if (Luxe.input.mousedown(1)) {
@@ -154,34 +201,17 @@ class Main extends luxe.Game {
 			//keep player facing the right direction
 			if (playerProps.velocity.x > 0 && player.scale.x < 0) player.scale.x *= -1;
 			if (playerProps.velocity.x < 0 && player.scale.x > 0) player.scale.x *= -1;
-
-			trace("update!");
-			///*
+			
 			//update player walk cycle
-			stupidTimer += dt;
-			if (stupidTimer > 0.4) {
-
-				/*
-				var absSpeed = Math.abs(playerProps.velocity.x);
-				if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
-					var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
-					//var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
-					var walkAnimSpeed = 1;
-					var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
-					if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
-					player.getAnimation("walk").t = nextWalkT;
-				}
-				*/
-
-				stupidTimer = 0;
-
-				//player.getAnimation("walk").t = Math.random(); // 1.0 * dt;
+			var absSpeed = Math.abs(playerProps.velocity.x);
+			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
+				var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
+				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
+				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
+				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
+				player.getAnimation("walk").t = nextWalkT;				
 			}
-			//*/
 
-			//Reflect.setProperty(player.getAnimation("walk"), "t", player.getAnimation("walk").t + dt);
-			if (animHolder == null) animHolder = player.getAnimation("walk");
-			animHolder.t += dt;
 
 			//connect input to player
 			if (Luxe.input.mousedown(1)) playerChangeVelocity(scrollInput.touchDelta.x / dt); //force velocity to match scrolling
@@ -192,9 +222,8 @@ class Main extends luxe.Game {
 			playerProps.blocked.right = (playerProps.stagePos >= pathLength(path));
 			//update world pos
 			playerProps.stagePos = Maths.clamp(playerProps.stagePos, 0, pathLength(path));
-			//player.pos = worldPosFromPathPos(path, playerProps.stagePos);
-			player.pos.x += 1000 * dt;
-			//player.pos = Vector.Add( player.pos.clone(), new Vector(1000*dt, 0));
+			player.pos = worldPosFromPathPos(path, playerProps.stagePos);
+
 
 			/* CAMERA */
 			//calc camera distance this frame
@@ -235,7 +264,7 @@ class Main extends luxe.Game {
 			//keep camera attached to player
 			var centerX = player.pos.x - 10 - (Luxe.screen.w/2);
 			Luxe.camera.pos.x = centerX + cameraProps.offsetX;
-			Luxe.camera.pos.y = player.pos.y - (Luxe.screen.height * 0.9) + (pullDelta * 0.5); //TODO *0.5 is a hack -- replace with proper percent to distance stuff
+			Luxe.camera.pos.y = player.pos.y - (Luxe.screen.height * 0.9) + (pullDelta * 0.5) + 150; //TODO *0.5 is a hack -- replace with proper percent to distance stuff
 			//update camera zoom due to pull
 			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
 		}

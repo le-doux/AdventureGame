@@ -269,6 +269,13 @@ class Vex extends Visual {
 	//public var animation : Animation;
 	var animations : Map<String, Animation> = new Map<String, Animation>();
 	public var curAnimation : Animation;
+
+	public function traceAnimationNames() {
+		trace("ANIMATION KEYS");
+		for (k in animations.keys()) {
+			trace(k);
+		}
+	}
 	public function addAnimation(json:AnimationFormat, ?name:String) : Animation {
 		if (name == null) {
 			trace(json.id);

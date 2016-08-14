@@ -33,15 +33,23 @@ import Command;
 			- standing / waiting
 		- particle effects
 		X fix bugs
-			X flashing vex bits [fixed?]
+			X flashing vex bits [report bug]
 			X phantom leg [fixed?]
 	- dialog only vignette
 		- script
 		- new dialog bulder tool
-	- other bugs
+	- other bugs and stuff
 		- origin drawn position gets off after translate
 		- !!! need to make movement/translation like this: click once to select, again to move
 		- be able to rationally control z-order of grouped objects...
+		- ability to break out all the "tracks" of animatino in the ui
+		- "freeze" a vex on a frame w/o changing it
+		- reset a single vex to its base state
+		- vex base state methods
+		- animate to vex base state
+		- control decimal accuracy of save data
+		- uneccessary proliferation of "type: 'animation'" in subtracks
+		- keyframe t snapping for frames close to 0.0 and 1.0
 
 	TODO Next
 	- vector vs. raster (tiling) decision
