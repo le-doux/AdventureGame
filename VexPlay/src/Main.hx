@@ -10,10 +10,18 @@ import vexlib.VexPropertyInterface;
 
 /*
 	TODO
+	- additional animations for main character
+	- particle effects for walking
+	- universal input manager
+	- polish swipe controls (bounciness, up/down axis)
+	- universal input manager
+	- weird double bounce on edges
+
+	TODO
 	- quickly establish standard screen size
 	- BUG loading ref objects has a race condition?
 	- make this code not ugly anymore
-	- BUG jittery movement bug again (check out the head)
+	X BUG jittery movement bug again (check out the head)
 	X walk animation needs to respond to player control
 	- parallax
 	X mushroom animations
@@ -30,8 +38,6 @@ class Main extends luxe.Game {
 	public var paletteSrc = "assets/testpal.vex";
 
 	/* PLAYER */
-	var scrollInput : ScrollInputHandler;
-	var maxScrollSpeed = 1200;
 	public var playerSrc = "assets/girl.vex";
 	public var player : Vex;
 	public var playerProps = {
@@ -43,6 +49,7 @@ class Main extends luxe.Game {
 		},
 		isCoasting : false
 	};
+	var joystick : UniversalJoystick;
 
 	/* STAGE */
 	public var stageSrc = "assets/playgroundstage.vex";
@@ -73,14 +80,12 @@ class Main extends luxe.Game {
 		Luxe.fixed_frame_time = 0.5;
 
 		/* INPUT */
-		scrollInput = new ScrollInputHandler();
+		joystick = new UniversalJoystick();
 		pullMaxDistance = Luxe.screen.height / 6;
 
 		/* CAMERA */
 		Luxe.camera.size = new Vector(800,450);
 		Luxe.camera.center = new Vector(0,0);
-
-		//Luxe.camera.pos.y -= 1000;
 
 		/* PALETTE */
 		Palette.StartBlank(); //rename
@@ -97,27 +102,11 @@ class Main extends luxe.Game {
 			var json = jsonRes.asset.json;
 			player = new Vex(json);
 			player.scale = new Vector(0.3,0.3,1);
-			//player.depth = 1; //need a better way to control "general depth"
-
-			/*
-			player.addAnimation({
-					id: "test0",
-					type: "animation",
-					tracks: [
-						{
-							select: "rleg",
-							keyframes: [{ t:"0.0", props: {rot:"-60"} },{ t:"1.0", props: {rot:"180"} }]
-						}
-					]
-				});
-			*/
-
 			
 			var loadPlayerAnim = Luxe.resources.load_json( "assets/walkanim0.vex" );
 			loadPlayerAnim.then(function(jsonRes : JSONResource) {
 				var json = jsonRes.asset.json;
 				player.addAnimation(json);
-				//player.playAnimation("walk", 1).repeat();
 			});
 			
 		});
@@ -141,54 +130,15 @@ class Main extends luxe.Game {
 	}
 
 	override function onmouseup(e:MouseEvent) {
-		var scrollSpeed = Maths.clamp(scrollInput.releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed);
-		playerCoast(scrollSpeed, 0.75);
-
-		/*
-		var pullPercent = Math.abs(pullDelta)/pullMaxDistance;
-		if (pullPercent > 0.5) {
-			for (shroom in set.find("shroom")) {
-				shroom.playAnimation("bounce", 0.5);
-			}
-		}
-		*/
 	}
-
-	/*
-	//hacky workaround for now
-	var baseWalkCycleTime = 0.5;
-	var walkCycleTimeRange = 1.5; //effective range: 0.5 - 2.0
-	var isWalkAnimationPlaying = false;
-	function repeatWalkCycle() {
-		trace("start walk cycle!");
-
-		isWalkAnimationPlaying = true;
-
-		var absSpeed = Math.abs(playerProps.velocity.x);
-		var maxPlayerSpeedPercent = 1 - (absSpeed / maxScrollSpeed);
-		var walkCycleTime = baseWalkCycleTime + (walkCycleTimeRange * maxPlayerSpeedPercent);
-		
-		player.playAnimation("walk", walkCycleTime).onComplete(function() {
-				isWalkAnimationPlaying = false;
-				var absSpeed = Math.abs(playerProps.velocity.x);
-				if (absSpeed > 0) repeatWalkCycle();
-			});
-	}
-
-	//more hacks - this time to stop sudden animation stops
-	var counterToStopWalkAnimation = 0.0;
-	var maxTimeBeforeStopWalkAnimation = 0.1; //gives us 1/10 a sec of leeway
-
-	var crazyHackTest = true;
-	*/
 
 	override function update(dt:Float) {
 
 		if (player != null && path != null) { //eventually need a smarter way to handle this
-			/* PULL UP DOWN */
-			if (Luxe.input.mousedown(1)) {
-				// TODO this should probably be an exponential curve or somesuch instead of a hard stop
-				pullDelta += scrollInput.touchDelta.y;
+		
+			/* PULL UP & DOWN */
+			if ( joystick.yAxisHeld() ) {
+				pullDelta += joystick.axis.y * Luxe.screen.h * dt;
 				pullDelta = Maths.clamp(pullDelta, -pullMaxDistance, pullMaxDistance);
 			}
 			else {
@@ -205,17 +155,15 @@ class Main extends luxe.Game {
 			//update player walk cycle
 			var absSpeed = Math.abs(playerProps.velocity.x);
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
-				var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
+				var maxPlayerSpeedPercent = absSpeed / joystick.maxScrollSpeed;
 				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
 				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
 				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
 				player.getAnimation("walk").t = nextWalkT;				
 			}
 
-
 			//connect input to player
-			if (Luxe.input.mousedown(1)) playerChangeVelocity(scrollInput.touchDelta.x / dt); //force velocity to match scrolling
-			//update terrain pos
+			playerProps.velocity.x = joystick.axis.x * Luxe.screen.width;
 			playerProps.stagePos += playerProps.velocity.x * dt;
 			//keep player in bounds
 			playerProps.blocked.left = (playerProps.stagePos <= 0);
@@ -223,7 +171,6 @@ class Main extends luxe.Game {
 			//update world pos
 			playerProps.stagePos = Maths.clamp(playerProps.stagePos, 0, pathLength(path));
 			player.pos = worldPosFromPathPos(path, playerProps.stagePos);
-
 
 			/* CAMERA */
 			//calc camera distance this frame
@@ -245,7 +192,7 @@ class Main extends luxe.Game {
 				cameraProps.offsetX = Maths.clamp(cameraProps.offsetX, -maxTotalOffset, maxTotalOffset);
 			}
 			//use spring to keep camera in its proper bounds
-			if (!Luxe.input.mousedown(1) && Math.abs(cameraProps.offsetX) > cameraProps.maxDistAheadOfPlayer) {
+			if (!joystick.xAxisHeld() && Math.abs(cameraProps.offsetX) > cameraProps.maxDistAheadOfPlayer) {
 				var dir = cameraProps.offsetX > 0 ? 1 : -1;
 				var dif = Math.abs(cameraProps.offsetX) - cameraProps.maxDistAheadOfPlayer;
 				var springForce = dif * cameraProps.edgeSpring.springConstant;
@@ -254,8 +201,8 @@ class Main extends luxe.Game {
 				//stop using spring when it brings you back from the edge
 				if (Math.abs(cameraProps.offsetX) < cameraProps.maxDistAheadOfPlayer) {
 					cameraProps.offsetX = dir * cameraProps.maxDistAheadOfPlayer; //put camera at resting place
-					cameraProps.edgeSpring.velocityX = 0; //stop sprint motion
-					playerChangeVelocity(0); //stop player from moving
+					cameraProps.edgeSpring.velocityX = 0; //stop spring motion
+					joystick.stopCoasting(); //stop player from moving
 				}
 			}
 			else {
@@ -271,26 +218,6 @@ class Main extends luxe.Game {
 	}
 
 	/* PLAYER */
-	public function playerCoast(velocityX : Float, time : Float) {
-		//trace("start coasting!");
-		playerProps.velocity.x = velocityX;
-		playerProps.isCoasting = true;
-		Actuate.tween(playerProps.velocity, time, {x: 0}).ease(luxe.tween.easing.Quad.easeOut)
-			.onComplete(function() { 
-							playerProps.velocity.x = 0;
-							playerProps.isCoasting = false; 
-						});
-	}
-
-	//replace with velocity setter?
-	public function playerChangeVelocity(velocityX) {
-		if (playerProps.isCoasting) {
-			playerProps.isCoasting = false;
-			Actuate.stop(playerProps.velocity); //stop "animating" the velocity
-		}
-		playerProps.velocity.x = velocityX;
-	}
-
 	public function playerIsMovingBlockedDirection() : Bool {
 		return (playerProps.blocked.left && playerProps.velocity.x <= 0) || (playerProps.blocked.right && playerProps.velocity.x >= 0);
 	}
