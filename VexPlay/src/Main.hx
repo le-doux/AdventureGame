@@ -15,8 +15,17 @@ import vexlib.VexPropertyInterface;
 		- idle anim polish?
 	- particle effects for walking
 	X universal input manager
+		- polish input manager
+		- handle multiple input types at once
+		- register type of input
+		- isReverse movement?
+		- remove coasting from input manager?
+		- should keyboard controls be screen width independent?
 	- polish swipe controls (bounciness, up/down axis)
 	X weird double bounce on edges
+	- more animation stuff
+		- blending
+	- TODOs consolidate into one file?
 
 	TODO
 	- quickly establish standard screen size
@@ -113,12 +122,12 @@ class Main extends luxe.Game {
 			});
 
 			//todo learn to use parcels to load these in bulk?
-			var loadPlayerAnim2 = Luxe.resources.load_json( "assets/waitanim1.vex" );
+			var loadPlayerAnim2 = Luxe.resources.load_json( "assets/waitanim1_half.vex" );
 			loadPlayerAnim2.then(function(jsonRes : JSONResource) {
 				var json = jsonRes.asset.json;
 				player.addAnimation(json);
 				playerProps.isWaiting = true;
-				player.playAnimation("wait", 1.0).repeat();
+				player.playAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 			});
 			
 		});
@@ -178,7 +187,8 @@ class Main extends luxe.Game {
 				var oldFacingScaleX = player.scale.x;
 				player.resetToBasePose(); //this might overwrite things too often
 				player.scale.x = oldFacingScaleX; //hack
-				player.playAnimation("wait", 1.0).repeat();
+				//player.playAnimation("wait", 1.0).repeat();
+				player.playAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 			}
 			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
