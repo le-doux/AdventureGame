@@ -11,11 +11,12 @@ import vexlib.VexPropertyInterface;
 /*
 	TODO
 	- additional animations for main character
+		X idle animation
+		- idle anim polish?
 	- particle effects for walking
-	- universal input manager
+	X universal input manager
 	- polish swipe controls (bounciness, up/down axis)
-	- universal input manager
-	- weird double bounce on edges
+	X weird double bounce on edges
 
 	TODO
 	- quickly establish standard screen size
@@ -47,7 +48,8 @@ class Main extends luxe.Game {
 			left : false,
 			right : false
 		},
-		isCoasting : false
+		isCoasting : false,
+		isWaiting : false
 	};
 	var joystick : UniversalJoystick;
 
@@ -101,12 +103,22 @@ class Main extends luxe.Game {
 		loadPlayer.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
 			player = new Vex(json);
-			player.scale = new Vector(0.3,0.3,1);
+			player.properties.scale = new Vector(0.3,0.3);
+			//player.scale = new Vector(0.3,0.3,1);
 			
 			var loadPlayerAnim = Luxe.resources.load_json( "assets/walkanim0.vex" );
 			loadPlayerAnim.then(function(jsonRes : JSONResource) {
 				var json = jsonRes.asset.json;
 				player.addAnimation(json);
+			});
+
+			//todo learn to use parcels to load these in bulk?
+			var loadPlayerAnim2 = Luxe.resources.load_json( "assets/waitanim1.vex" );
+			loadPlayerAnim2.then(function(jsonRes : JSONResource) {
+				var json = jsonRes.asset.json;
+				player.addAnimation(json);
+				playerProps.isWaiting = true;
+				player.playAnimation("wait", 1.0).repeat();
 			});
 			
 		});
@@ -152,8 +164,23 @@ class Main extends luxe.Game {
 			if (playerProps.velocity.x > 0 && player.scale.x < 0) player.scale.x *= -1;
 			if (playerProps.velocity.x < 0 && player.scale.x > 0) player.scale.x *= -1;
 			
-			//update player walk cycle
+			//update player animations
 			var absSpeed = Math.abs(playerProps.velocity.x);
+			//waiting animation
+			if (playerProps.isWaiting && absSpeed > 0) {
+				playerProps.isWaiting = false;
+				player.stopAnimation(); //todo ... stop by name?
+				player.resetToBasePose();	
+			}
+			else if (!playerProps.isWaiting && absSpeed == 0) {
+				playerProps.isWaiting = true;
+				player.stopAnimation(); //not necessary yet (maybe later tho)
+				var oldFacingScaleX = player.scale.x;
+				player.resetToBasePose(); //this might overwrite things too often
+				player.scale.x = oldFacingScaleX; //hack
+				player.playAnimation("wait", 1.0).repeat();
+			}
+			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
 				var maxPlayerSpeedPercent = absSpeed / joystick.maxScrollSpeed;
 				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );

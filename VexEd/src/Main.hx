@@ -50,6 +50,7 @@ import Command;
 		- control decimal accuracy of save data
 		- uneccessary proliferation of "type: 'animation'" in subtracks
 		- keyframe t snapping for frames close to 0.0 and 1.0
+		- trouble subselecting (because of scaling?)
 
 	TODO Next
 	- vector vs. raster (tiling) decision
