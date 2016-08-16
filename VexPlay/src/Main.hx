@@ -3,6 +3,8 @@ import luxe.resource.Resource.JSONResource;
 import luxe.utils.Maths;
 import luxe.Input;
 import luxe.tween.Actuate;
+import luxe.Visual;
+import luxe.Color;
 
 import vexlib.Vex;
 import vexlib.Palette;
@@ -12,8 +14,10 @@ import vexlib.VexPropertyInterface;
 	TODO
 	- additional animations for main character
 		X idle animation
-		- idle anim polish?
+		- kick foot (boredom)
+		- sudden stop / hit wall
 	- particle effects for walking
+		- todo: add typedef for options, particle system?, 
 	X universal input manager
 		- polish input manager
 		- handle multiple input types at once
@@ -25,6 +29,7 @@ import vexlib.VexPropertyInterface;
 	X weird double bounce on edges
 	- more animation stuff
 		- blending
+		- composite-ing of multiple animations at once
 	- TODOs consolidate into one file?
 
 	TODO
@@ -177,9 +182,25 @@ class Main extends luxe.Game {
 			var absSpeed = Math.abs(playerProps.velocity.x);
 			//waiting animation
 			if (playerProps.isWaiting && absSpeed > 0) {
+				var oldpos = player.pos.clone();
+
 				playerProps.isWaiting = false;
 				player.stopAnimation(); //todo ... stop by name?
-				player.resetToBasePose();	
+				player.resetToBasePose();	//todo why is this also resetting base position? this method sucks man!
+
+				//TODO in progress
+				//hack to test particles
+				/*
+				spawnDustParticles(	10, //count
+									oldpos, //pos
+									6, 60, //speed
+									-90, -120, //angle
+									10, 20, //rot speed
+									3, 10, //scale
+									0.3, 1, //scale speed
+									0.5, 1.5 //lifetime
+								);
+				*/
 			}
 			else if (!playerProps.isWaiting && absSpeed == 0) {
 				playerProps.isWaiting = true;
@@ -315,6 +336,42 @@ class Main extends luxe.Game {
 		return closestIndex;
 	}
 	//////
+
+
+	/* DUST PARTICLE */
+	function spawnDustParticles(count, pos, minSpeed, maxSpeed, minAngle, maxAngle, minRotSpd, maxRotSpd, minScale, maxScale, minScaleSpd, maxScaleSpd, minLife, maxLife) {
+		for (i in 0 ... count) {
+
+			var speed = Luxe.utils.random.float(minSpeed, maxSpeed);
+			var angle = Maths.radians( Luxe.utils.random.float(minAngle, maxAngle) );
+			var direction = new Vector(Math.cos(angle), Math.sin(angle));
+			var velocity = Vector.Multiply( direction, speed );
+			var rotSpd = Luxe.utils.random.float(minRotSpd, maxRotSpd);
+			var scale = Luxe.utils.random.float(minScale, maxScale);
+			var scaleSpd = Luxe.utils.random.float(minScaleSpd, maxScaleSpd);
+			var life = Luxe.utils.random.float(minLife, maxLife);
+
+			var particle = new Visual({
+					color: new Color(1,1,1,1),
+					pos: pos.clone(),
+					size: new Vector(1, 1),
+					origin: new Vector(0.5, 0.5),
+					scale: new Vector(scale, scale),
+					batcher: Luxe.renderer.batcher,
+					depth: 100
+				});
+
+			particle.add(
+				new DustParticle({
+					name: "dust_particle_comp",
+					velocity: velocity,
+					rotSpeed: rotSpd,
+					scaleSpeed: scaleSpd,
+					lifetime: life
+				})
+			);
+		}
+	}
 }
 
 /* STAGE */
@@ -324,4 +381,57 @@ typedef StageFormat = {
 	@:optional public var set : Property;
 	@:optional public var background : Property;
 	@:optional public var path : Property;
+}
+
+/* DUST PARTICLE 
+	- spin
+	- size
+	- alpha
+	- time alive
+*/
+typedef DustParticleOptions = {
+	> luxe.options.ComponentOptions,
+	public var velocity : Vector;
+	public var rotSpeed : Float;
+	public var scaleSpeed : Float;
+	public var lifetime : Float;
+}
+
+class DustParticle extends luxe.Component {
+	public var visual : Visual;
+
+	public var velocity : Vector;
+	public var rotSpeed : Float;
+	public var scaleSpeed : Float;
+	public var lifetime : Float;
+	var time = 0.0;
+
+	override public function new (_options:DustParticleOptions) {
+		super(_options);
+
+		velocity = _options.velocity;
+		rotSpeed = _options.rotSpeed;
+		scaleSpeed = _options.scaleSpeed;
+		lifetime = _options.lifetime;
+	}
+
+	override public function init() {
+		visual = cast( this.entity );
+	}
+
+	override public function update(dt:Float) {
+		time += dt;
+
+		visual.pos.add( Vector.Multiply(velocity, dt) );
+		visual.rotation_z += rotSpeed * dt;
+		visual.scale.add( new Vector(scaleSpeed * dt, scaleSpeed * dt) );
+		visual.color.a = 1.0 - (time / lifetime);
+
+		if (time >= lifetime) {
+			entity.destroy();
+			//entity.remove(this.name);
+		}
+	}
+
+
 }
