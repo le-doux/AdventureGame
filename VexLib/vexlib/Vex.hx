@@ -38,7 +38,6 @@ class Vex extends Visual {
 	}
 
 	public function resetToBasePose() {
-		trace("??");
 		//properties.deserialize( properties.serialize() );
 
 		if (properties.scale != null) {
@@ -269,6 +268,7 @@ class Vex extends Visual {
 	//public var animation : Animation;
 	var animations : Map<String, Animation> = new Map<String, Animation>();
 	public var curAnimation : Animation;
+	public var curTween : luxe.tween.actuators.GenericActuator.IGenericActuator; //don't need both?
 
 	public function traceAnimationNames() {
 		trace("ANIMATION KEYS");
@@ -293,15 +293,52 @@ class Vex extends Visual {
 	}
 	public function playAnimation(name:String, duration:Float) {
 		curAnimation = animations.get(name);
-		return curAnimation.play(duration).ease(luxe.tween.easing.Linear.easeNone);
-		/*
-		trace(curAnimation);
-		curAnimation.t = 0;
-		return Actuate.tween(curAnimation, duration, {t:1}).ease(luxe.tween.easing.Linear.easeNone); //.play(duration);
-		*/
+		curTween = curAnimation.play(duration).ease(luxe.tween.easing.Linear.easeNone).onComplete(function() {
+				//if this is overriden there could be problems
+				curAnimation = null;
+				curTween = null;
+			});
+		return curTween;
 	}
 	public function stopAnimation() { //rename pause?
 		if (curAnimation != null) Actuate.stop(curAnimation);
+		curAnimation = null;
+		curTween = null;
+	}
+
+	//doesn't work like a real queue though... I can improve that later
+	public function queueAnimation(name:String, duration:Float) {
+		if (curTween == null) {
+
+			//likely this should be removed later... or turned into the default behavior?
+			var oldFacingScaleX = scale.x;
+			resetToBasePose(); //this might overwrite things too often
+			scale.x = oldFacingScaleX; //hack
+
+			return playAnimation(name, duration);
+		}
+		else {
+			var nextAnimation = animations.get(name);
+			var nextTween = nextAnimation.play(duration).ease(luxe.tween.easing.Linear.easeNone).onComplete(function() {
+				//if this is overriden there could be problems
+				curAnimation = null;
+				curTween = null;
+			});
+			Actuate.pause(nextAnimation);
+			curTween.onComplete(function() {
+					trace("play queued!");
+
+					//likely this should be removed later
+					var oldFacingScaleX = scale.x;
+					resetToBasePose(); //this might overwrite things too often
+					scale.x = oldFacingScaleX; //hack
+
+					curAnimation = nextAnimation;
+					curTween = nextTween;
+					Actuate.resume(nextAnimation);
+				});
+			return nextTween;
+		}
 	}
 	public function getAnimation(name:String) : Animation {
 		return animations.get(name);

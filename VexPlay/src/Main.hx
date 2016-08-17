@@ -11,6 +11,15 @@ import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 
 /*
+	THIS WEEK
+	- player movement animation
+	- swipe control polish
+	- universal joystick refactoring
+	- screen size / camera standardization
+	FOUND TODOS
+	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
+	- fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
+
 	TODO
 	- additional animations for main character
 		X idle animation
@@ -66,6 +75,7 @@ class Main extends luxe.Game {
 		isWaiting : false
 	};
 	var joystick : UniversalJoystick;
+	var waitCounter = 0.0;
 
 	/* STAGE */
 	public var stageSrc = "assets/playgroundstage.vex";
@@ -135,6 +145,18 @@ class Main extends luxe.Game {
 				player.playAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 			});
 			
+			var loadPlayerAnim3 = Luxe.resources.load_json( "assets/stopanim2.vex" );
+			loadPlayerAnim3.then(function(jsonRes : JSONResource) {
+				var json = jsonRes.asset.json;
+				player.addAnimation(json);
+			});
+
+			var loadPlayerAnim4 = Luxe.resources.load_json( "assets/kickfootanim1.vex" );
+			loadPlayerAnim4.then(function(jsonRes : JSONResource) {
+				var json = jsonRes.asset.json;
+				player.addAnimation(json);
+			});
+
 		});
 
 		/* STAGE */
@@ -153,6 +175,25 @@ class Main extends luxe.Game {
 				set.depth = 0; //TODO this is likely broken...
 			});
 		});
+	}
+
+	override function onmousedown(e:MouseEvent) {
+
+		//on sudden stops add an animation
+		//TODO this doesn't seem to add much -- possible remove or modify in some way?
+		//TODO her leg gets stuck in its "walk" position - how come?
+		if (Math.abs(playerProps.velocity.x) > 200) { //arbitrary speed for now
+			trace("play blocked anim!");
+
+			//boilerplate to stop animation
+			player.stopAnimation();
+			var oldFacingScaleX = player.scale.x;
+			player.resetToBasePose(); //this might overwrite things too often
+			player.scale.x = oldFacingScaleX; //hack
+
+			player.playAnimation("stop", 0.5);
+		}
+
 	}
 
 	override function onmouseup(e:MouseEvent) {
@@ -181,7 +222,7 @@ class Main extends luxe.Game {
 			//update player animations
 			var absSpeed = Math.abs(playerProps.velocity.x);
 			//waiting animation
-			if (playerProps.isWaiting && absSpeed > 0) {
+			if ( playerProps.isWaiting && (absSpeed > 0 && !playerIsMovingBlockedDirection()) ) {
 				var oldpos = player.pos.clone();
 
 				playerProps.isWaiting = false;
@@ -202,23 +243,55 @@ class Main extends luxe.Game {
 								);
 				*/
 			}
-			else if (!playerProps.isWaiting && absSpeed == 0) {
+			else if ( !playerProps.isWaiting && (absSpeed == 0 || playerIsMovingBlockedDirection()) ) {
+				trace("play wait anim!");
 				playerProps.isWaiting = true;
+				player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
+
+				waitCounter = 0;
+
+				/*
 				player.stopAnimation(); //not necessary yet (maybe later tho)
 				var oldFacingScaleX = player.scale.x;
 				player.resetToBasePose(); //this might overwrite things too often
 				player.scale.x = oldFacingScaleX; //hack
-				//player.playAnimation("wait", 1.0).repeat();
 				player.playAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
+				*/
 			}
 			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
+				trace("walk!");
 				var maxPlayerSpeedPercent = absSpeed / joystick.maxScrollSpeed;
 				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
 				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
 				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
 				player.getAnimation("walk").t = nextWalkT;				
 			}
+
+			if (playerProps.isWaiting) {
+				waitCounter += dt;
+
+				if (waitCounter > 10) {
+					/*
+					//boilerplate
+					player.stopAnimation(); //not necessary yet (maybe later tho)
+					var oldFacingScaleX = player.scale.x;
+					player.resetToBasePose(); //this might overwrite things too often
+					player.scale.x = oldFacingScaleX; //hack
+					*/
+
+					//TODO this kick animation isn't very good
+					//HACK this animation takes advantage of accidentally being able to composite animations --- formalize this somehow?
+					player.playAnimation("kick", 2.0).ease(luxe.tween.easing.Quad.easeInOut);
+
+					//player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
+
+					waitCounter = -2.0; //hack to delay counter start by 4 seconds
+				}
+			}
+
+			//need to check if blocked to start blocked anim
+			var prevBlocked = playerProps.blocked.left || playerProps.blocked.right;
 
 			//connect input to player
 			playerProps.velocity.x = joystick.axis.x * Luxe.screen.width;
@@ -229,6 +302,34 @@ class Main extends luxe.Game {
 			//update world pos
 			playerProps.stagePos = Maths.clamp(playerProps.stagePos, 0, pathLength(path));
 			player.pos = worldPosFromPathPos(path, playerProps.stagePos);
+
+			//blocked stop animation
+			var curBlocked = playerProps.blocked.left || playerProps.blocked.right;
+			if (curBlocked && !prevBlocked) {
+				trace("play blocked anim!");
+
+				trace(absSpeed);
+
+				if (absSpeed < 300) {
+					//don't play animation
+				}
+				else {
+					var maxPlayerSpeedPercent = absSpeed / joystick.maxScrollSpeed;
+					var animTime = 1.0 - ( 0.5 * maxPlayerSpeedPercent );
+					if (animTime < 0.5) animTime = 0.5; //hack because velocity is too big sometimes
+
+					trace("???");
+					trace(animTime);
+
+					//boilerplate to stop animation
+					player.stopAnimation();
+					var oldFacingScaleX = player.scale.x;
+					player.resetToBasePose(); //this might overwrite things too often
+					player.scale.x = oldFacingScaleX; //hack
+
+					player.playAnimation("stop", animTime);
+				}
+			}
 
 			/* CAMERA */
 			//calc camera distance this frame
