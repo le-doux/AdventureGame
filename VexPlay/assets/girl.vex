@@ -68,7 +68,7 @@
 							"type": "poly",
 							"color": "pal(1)",
 							"id": "poly11",
-							"depth": "11"
+							"depth": "6"
 						},
 						{
 							"pos": "14.9544129533562,91.5325699317584",
@@ -81,7 +81,7 @@
 									"type": "poly",
 									"origin": "11.5811564201885,3.05829493514308",
 									"color": "pal(2)",
-									"depth": "23",
+									"depth": "8",
 									"id": "rfoot"
 								},
 								{
@@ -90,7 +90,7 @@
 									"type": "poly",
 									"color": "pal(1)",
 									"id": "poly12",
-									"depth": "12"
+									"depth": "7"
 								}
 							],
 							"id": "rlowerleg"

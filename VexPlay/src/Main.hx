@@ -13,12 +13,30 @@ import vexlib.VexPropertyInterface;
 /*
 	THIS WEEK
 	- player movement animation
+		X idle
+		X edges
+		X boredom
+		- particles?
 	- swipe control polish
+		- test variation in release speed?
+		- get rid of reliance on actuate for coasting
+		- resistance on edges (both x and y axes)
+		- test a universal maximum movement speed for player?
+		- deadzone in center so player doesn't move at the slightest flick
+		- keep x and y axis movement separate (can't do both) (should this be in joystick or not?)
 	- universal joystick refactoring
+		- re-remove coasting from joystick (maybe?)
+		- how to handle keyboard control speed at different screensizes?
+		- how to handle multiple interacting input types?
+		- events
+		- distinguish between input types
 	- screen size / camera standardization
+		- how should screen resizing behave?
+		- where should player be relative to the camera?
 	FOUND TODOS
 	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
 	- fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
+	- stateful player redesign
 
 	TODO
 	- additional animations for main character
@@ -151,7 +169,7 @@ class Main extends luxe.Game {
 				player.addAnimation(json);
 			});
 
-			var loadPlayerAnim4 = Luxe.resources.load_json( "assets/kickfootanim1.vex" );
+			var loadPlayerAnim4 = Luxe.resources.load_json( "assets/boredanim1.vex" );
 			loadPlayerAnim4.then(function(jsonRes : JSONResource) {
 				var json = jsonRes.asset.json;
 				player.addAnimation(json);
@@ -179,6 +197,9 @@ class Main extends luxe.Game {
 
 	override function onmousedown(e:MouseEvent) {
 
+		//removed because it causes flashing on mobile (too much animation interruption)
+		//TODO this could be fixed 
+		/*
 		//on sudden stops add an animation
 		//TODO this doesn't seem to add much -- possible remove or modify in some way?
 		//TODO her leg gets stuck in its "walk" position - how come?
@@ -193,6 +214,7 @@ class Main extends luxe.Game {
 
 			player.playAnimation("stop", 0.5);
 		}
+		*/
 
 	}
 
@@ -247,16 +269,7 @@ class Main extends luxe.Game {
 				trace("play wait anim!");
 				playerProps.isWaiting = true;
 				player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
-
-				waitCounter = 0;
-
-				/*
-				player.stopAnimation(); //not necessary yet (maybe later tho)
-				var oldFacingScaleX = player.scale.x;
-				player.resetToBasePose(); //this might overwrite things too often
-				player.scale.x = oldFacingScaleX; //hack
-				player.playAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
-				*/
+				waitCounter = 0; //counter to trakc when to play boredom animation (kick foot)
 			}
 			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
@@ -271,22 +284,16 @@ class Main extends luxe.Game {
 			if (playerProps.isWaiting) {
 				waitCounter += dt;
 
-				if (waitCounter > 10) {
-					/*
-					//boilerplate
-					player.stopAnimation(); //not necessary yet (maybe later tho)
-					var oldFacingScaleX = player.scale.x;
-					player.resetToBasePose(); //this might overwrite things too often
-					player.scale.x = oldFacingScaleX; //hack
-					*/
-
-					//TODO this kick animation isn't very good
+				var animTime = 1.5;
+				var animWaitTime = 10;
+				if (waitCounter > animWaitTime) {
 					//HACK this animation takes advantage of accidentally being able to composite animations --- formalize this somehow?
-					player.playAnimation("kick", 2.0).ease(luxe.tween.easing.Quad.easeInOut);
+					player.playAnimation("bored", animTime).ease(luxe.tween.easing.Quad.easeInOut);
 
+					//below line is necessary if not using compositing hack (but I am --- keeping this as a note)
 					//player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 
-					waitCounter = -2.0; //hack to delay counter start by 4 seconds
+					waitCounter = -animTime; //hack to delay counter start by 4 seconds
 				}
 			}
 
