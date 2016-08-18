@@ -116,6 +116,7 @@ class Main extends luxe.Game {
 			velocityX : 0.0
 		}
 	};
+	var cameraTopOffset = 0.0;
 
 	/* PULL UP DOWN */
 	// TODO spend more time tuning this feature
@@ -134,7 +135,15 @@ class Main extends luxe.Game {
 
 		/* CAMERA */
 		Luxe.camera.size = new Vector(800,450);
-		Luxe.camera.center = new Vector(0,0);
+		Luxe.camera.size_mode = luxe.Camera.SizeMode.fit;
+
+		//some weird mathy-ness
+		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
+		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
+		var width = bottomRight.x - topLeft.x;
+		var height = bottomRight.y - topLeft.y;
+		var leftoverHeight = height - 450;
+		cameraTopOffset = leftoverHeight/2; //assumes no zooming
 
 		/* PALETTE */
 		Palette.StartBlank(); //rename
@@ -208,6 +217,8 @@ class Main extends luxe.Game {
 
 	override function onmousedown(e:MouseEvent) {
 
+		trace(e.pos);
+
 		//removed because it causes flashing on mobile (too much animation interruption)
 		//TODO this could be fixed 
 		/*
@@ -248,6 +259,32 @@ class Main extends luxe.Game {
 	}
 
 	override function update(dt:Float) {
+
+		//some weird mathy-ness
+		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
+		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
+		var width = bottomRight.x - topLeft.x;
+		var height = bottomRight.y - topLeft.y;
+		var leftOverWidth = width - 800;
+
+		//test for screen size
+		Luxe.draw.rectangle({
+				x: topLeft.x + (leftOverWidth/2) + 1,
+				y: bottomRight.y - 450 + 1,
+				w: 800 - 1,
+				h: 450 - 1,
+				immediate: true,
+				depth: 500
+			});
+
+		//camera y
+		Luxe.draw.line({
+				p0: new Vector(Luxe.camera.pos.x, Luxe.camera.pos.y),
+				p1: new Vector(Luxe.camera.pos.x + width, Luxe.camera.pos.y),
+				immediate: true,
+				depth: 500
+			});
+
 
 		if (player != null && path != null) { //eventually need a smarter way to handle this
 		
@@ -403,10 +440,27 @@ class Main extends luxe.Game {
 			//keep camera attached to player
 			var centerX = player.pos.x - 10 - (Luxe.screen.w/2);
 			Luxe.camera.pos.x = centerX + cameraProps.offsetX;
-			Luxe.camera.pos.y = player.pos.y - (Luxe.screen.height * 0.9) + (pullDelta * 0.5) + 150; //TODO *0.5 is a hack -- replace with proper percent to distance stuff
+			Luxe.camera.pos.y = player.pos.y - cameraTopOffset;// - cameraTopOffset;
+
+			//PREVIOUS CAMERA BEHAVIOR (kept for reference)
+			//Luxe.camera.pos.y = player.pos.y - (Luxe.screen.height * 0.9) + (pullDelta * 0.5) + 150; //TODO *0.5 is a hack -- replace with proper percent to distance stuff
 			//update camera zoom due to pull
-			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
+			//Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
 		}
+	}
+
+	override function onwindowresized(e:luxe.Screen.WindowEvent) {
+		trace(e);
+		trace(Luxe.camera.size);
+		trace(Luxe.camera.viewport);
+
+		//some weird mathy-ness
+		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
+		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
+		var width = bottomRight.x - topLeft.x;
+		var height = bottomRight.y - topLeft.y;
+		var leftoverHeight = height - 450;
+		cameraTopOffset = leftoverHeight/2; //assumes no zooming
 	}
 
 	/* PLAYER */
