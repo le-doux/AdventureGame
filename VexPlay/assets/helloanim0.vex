@@ -1,0 +1,89 @@
+{
+	"tracks": [
+		{
+			"select": "larm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-5"
+					},
+					"t": "0"
+				},
+				{
+					"props": {
+						"rot": "100"
+					},
+					"t": "0.60546875"
+				},
+				{
+					"props": {
+						"rot": "-5"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "rarm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "5"
+					},
+					"t": "0"
+				},
+				{
+					"props": {
+						"rot": "-94.9999999999999"
+					},
+					"t": "0.60546875"
+				},
+				{
+					"props": {
+						"rot": "5"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "rforearm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-35"
+					},
+					"t": "0.60546875"
+				},
+				{
+					"props": {
+						"rot": "-10"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "lforearm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "45"
+					},
+					"t": "0.60546875"
+				},
+				{
+					"props": {
+						"rot": "-5"
+					},
+					"t": "1"
+				}
+			]
+		}
+	],
+	"id": "hello"
+}

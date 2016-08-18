@@ -12,13 +12,17 @@ import vexlib.VexPropertyInterface;
 
 /*
 	THIS WEEK
-	- player movement animation
+	X player movement animation
 		X idle
 		X edges
+			- the speed control of this could be tweaked
+			- I could take another go at the "sudden stop" version of this
 		X boredom
-		- particles?
+			 - add variations in timing and animations later
+		X hello [this animation can be improved later - also the input needs help]
+		- particles? [save this for later]
 	- swipe control polish
-		- test variation in release speed?
+		- test variation in release speed max?
 		- get rid of reliance on actuate for coasting
 		- resistance on edges (both x and y axes)
 		- test a universal maximum movement speed for player?
@@ -37,6 +41,7 @@ import vexlib.VexPropertyInterface;
 	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
 	- fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
 	- stateful player redesign
+	- EDITOR: hard to delete animation keyframes
 
 	TODO
 	- additional animations for main character
@@ -175,6 +180,12 @@ class Main extends luxe.Game {
 				player.addAnimation(json);
 			});
 
+			var loadPlayerAnim5 = Luxe.resources.load_json( "assets/helloanim2.vex" );
+			loadPlayerAnim5.then(function(jsonRes : JSONResource) {
+				var json = jsonRes.asset.json;
+				player.addAnimation(json);
+			});
+
 		});
 
 		/* STAGE */
@@ -219,6 +230,21 @@ class Main extends luxe.Game {
 	}
 
 	override function onmouseup(e:MouseEvent) {
+
+		//TODO add event from universal joystick so this works w/ keyboards as well
+		if (Math.abs(pullDelta) / pullMaxDistance > 0.5) {
+
+			//boilerplate to stop animation
+			player.stopAnimation();
+			var oldFacingScaleX = player.scale.x;
+			player.resetToBasePose(); //this might overwrite things too often
+			player.scale.x = oldFacingScaleX; //hack
+			playerProps.isWaiting = false; //yet another hack - this time to tell waiting anim it needs to resume (I really need to state-ify this code)
+
+			player.playAnimation("hello", 1.5);
+
+
+		}
 	}
 
 	override function update(dt:Float) {
