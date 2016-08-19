@@ -124,6 +124,8 @@ class Main extends luxe.Game {
 	var pullMaxDistance : Float;
 	var pullZoomDelta = 0.10; // is this even having an impact?
 
+	var shouldAnchorToBottom = true;
+
 	override function ready() {
 
 		Luxe.fixed_timestep = false;
@@ -215,6 +217,10 @@ class Main extends luxe.Game {
 		});
 	}
 
+	override function onkeydown( e:KeyEvent ) {
+		//nothin' right now
+	}
+
 	override function onmousedown(e:MouseEvent) {
 
 		trace(e.pos);
@@ -260,12 +266,14 @@ class Main extends luxe.Game {
 
 	override function update(dt:Float) {
 
+		/*
 		//some weird mathy-ness
 		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
 		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
 		var width = bottomRight.x - topLeft.x;
 		var height = bottomRight.y - topLeft.y;
 		var leftOverWidth = width - 800;
+		var leftoverHeight = height - 450;
 
 		//test for screen size
 		Luxe.draw.rectangle({
@@ -277,14 +285,24 @@ class Main extends luxe.Game {
 				depth: 500
 			});
 
-		//camera y
-		Luxe.draw.line({
-				p0: new Vector(Luxe.camera.pos.x, Luxe.camera.pos.y),
-				p1: new Vector(Luxe.camera.pos.x + width, Luxe.camera.pos.y),
+		Luxe.draw.rectangle({
+				x: topLeft.x + (leftOverWidth/2) + 1,
+				y: topLeft.y + (leftoverHeight/2) + 1,
+				w: 800 - 1,
+				h: 450 - 1,
 				immediate: true,
 				depth: 500
 			});
 
+		//camera y
+		Luxe.draw.circle({
+				x: Luxe.camera.center.x,
+				y: Luxe.camera.center.y,
+				r: 20,
+				immediate: true,
+				depth: 500
+			});
+		*/
 
 		if (player != null && path != null) { //eventually need a smarter way to handle this
 		
@@ -438,12 +456,16 @@ class Main extends luxe.Game {
 				cameraProps.edgeSpring.velocityX = 0; //edge case protection
 			}
 			//keep camera attached to player
-			var centerX = player.pos.x - 10 - (Luxe.screen.w/2);
-			Luxe.camera.pos.x = centerX + cameraProps.offsetX;
-			Luxe.camera.pos.y = player.pos.y - cameraTopOffset;// - cameraTopOffset;
+			Luxe.camera.center.x = player.pos.x + cameraProps.offsetX;
+			Luxe.camera.center.y = player.pos.y - ( (shouldAnchorToBottom) ? cameraTopOffset : 0 ) - 75 + (pullDelta * 0.5); //75 should be replaced w/ variable relative to screensize?
+			//update camera zoom due to pull
+			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
+
+			//Luxe.camera.pos.x = centerX + cameraProps.offsetX;
+			//Luxe.camera.pos.y = player.pos.y;// - cameraTopOffset;// - cameraTopOffset;
 
 			//PREVIOUS CAMERA BEHAVIOR (kept for reference)
-			//Luxe.camera.pos.y = player.pos.y - (Luxe.screen.height * 0.9) + (pullDelta * 0.5) + 150; //TODO *0.5 is a hack -- replace with proper percent to distance stuff
+			//Luxe.camera.pos.y = player.pos.y - (Luxe.screen.height * 0.9)z + (pullDelta * 0.5) + 150; //TODO *0.5 is a hack -- replace with proper percent to distance stuff
 			//update camera zoom due to pull
 			//Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
 		}
@@ -461,6 +483,18 @@ class Main extends luxe.Game {
 		var height = bottomRight.y - topLeft.y;
 		var leftoverHeight = height - 450;
 		cameraTopOffset = leftoverHeight/2; //assumes no zooming
+
+		trace(height);
+		trace(cameraTopOffset);
+
+		//Luxe.camera.view.scale = new Vector(1,1);
+
+		/*
+		Luxe.camera.viewport.w = Luxe.screen.w;
+		Luxe.camera.viewport.h = Luxe.screen.h;
+		Luxe.camera.viewport.x = 0;
+		Luxe.camera.viewport.y = 0;
+		*/
 	}
 
 	/* PLAYER */
