@@ -34,9 +34,12 @@ import vexlib.VexPropertyInterface;
 		- how to handle multiple interacting input types?
 		- events
 		- distinguish between input types
-	- screen size / camera standardization
-		- how should screen resizing behave?
-		- where should player be relative to the camera?
+	X screen size / camera standardization
+		X how should screen resizing behave?
+		X where should player be relative to the camera?
+		- explore possible downsides of anchoring to bottom (zooming)
+		- can we constrain the window size?
+		- are there any acceptable solutons for centering the camera on the "iphone screen"? (letterboxing? special "floor geometry")
 	FOUND TODOS
 	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
 	- fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
@@ -219,6 +222,12 @@ class Main extends luxe.Game {
 
 	override function onkeydown( e:KeyEvent ) {
 		//nothin' right now
+		if (e.keycode == Key.key_9) {
+			Luxe.camera.zoom -= 0.1;
+		}
+		else if (e.keycode == Key.key_0) {
+			Luxe.camera.zoom += 0.1;
+		}
 	}
 
 	override function onmousedown(e:MouseEvent) {
@@ -390,6 +399,8 @@ class Main extends luxe.Game {
 			//update world pos
 			playerProps.stagePos = Maths.clamp(playerProps.stagePos, 0, pathLength(path));
 			player.pos = worldPosFromPathPos(path, playerProps.stagePos);
+			//temp hack
+			player.pos.y += 25; //keep feet in ground until I have a path editor for levels
 
 			//blocked stop animation
 			var curBlocked = playerProps.blocked.left || playerProps.blocked.right;
@@ -457,7 +468,8 @@ class Main extends luxe.Game {
 			}
 			//keep camera attached to player
 			Luxe.camera.center.x = player.pos.x + cameraProps.offsetX;
-			Luxe.camera.center.y = player.pos.y - ( (shouldAnchorToBottom) ? cameraTopOffset : 0 ) - 75 + (pullDelta * 0.5); //75 should be replaced w/ variable relative to screensize?
+			var zoomAdjustedCameraTopOffset = cameraTopOffset / Luxe.camera.zoom;
+			Luxe.camera.center.y = player.pos.y - ( (shouldAnchorToBottom) ? zoomAdjustedCameraTopOffset : 0 ) - 75 + (pullDelta * 0.5); //75 should be replaced w/ variable relative to screensize?
 			//update camera zoom due to pull
 			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
 
@@ -482,7 +494,7 @@ class Main extends luxe.Game {
 		var width = bottomRight.x - topLeft.x;
 		var height = bottomRight.y - topLeft.y;
 		var leftoverHeight = height - 450;
-		cameraTopOffset = leftoverHeight/2; //assumes no zooming
+		cameraTopOffset = (leftoverHeight/2); //doesn't account for zooming
 
 		trace(height);
 		trace(cameraTopOffset);
