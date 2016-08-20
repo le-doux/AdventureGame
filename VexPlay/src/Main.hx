@@ -421,7 +421,6 @@ class Main extends luxe.Game {
 			}
 			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
-				trace("walk!");
 				var maxPlayerSpeedPercent = absSpeed / joystick.maxScrollSpeed;
 				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
 				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
