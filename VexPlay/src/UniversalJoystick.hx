@@ -35,7 +35,10 @@ class UniversalJoystick extends luxe.Entity {
 			velocitySamples.push(new Vector(0,0));
 		}
 
-		prevTouchPos = e.pos;
+		/* CHANGE TO STANDARD SCREEN */
+		//prevTouchPos = e.pos;
+		prevTouchPos = Main.Settings.RealScreenPosToStandardScreenPos(e.pos);
+		/* CHANGE TO STANDARD SCREEN */
 		prevTouchTime = e.timestamp;
 
 		if (isCoasting) {
@@ -84,7 +87,11 @@ class UniversalJoystick extends luxe.Entity {
 
 		trace(releaseVelocity);
 
-		axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Luxe.screen.w;
+		/* CHANGE TO STANDARD SCREEN */
+		//axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Luxe.screen.w;
+		//TODO revisit maxScrollSpeed?
+		axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Main.Settings.IDEAL_SCREEN_SIZE_W;
+		/* CHANGE TO STANDARD SCREEN */
 		isCoasting = true;
 		Actuate.tween(axis, scrollCoastTime, {x:0}).ease(luxe.tween.easing.Quad.easeOut)
 			.onComplete(function() { 
@@ -140,16 +147,26 @@ class UniversalJoystick extends luxe.Entity {
 	override function update(dt:Float) {
 		/* MOUSE */
 		if (Luxe.input.mousedown(1)) {
-			touchDelta = Vector.Subtract( prevTouchPos, Luxe.screen.cursor.pos );
+			/* CHANGE TO STANDARD SCREEN */
+			//touchDelta = Vector.Subtract( prevTouchPos, Luxe.screen.cursor.pos );
+			var cursorPosStd = Main.Settings.RealScreenPosToStandardScreenPos( Luxe.screen.cursor.pos );
+			touchDelta = Vector.Subtract( prevTouchPos, cursorPosStd );
+			/* CHANGE TO STANDARD SCREEN */
 
 			var sample = Vector.Divide( touchDelta, dt );
 			velocitySamples.insert(0,sample);
 
 			if (velocitySamples.length > samplesMax) velocitySamples.pop();
 
-			prevTouchPos = Luxe.screen.cursor.pos;
+			/* CHANGE TO STANDARD SCREEN */
+			//prevTouchPos = Luxe.screen.cursor.pos;
+			prevTouchPos = cursorPosStd;
+			/* CHANGE TO STANDARD SCREEN */
 
-			axis = touchDelta.divide( Luxe.screen.size ).divideScalar( dt );
+			/* CHANGE TO STANDARD SCREEN */
+			//axis = touchDelta.divide( Luxe.screen.size ).divideScalar( dt );
+			axis = touchDelta.divide( Main.Settings.IdealScreenSize() ).divideScalar( dt );
+			/* CHANGE TO STANDARD SCREEN */
 		}
 
 		/* KEYBOARD */

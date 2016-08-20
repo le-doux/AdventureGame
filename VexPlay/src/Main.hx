@@ -37,6 +37,7 @@ import vexlib.VexPropertyInterface;
 	X screen size / camera standardization
 		X how should screen resizing behave?
 		X where should player be relative to the camera?
+		- SOLUTION to bad screen sizes: extendable ground padding that grows to accomodate screensize
 		- explore possible downsides of anchoring to bottom (zooming)
 		- can we constrain the window size?
 		- are there any acceptable solutons for centering the camera on the "iphone screen"? (letterboxing? special "floor geometry")
@@ -82,6 +83,61 @@ import vexlib.VexPropertyInterface;
 	- figure out a more reliable way to load assets
 	- get rid of extraneous traces
 */
+
+class Settings {
+	public static var IDEAL_SCREEN_SIZE_W : Float = 800;
+	public static var IDEAL_SCREEN_SIZE_H : Float = 450;
+
+	public static function IdealScreenSize() : Vector {
+		return new Vector(IDEAL_SCREEN_SIZE_W, IDEAL_SCREEN_SIZE_H);
+	}
+
+	public static function StandardScreenSize() : Vector {
+		/*
+		var realScreenSize = Luxe.screen.size;
+		var standardizedScreenSize = new Vector(0,0);
+
+		if (realScreenSize.x > realScreenSize.y) {
+			standardizedScreenSize.y = IDEAL_SCREEN_SIZE_H;
+			var ratio = IDEAL_SCREEN_SIZE_H / realScreenSize.y;
+			standardizedScreenSize.x = realScreenSize.x * ratio;
+		}
+		else {
+			standardizedScreenSize.x = IDEAL_SCREEN_SIZE_W;
+			var ratio = IDEAL_SCREEN_SIZE_W / realScreenSize.x;
+			standardizedScreenSize.y = realScreenSize.y * ratio;
+		}
+
+		return standardizedScreenSize;
+		*/
+		return RealScreenPosToStandardScreenPos( Luxe.screen.size );
+	}
+
+	public static function StandardScreenRatio() : Vector {
+		var ratio = new Vector(1,1);
+
+		var realScreenSize = Luxe.screen.size;
+		if (realScreenSize.x > realScreenSize.y) {
+			var ratio_h = IDEAL_SCREEN_SIZE_H / realScreenSize.y;
+			var ratio_w = (realScreenSize.x * ratio_h) / IDEAL_SCREEN_SIZE_W;
+			ratio.x = ratio_h;
+			ratio.y = ratio_w;
+		}
+		else {
+			var ratio_w = IDEAL_SCREEN_SIZE_W / realScreenSize.x;
+			var ratio_h = (realScreenSize.y * ratio_w) / IDEAL_SCREEN_SIZE_H;
+			ratio.x = ratio_h;
+			ratio.y = ratio_w;
+		}
+
+		return ratio;	
+	}
+
+	public static function RealScreenPosToStandardScreenPos( p:Vector ) : Vector {
+		var ratio = StandardScreenRatio();
+		return new Vector(p.x * ratio.x, p.y * ratio.y);
+	}
+}
 
 class Main extends luxe.Game {
 	/* PALETTE */
@@ -139,7 +195,7 @@ class Main extends luxe.Game {
 		pullMaxDistance = Luxe.screen.height / 6;
 
 		/* CAMERA */
-		Luxe.camera.size = new Vector(800,450);
+		Luxe.camera.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
 		Luxe.camera.size_mode = luxe.Camera.SizeMode.fit;
 
 		//some weird mathy-ness
@@ -391,7 +447,8 @@ class Main extends luxe.Game {
 			var prevBlocked = playerProps.blocked.left || playerProps.blocked.right;
 
 			//connect input to player
-			playerProps.velocity.x = joystick.axis.x * Luxe.screen.width;
+			//playerProps.velocity.x = joystick.axis.x * Luxe.screen.width;
+			playerProps.velocity.x = joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W;
 			playerProps.stagePos += playerProps.velocity.x * dt;
 			//keep player in bounds
 			playerProps.blocked.left = (playerProps.stagePos <= 0);
@@ -484,6 +541,9 @@ class Main extends luxe.Game {
 	}
 
 	override function onwindowresized(e:luxe.Screen.WindowEvent) {
+		trace(Luxe.screen.size);
+		trace("!!");
+
 		trace(e);
 		trace(Luxe.camera.size);
 		trace(Luxe.camera.viewport);
@@ -573,6 +633,7 @@ class Main extends luxe.Game {
 
 
 	/* DUST PARTICLE */
+	/*
 	function spawnDustParticles(count, pos, minSpeed, maxSpeed, minAngle, maxAngle, minRotSpd, maxRotSpd, minScale, maxScale, minScaleSpd, maxScaleSpd, minLife, maxLife) {
 		for (i in 0 ... count) {
 
@@ -606,6 +667,7 @@ class Main extends luxe.Game {
 			);
 		}
 	}
+	*/
 }
 
 /* STAGE */
@@ -623,6 +685,7 @@ typedef StageFormat = {
 	- alpha
 	- time alive
 */
+/*
 typedef DustParticleOptions = {
 	> luxe.options.ComponentOptions,
 	public var velocity : Vector;
@@ -669,3 +732,4 @@ class DustParticle extends luxe.Component {
 
 
 }
+*/
