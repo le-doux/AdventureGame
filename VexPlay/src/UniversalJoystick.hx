@@ -25,12 +25,14 @@ class UniversalJoystick extends luxe.Entity {
 	var touchDelta : Vector;
 	var releaseVelocity : Vector;
 	public var maxScrollSpeed = 1200; //todo shouldn't be public really
-	var scrollCoastTime = 0.75;
-	var isCoasting = false;
 	var timeSinceMouseReleased = 0.0;
 	var maxMouseReleaseTime = 0.1; // 1/10th of a second
 	var deadzoneVector : Vector;
 	var deadzoneSize = Main.Settings.IDEAL_SCREEN_SIZE_W * 0.02;
+	/*
+	var scrollCoastTime = 0.75;
+	var isCoasting = false;
+	*/
 
 	override function onmousedown( e:MouseEvent ) {
 		if (hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime) {
@@ -48,12 +50,16 @@ class UniversalJoystick extends luxe.Entity {
 			prevTouchPos = Main.Settings.RealScreenPosToStandardScreenPos(e.pos);
 			prevTouchTime = e.timestamp;
 
+			/*
 			if (isCoasting) {
 				isCoasting = false;
 				Actuate.stop(axis);
 			}
+			*/
 
 			axis = new Vector(0,0);
+
+			Luxe.events.fire("joystick.pressed", axis);
 		}
 	}
 
@@ -110,12 +116,15 @@ class UniversalJoystick extends luxe.Entity {
 
 		//TODO revisit maxScrollSpeed?
 		axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Main.Settings.IDEAL_SCREEN_SIZE_W;
+
+		/*
 		isCoasting = true;
 		Actuate.tween(axis, scrollCoastTime, {x:0}).ease(luxe.tween.easing.Quad.easeOut)
 			.onComplete(function() { 
 							axis.x = 0;
 							isCoasting = false; 
 						});
+		*/
 
 
 		//TODO remove this nonsense below
@@ -123,6 +132,8 @@ class UniversalJoystick extends luxe.Entity {
 		axis.y = 0;
 
 		velocitySamples = []; //purge samples after successful release
+
+		Luxe.events.fire("joystick.released", axis);
 	}
 
 	//todo name?
@@ -134,8 +145,11 @@ class UniversalJoystick extends luxe.Entity {
 	var maxKeyboardSpeed = 0.5;
 	var keyboardAcceleration = 0.3;
 	var keyboardUpSpeed = 0.3;
+	var areKeysAlreadyHeld = false;
 
 	override function onkeydown( e:KeyEvent ) {
+
+		/*
 		if (e.keycode == Key.right || e.keycode == Key.key_d || 
 			e.keycode == Key.left || e.keycode == Key.key_a) 
 		{
@@ -144,9 +158,25 @@ class UniversalJoystick extends luxe.Entity {
 				Actuate.stop(axis);
 			}
 		}
+		*/
+
+		if (e.keycode == Key.right || e.keycode == Key.key_d || 
+			e.keycode == Key.left || e.keycode == Key.key_a || 
+			e.keycode == Key.up || e.keycode == Key.key_w ||
+			e.keycode == Key.down || e.keycode == Key.key_s)
+		{
+			if ( !areKeysAlreadyHeld ) {
+				areKeysAlreadyHeld = true;
+				axis = new Vector(0,0);
+				Luxe.events.fire("joystick.pressed", axis);
+			}
+		}
+
 	}
 
 	override function onkeyup( e:KeyEvent ) {
+
+		/*
 		if (e.keycode == Key.right || e.keycode == Key.key_d || 
 			e.keycode == Key.left || e.keycode == Key.key_a) 
 		{
@@ -158,11 +188,21 @@ class UniversalJoystick extends luxe.Entity {
 								isCoasting = false; 
 							});
 		}
+		*/
+
+		if (e.keycode == Key.right || e.keycode == Key.key_d || 
+			e.keycode == Key.left || e.keycode == Key.key_a) 
+		{
+			areKeysAlreadyHeld = false;
+			Luxe.events.fire("joystick.released", axis);
+		}
 
 		if (e.keycode == Key.up || e.keycode == Key.key_w ||
 			e.keycode == Key.down || e.keycode == Key.key_s)
 		{
-			axis.y = 0;
+			areKeysAlreadyHeld = false;
+			axis.y = 0; //remove?
+			Luxe.events.fire("joystick.released", axis);
 		}
 	}
 
@@ -243,25 +283,37 @@ class UniversalJoystick extends luxe.Entity {
 		else if (Luxe.input.keydown(Key.down) || Luxe.input.keydown(Key.key_s)) {
 			axis.y = -keyboardUpSpeed;
 		}
+
+		//trace(axis);
+	}
+
+	function isScrollOngoing() {
+		return ( Luxe.input.mousedown(1) ) || ( hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime );
 	}
 
 	//is this really the best approach? ... probably not (but I'll do it "for now")
 	public function yAxisHeld() {
-		return Luxe.input.mousedown(1) || 
+		return isScrollOngoing() || 
 				Luxe.input.keydown(Key.up) || Luxe.input.keydown(Key.key_w) ||
 				Luxe.input.keydown(Key.down) || Luxe.input.keydown(Key.key_s);
 	}
 
 	public function xAxisHeld() {
-		return Luxe.input.mousedown(1) || 
+		return isScrollOngoing() || 
 				Luxe.input.keydown(Key.right) || Luxe.input.keydown(Key.key_d) ||
 				Luxe.input.keydown(Key.left) || Luxe.input.keydown(Key.key_a);
 	}
 
+	public function isDown() {
+		return yAxisHeld() || xAxisHeld();
+	}
+
 	//todo rename?
+	/*
 	public function stopCoasting() {
 		isCoasting = false;
 		Actuate.stop(axis);
 	}
+	*/
 
 }

@@ -26,8 +26,8 @@ import vexlib.VexPropertyInterface;
 		- get rid of reliance on actuate for coasting
 		- resistance on edges (both x and y axes)
 		- test a universal maximum movement speed for player?
-		- deadzone in center so player doesn't move at the slightest flick
-		- keep x and y axis movement separate (can't do both) (should this be in joystick or not?)
+		X deadzone in center so player doesn't move at the slightest flick
+		X keep x and y axis movement separate (can't do both) (should this be in joystick or not?)
 		X stop instananeous speed from being so herky jerky
 		X use timers? to keep from switching back and forth all the time
 	- universal joystick refactoring
@@ -170,7 +170,7 @@ class Main extends luxe.Game {
 	var cameraProps = {
 		offsetX : 0.0,
 		speedMult : 2.0,
-		maxDistAheadOfPlayer : 200.0,
+		maxDistAheadOfPlayer : 200.0, //TODO express in terms of ideal screen size? what about zooming?
 		edgeSpring : {
 			maxDist : 200.0,
 			springConstant : 50.0,
@@ -449,8 +449,18 @@ class Main extends luxe.Game {
 
 			//connect input to player
 			//playerProps.velocity.x = joystick.axis.x * Luxe.screen.width;
-			playerProps.velocity.x = joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W;
+
+			if ( joystick.isDown() ) {
+				playerProps.velocity.x = joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W;
+			}
+			else if ( Math.abs(playerProps.velocity.x) > 0 ) {
+				//coasting
+				playerProps.velocity.x -= (playerProps.velocity.x * 5.0 * dt);
+				if ( Math.abs(playerProps.velocity.x) < 10 ) playerProps.velocity.x = 0;
+				//TODO "3.0" and "10" need to be made into variables
+			}
 			playerProps.stagePos += playerProps.velocity.x * dt;
+
 			//keep player in bounds
 			playerProps.blocked.left = (playerProps.stagePos <= 0);
 			playerProps.blocked.right = (playerProps.stagePos >= pathLength(path));
@@ -518,7 +528,7 @@ class Main extends luxe.Game {
 				if (Math.abs(cameraProps.offsetX) < cameraProps.maxDistAheadOfPlayer) {
 					cameraProps.offsetX = dir * cameraProps.maxDistAheadOfPlayer; //put camera at resting place
 					cameraProps.edgeSpring.velocityX = 0; //stop spring motion
-					joystick.stopCoasting(); //stop player from moving
+					playerProps.velocity.x = 0; //stop player from moving
 				}
 			}
 			else {
