@@ -27,32 +27,41 @@ class UniversalJoystick extends luxe.Entity {
 	public var maxScrollSpeed = 1200; //todo shouldn't be public really
 	var scrollCoastTime = 0.75;
 	var isCoasting = false;
+	var timeSinceMouseReleased = 0.0;
+	var maxMouseReleaseTime = 0.1; // 1/10th of a second
 
 	override function onmousedown( e:MouseEvent ) {
-		velocitySamples = [];
-
-		for (i in  0 ... 5) { //this avoids sudden stops caused by not having enough samples (but it does "deaden" fast flicks... what's the solution?)
-			velocitySamples.push(new Vector(0,0));
+		if (hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime) {
+			//do nothing --- scrolling was only temporarily interrupted
 		}
+		else {
+			//start a new scrolling action
+			velocitySamples = [];
 
-		/* CHANGE TO STANDARD SCREEN */
-		//prevTouchPos = e.pos;
-		prevTouchPos = Main.Settings.RealScreenPosToStandardScreenPos(e.pos);
-		/* CHANGE TO STANDARD SCREEN */
-		prevTouchTime = e.timestamp;
+			for (i in  0 ... 5) { //this avoids sudden stops caused by not having enough samples (but it does "deaden" fast flicks... what's the solution?)
+				velocitySamples.push(new Vector(0,0));
+			}
 
-		if (isCoasting) {
-			isCoasting = false;
-			Actuate.stop(axis);
+			prevTouchPos = Main.Settings.RealScreenPosToStandardScreenPos(e.pos);
+			prevTouchTime = e.timestamp;
+
+			if (isCoasting) {
+				isCoasting = false;
+				Actuate.stop(axis);
+			}
+
+			axis = new Vector(0,0);
 		}
-
-		axis = new Vector(0,0);
 	}
 
 	override function onmousemove( e:MouseEvent ) {
 	}
 
 	override function onmouseup( e:MouseEvent ) {
+		timeSinceMouseReleased = 0;
+	}
+
+	function scrollrelease() {
 		trace(velocitySamples);
 
 		if (velocitySamples.length > samplesMin) {
@@ -87,11 +96,8 @@ class UniversalJoystick extends luxe.Entity {
 
 		trace(releaseVelocity);
 
-		/* CHANGE TO STANDARD SCREEN */
-		//axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Luxe.screen.w;
 		//TODO revisit maxScrollSpeed?
 		axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Main.Settings.IDEAL_SCREEN_SIZE_W;
-		/* CHANGE TO STANDARD SCREEN */
 		isCoasting = true;
 		Actuate.tween(axis, scrollCoastTime, {x:0}).ease(luxe.tween.easing.Quad.easeOut)
 			.onComplete(function() { 
@@ -102,6 +108,13 @@ class UniversalJoystick extends luxe.Entity {
 
 		//sort of a hack
 		axis.y = 0;
+
+		velocitySamples = []; //purge samples after successful release
+	}
+
+	//todo name?
+	function hasScrollingSamples() {
+		return velocitySamples.length > 0;
 	}
 
 	/* KEYBOARD INPUT */
@@ -147,26 +160,29 @@ class UniversalJoystick extends luxe.Entity {
 	override function update(dt:Float) {
 		/* MOUSE */
 		if (Luxe.input.mousedown(1)) {
-			/* CHANGE TO STANDARD SCREEN */
-			//touchDelta = Vector.Subtract( prevTouchPos, Luxe.screen.cursor.pos );
 			var cursorPosStd = Main.Settings.RealScreenPosToStandardScreenPos( Luxe.screen.cursor.pos );
 			touchDelta = Vector.Subtract( prevTouchPos, cursorPosStd );
-			/* CHANGE TO STANDARD SCREEN */
 
 			var sample = Vector.Divide( touchDelta, dt );
 			velocitySamples.insert(0,sample);
 
 			if (velocitySamples.length > samplesMax) velocitySamples.pop();
 
-			/* CHANGE TO STANDARD SCREEN */
-			//prevTouchPos = Luxe.screen.cursor.pos;
 			prevTouchPos = cursorPosStd;
-			/* CHANGE TO STANDARD SCREEN */
 
-			/* CHANGE TO STANDARD SCREEN */
-			//axis = touchDelta.divide( Luxe.screen.size ).divideScalar( dt );
-			axis = touchDelta.divide( Main.Settings.IdealScreenSize() ).divideScalar( dt );
-			/* CHANGE TO STANDARD SCREEN */
+			//use average velocity to smooth things out
+			var avgVelocity = new Vector(0, 0);
+			for (s in velocitySamples) { //TODO can I make this average velocity feel snappier to respond?
+				avgVelocity.add(s);
+			}
+			avgVelocity.divideScalar(velocitySamples.length);
+			axis = avgVelocity.divide( Main.Settings.IdealScreenSize() );
+		}
+		else if ( hasScrollingSamples() ) {
+			timeSinceMouseReleased += dt;
+			if (timeSinceMouseReleased >= maxMouseReleaseTime) {
+				scrollrelease();
+			}
 		}
 
 		/* KEYBOARD */

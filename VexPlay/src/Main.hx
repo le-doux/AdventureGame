@@ -28,9 +28,11 @@ import vexlib.VexPropertyInterface;
 		- test a universal maximum movement speed for player?
 		- deadzone in center so player doesn't move at the slightest flick
 		- keep x and y axis movement separate (can't do both) (should this be in joystick or not?)
+		X stop instananeous speed from being so herky jerky
+		X use timers? to keep from switching back and forth all the time
 	- universal joystick refactoring
 		- re-remove coasting from joystick (maybe?)
-		- how to handle keyboard control speed at different screensizes?
+		X how to handle keyboard control speed at different screensizes?
 		- how to handle multiple interacting input types?
 		- events
 		- distinguish between input types
