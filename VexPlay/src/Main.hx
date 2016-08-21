@@ -12,8 +12,8 @@ import vexlib.VexPropertyInterface;
 
 /*
 	NEXT
-	- y axis resistance
-	- y axis coasting
+	X y axis resistance
+	X y axis coasting
 	X revisit max coasting speed
 	- extendable ground
 	- revisit walking animation speed range
@@ -36,8 +36,8 @@ import vexlib.VexPropertyInterface;
 	- swipe control polish
 		- test variation in release speed max?
 		X get rid of reliance on actuate for coasting
-		- resistance on edges (both x and y axes)
-		- test a universal maximum movement speed for player?
+		X resistance on edges (both x and y axes)
+		X test a universal maximum movement speed for player?
 		X deadzone in center so player doesn't move at the slightest flick
 		X keep x and y axis movement separate (can't do both) (should this be in joystick or not?)
 		X stop instananeous speed from being so herky jerky
@@ -205,6 +205,9 @@ class Main extends luxe.Game {
 	var pullDelta = 0.0;
 	var pullMaxDistance = Settings.IDEAL_SCREEN_SIZE_H / 3;
 	var pullZoomDelta = 0.10; // is this even having an impact?
+	var pullFrictionConstant = 4.0;
+	var pullFrictionForce = 0.0;
+	var pullFriction = 0.0;
 
 	var shouldAnchorToBottom = true;
 
@@ -310,18 +313,18 @@ class Main extends luxe.Game {
 	var testCoastingTimer = 0.0;
 	function on_joystick_released( axis:Vector ) {
 		trace("RELEASED");
+
+		//x
 		playerProps.velocity.x = Math.min(maxScrollSpeed, axis.x * Settings.IDEAL_SCREEN_SIZE_W);
 		coastingFrictionForce = playerProps.velocity.x * coastingFrictionConstant;
-
-		trace(playerProps.velocity.x);
-		trace(coastingFrictionForce);
-
 		coastingFrictionAcceleration = 0;
 		coastingFriction = 0;
 		testCoastingTimer = 0.0;
 
 		//y
 		pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
+		pullFrictionForce = pullVelocity * pullFrictionConstant;
+		pullFriction = 0;
 	}
 
 	override function onkeydown( e:KeyEvent ) {
@@ -428,9 +431,17 @@ class Main extends luxe.Game {
 			if ( joystick.yAxisHeld() ) {
 				pullVelocity = joystick.axis.y * Settings.IDEAL_SCREEN_SIZE_H;
 			}
-			else  {
+			else if ( Math.abs(pullVelocity) > 0 )  {
 				//todo coasting
-				pullVelocity = 0;
+				pullFriction += pullFrictionForce * dt;
+				pullVelocity -= pullFriction * dt;
+
+				var hasSignSwitched = (pullVelocity < 0) != (pullFrictionForce < 0);
+				if ( hasSignSwitched ) {
+					pullVelocity = 0;
+					pullFriction = 0;
+					pullFrictionForce = 0;
+				}
 			}
 
 			if ( Math.abs(pullVelocity) > 0 ) {
