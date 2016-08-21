@@ -11,6 +11,18 @@ import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 
 /*
+	NEXT
+	- y axis resistance
+	- y axis coasting
+	X revisit max coasting speed
+	- extendable ground
+	- revisit walking animation speed range
+	TRY THIS
+	- slow zoom out on idle (fast zoom in)
+	- y axis camera floating into position when moving uphill/downhill
+	X max swiping speed
+		- build into joystick??
+
 	THIS WEEK
 	X player movement animation
 		X idle
@@ -34,7 +46,7 @@ import vexlib.VexPropertyInterface;
 		X re-remove coasting from joystick (maybe?)
 		X how to handle keyboard control speed at different screensizes?
 		- how to handle multiple interacting input types?
-		- events
+		X events
 		- distinguish between input types
 	X screen size / camera standardization
 		X how should screen resizing behave?
@@ -43,7 +55,7 @@ import vexlib.VexPropertyInterface;
 		- explore possible downsides of anchoring to bottom (zooming)
 		- can we constrain the window size?
 		- are there any acceptable solutons for centering the camera on the "iphone screen"? (letterboxing? special "floor geometry")
-	FOUND TODOS
+	FOUND TODOS + BUGS
 	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
 	- fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
 	- stateful player redesign
@@ -166,6 +178,8 @@ class Main extends luxe.Game {
 	var coastingFrictionForce = 0.0;
 	var coastingFrictionAcceleration = 0.0;
 	var coastingFriction = 0.0;
+	// new max scroll spped
+	var maxScrollSpeed = Settings.IDEAL_SCREEN_SIZE_W * 1.5;
 
 	/* STAGE */
 	public var stageSrc = "assets/playgroundstage.vex";
@@ -176,9 +190,9 @@ class Main extends luxe.Game {
 	var cameraProps = {
 		offsetX : 0.0,
 		speedMult : 2.0,
-		maxDistAheadOfPlayer : 200.0, //TODO express in terms of ideal screen size? what about zooming?
+		maxDistAheadOfPlayer : Settings.IDEAL_SCREEN_SIZE_W * 0.25, //200.0, //TODO express in terms of ideal screen size? what about zooming?
 		edgeSpring : {
-			maxDist : 200.0,
+			maxDist : Settings.IDEAL_SCREEN_SIZE_W * 0.2,
 			springConstant : 50.0,
 			velocityX : 0.0
 		}
@@ -187,8 +201,9 @@ class Main extends luxe.Game {
 
 	/* PULL UP DOWN */
 	// TODO spend more time tuning this feature
+	var pullVelocity = 0.0;
 	var pullDelta = 0.0;
-	var pullMaxDistance : Float;
+	var pullMaxDistance = Settings.IDEAL_SCREEN_SIZE_H / 3;
 	var pullZoomDelta = 0.10; // is this even having an impact?
 
 	var shouldAnchorToBottom = true;
@@ -200,7 +215,7 @@ class Main extends luxe.Game {
 
 		/* INPUT */
 		joystick = new UniversalJoystick();
-		pullMaxDistance = Luxe.screen.height / 6;
+		//pullMaxDistance = Luxe.screen.height / 6;
 		Luxe.events.listen("joystick.pressed", on_joystick_pressed);
 		Luxe.events.listen("joystick.released", on_joystick_released);
 
@@ -288,13 +303,14 @@ class Main extends luxe.Game {
 
 	function on_joystick_pressed( axis:Vector ) {
 		trace("PRESSED");
-		playerProps.velocity.x = axis.x * Settings.IDEAL_SCREEN_SIZE_W;
+		playerProps.velocity.x = Math.min(maxScrollSpeed, axis.x * Settings.IDEAL_SCREEN_SIZE_W);
+		pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
 	}
 
 	var testCoastingTimer = 0.0;
 	function on_joystick_released( axis:Vector ) {
 		trace("RELEASED");
-		playerProps.velocity.x = axis.x * Settings.IDEAL_SCREEN_SIZE_W;
+		playerProps.velocity.x = Math.min(maxScrollSpeed, axis.x * Settings.IDEAL_SCREEN_SIZE_W);
 		coastingFrictionForce = playerProps.velocity.x * coastingFrictionConstant;
 
 		trace(playerProps.velocity.x);
@@ -303,6 +319,9 @@ class Main extends luxe.Game {
 		coastingFrictionAcceleration = 0;
 		coastingFriction = 0;
 		testCoastingTimer = 0.0;
+
+		//y
+		pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
 	}
 
 	override function onkeydown( e:KeyEvent ) {
@@ -342,6 +361,7 @@ class Main extends luxe.Game {
 
 	override function onmouseup(e:MouseEvent) {
 
+		/*
 		//TODO add event from universal joystick so this works w/ keyboards as well
 		if (Math.abs(pullDelta) / pullMaxDistance > 0.5) {
 
@@ -354,8 +374,8 @@ class Main extends luxe.Game {
 
 			player.playAnimation("hello", 1.5);
 
-
 		}
+		*/
 	}
 
 	override function update(dt:Float) {
@@ -368,6 +388,7 @@ class Main extends luxe.Game {
 		var leftOverWidth = width - 800;
 		var leftoverHeight = height - 450;
 
+		/*
 		//test for screen size
 		Luxe.draw.rectangle({
 				x: topLeft.x + (leftOverWidth/2) + 1,
@@ -377,6 +398,7 @@ class Main extends luxe.Game {
 				immediate: true,
 				depth: 500
 			});
+		*/
 
 		/*
 		Luxe.draw.rectangle({
@@ -404,7 +426,16 @@ class Main extends luxe.Game {
 		
 			/* PULL UP & DOWN */
 			if ( joystick.yAxisHeld() ) {
-				pullDelta += joystick.axis.y * Luxe.screen.h * dt;
+				pullVelocity = joystick.axis.y * Settings.IDEAL_SCREEN_SIZE_H;
+			}
+			else  {
+				//todo coasting
+				pullVelocity = 0;
+			}
+
+			if ( Math.abs(pullVelocity) > 0 ) {
+				var pullResistance = Math.pow( 1 - (Math.abs(pullDelta) / pullMaxDistance), 3 );
+				pullDelta += pullVelocity * pullResistance * dt;
 				pullDelta = Maths.clamp(pullDelta, -pullMaxDistance, pullMaxDistance);
 			}
 			else {
@@ -450,7 +481,7 @@ class Main extends luxe.Game {
 			}
 			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
-				var maxPlayerSpeedPercent = absSpeed / joystick.maxScrollSpeed;
+				var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
 				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
 				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
 				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
@@ -480,7 +511,7 @@ class Main extends luxe.Game {
 			//playerProps.velocity.x = joystick.axis.x * Luxe.screen.width;
 
 			if ( joystick.isDown() ) {
-				playerProps.velocity.x = joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W;
+				playerProps.velocity.x = Math.min(maxScrollSpeed, joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W);
 			}
 			else if ( Math.abs(playerProps.velocity.x) > 0 ) {
 				//coasting
@@ -534,7 +565,7 @@ class Main extends luxe.Game {
 					//don't play animation
 				}
 				else {
-					var maxPlayerSpeedPercent = absSpeed / joystick.maxScrollSpeed;
+					var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
 					var animTime = 1.0 - ( 0.5 * maxPlayerSpeedPercent );
 					if (animTime < 0.5) animTime = 0.5; //hack because velocity is too big sometimes
 
@@ -591,7 +622,8 @@ class Main extends luxe.Game {
 			//keep camera attached to player
 			Luxe.camera.center.x = player.pos.x + cameraProps.offsetX;
 			var zoomAdjustedCameraTopOffset = cameraTopOffset / Luxe.camera.zoom;
-			Luxe.camera.center.y = player.pos.y - ( (shouldAnchorToBottom) ? zoomAdjustedCameraTopOffset : 0 ) - 75 + (pullDelta * 0.5); //75 should be replaced w/ variable relative to screensize?
+			var yOffsetToPutPlayerCloserToScreenBottom = Settings.IDEAL_SCREEN_SIZE_H * 0.25; //75; //TODO rename this?
+			Luxe.camera.center.y = player.pos.y - ( (shouldAnchorToBottom) ? zoomAdjustedCameraTopOffset : 0 ) - yOffsetToPutPlayerCloserToScreenBottom + (pullDelta * 0.5); //75 should be replaced w/ variable relative to screensize?
 			//update camera zoom due to pull
 			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
 

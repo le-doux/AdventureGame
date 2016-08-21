@@ -24,15 +24,11 @@ class UniversalJoystick extends luxe.Entity {
 	var samplesMax = 20;
 	var touchDelta : Vector;
 	var releaseVelocity : Vector;
-	public var maxScrollSpeed = 1200; //todo shouldn't be public really
+	public var maxScrollSpeed = 1200; //todo shouldn't be public really //TODO remove & replace
 	var timeSinceMouseReleased = 0.0;
 	var maxMouseReleaseTime = 0.1; // 1/10th of a second
 	var deadzoneVector : Vector;
 	var deadzoneSize = Main.Settings.IDEAL_SCREEN_SIZE_W * 0.02;
-	/*
-	var scrollCoastTime = 0.75;
-	var isCoasting = false;
-	*/
 
 	override function onmousedown( e:MouseEvent ) {
 		if (hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime) {
@@ -49,13 +45,6 @@ class UniversalJoystick extends luxe.Entity {
 
 			prevTouchPos = Main.Settings.RealScreenPosToStandardScreenPos(e.pos);
 			prevTouchTime = e.timestamp;
-
-			/*
-			if (isCoasting) {
-				isCoasting = false;
-				Actuate.stop(axis);
-			}
-			*/
 
 			axis = new Vector(0,0);
 
@@ -117,16 +106,6 @@ class UniversalJoystick extends luxe.Entity {
 		//TODO revisit maxScrollSpeed?
 		axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Main.Settings.IDEAL_SCREEN_SIZE_W;
 
-		/*
-		isCoasting = true;
-		Actuate.tween(axis, scrollCoastTime, {x:0}).ease(luxe.tween.easing.Quad.easeOut)
-			.onComplete(function() { 
-							axis.x = 0;
-							isCoasting = false; 
-						});
-		*/
-
-
 		//TODO remove this nonsense below
 		//sort of a hack to avoid dealing with velocity in the y axis
 		axis.y = 0;
@@ -144,23 +123,12 @@ class UniversalJoystick extends luxe.Entity {
 	}
 
 	/* KEYBOARD INPUT */
-	var maxKeyboardSpeed = 0.5;
-	var keyboardAcceleration = 0.3;
-	var keyboardUpSpeed = 0.3;
+	var maxKeyboardSpeed = 0.8;
+	var keyboardAcceleration = 0.6;
+	var keyboardUpSpeed = 0.5;
 	var areKeysAlreadyHeld = false;
 
 	override function onkeydown( e:KeyEvent ) {
-
-		/*
-		if (e.keycode == Key.right || e.keycode == Key.key_d || 
-			e.keycode == Key.left || e.keycode == Key.key_a) 
-		{
-			if (isCoasting) {
-				isCoasting = false;
-				Actuate.stop(axis);
-			}
-		}
-		*/
 
 		if (e.keycode == Key.right || e.keycode == Key.key_d || 
 			e.keycode == Key.left || e.keycode == Key.key_a || 
@@ -177,20 +145,6 @@ class UniversalJoystick extends luxe.Entity {
 	}
 
 	override function onkeyup( e:KeyEvent ) {
-
-		/*
-		if (e.keycode == Key.right || e.keycode == Key.key_d || 
-			e.keycode == Key.left || e.keycode == Key.key_a) 
-		{
-			//let go and coast (same coast time?)
-			isCoasting = true;
-			Actuate.tween(axis, scrollCoastTime, {x:0}).ease(luxe.tween.easing.Quad.easeOut)
-				.onComplete(function() { 
-								axis.x = 0;
-								isCoasting = false; 
-							});
-		}
-		*/
 
 		if (e.keycode == Key.right || e.keycode == Key.key_d || 
 			e.keycode == Key.left || e.keycode == Key.key_a) 
@@ -312,13 +266,5 @@ class UniversalJoystick extends luxe.Entity {
 	public function isDown() {
 		return yAxisHeld() || xAxisHeld();
 	}
-
-	//todo rename?
-	/*
-	public function stopCoasting() {
-		isCoasting = false;
-		Actuate.stop(axis);
-	}
-	*/
 
 }
