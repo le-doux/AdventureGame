@@ -23,7 +23,7 @@ import vexlib.VexPropertyInterface;
 		- particles? [save this for later]
 	- swipe control polish
 		- test variation in release speed max?
-		- get rid of reliance on actuate for coasting
+		X get rid of reliance on actuate for coasting
 		- resistance on edges (both x and y axes)
 		- test a universal maximum movement speed for player?
 		X deadzone in center so player doesn't move at the slightest flick
@@ -360,7 +360,6 @@ class Main extends luxe.Game {
 
 	override function update(dt:Float) {
 
-		/*
 		//some weird mathy-ness
 		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
 		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
@@ -379,6 +378,7 @@ class Main extends luxe.Game {
 				depth: 500
 			});
 
+		/*
 		Luxe.draw.rectangle({
 				x: topLeft.x + (leftOverWidth/2) + 1,
 				y: topLeft.y + (leftoverHeight/2) + 1,
@@ -387,7 +387,9 @@ class Main extends luxe.Game {
 				immediate: true,
 				depth: 500
 			});
+		*/
 
+		/*
 		//camera y
 		Luxe.draw.circle({
 				x: Luxe.camera.center.x,
@@ -490,11 +492,11 @@ class Main extends luxe.Game {
 				playerProps.velocity.x -= coastingFriction * dt; 
 
 				var hasVelocitySignSwitched = (playerProps.velocity.x < 0) != (coastingFrictionForce < 0);
-				//if ( Math.abs(playerProps.velocity.x) < 10 ) {
 				if ( hasVelocitySignSwitched ) {
 					playerProps.velocity.x = 0;
 					coastingFrictionForce = 0; //stop coasting
 					coastingFriction = 0;
+					coastingFrictionAcceleration = 0; //not currently being used TODO remove?
 					trace("COASTING TOTAL TIME " + testCoastingTimer);
 					testCoastingTimer = 0;
 				}
@@ -562,7 +564,8 @@ class Main extends luxe.Game {
 			//move camera past the edge if the player is blocked
 			if (playerIsMovingBlockedDirection() && Math.abs(cameraDistancePastBounds) > 0) {
 				var distancePastEdge = Math.max(0, Math.abs(cameraProps.offsetX) - cameraProps.maxDistAheadOfPlayer);
-				var resistanceFactor = Math.max(0, 1 - Math.sqrt(distancePastEdge / cameraProps.edgeSpring.maxDist));
+				var percentOfMaxDistPastEdge = Math.min( distancePastEdge / cameraProps.edgeSpring.maxDist, 1.0 );
+				var resistanceFactor = Math.pow( Math.max( 0, 1 - percentOfMaxDistPastEdge ), 3 );
 				cameraDistancePastBounds *= resistanceFactor;
 				cameraProps.offsetX += cameraDistancePastBounds;
 				var maxTotalOffset = cameraProps.maxDistAheadOfPlayer + cameraProps.edgeSpring.maxDist;
