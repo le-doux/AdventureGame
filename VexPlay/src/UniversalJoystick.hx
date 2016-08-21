@@ -134,6 +134,8 @@ class UniversalJoystick extends luxe.Entity {
 		velocitySamples = []; //purge samples after successful release
 
 		Luxe.events.fire("joystick.released", axis);
+
+		axis = new Vector(0,0); //clear axis after release
 	}
 
 	//todo name?
@@ -195,14 +197,17 @@ class UniversalJoystick extends luxe.Entity {
 		{
 			areKeysAlreadyHeld = false;
 			Luxe.events.fire("joystick.released", axis);
+
+			axis = new Vector(0,0); //clear axis after release
 		}
 
 		if (e.keycode == Key.up || e.keycode == Key.key_w ||
 			e.keycode == Key.down || e.keycode == Key.key_s)
 		{
 			areKeysAlreadyHeld = false;
-			axis.y = 0; //remove?
 			Luxe.events.fire("joystick.released", axis);
+
+			axis = new Vector(0,0); //clear axis after release
 		}
 	}
 

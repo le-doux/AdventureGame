@@ -31,7 +31,7 @@ import vexlib.VexPropertyInterface;
 		X stop instananeous speed from being so herky jerky
 		X use timers? to keep from switching back and forth all the time
 	- universal joystick refactoring
-		- re-remove coasting from joystick (maybe?)
+		X re-remove coasting from joystick (maybe?)
 		X how to handle keyboard control speed at different screensizes?
 		- how to handle multiple interacting input types?
 		- events
@@ -48,6 +48,7 @@ import vexlib.VexPropertyInterface;
 	- fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
 	- stateful player redesign
 	- EDITOR: hard to delete animation keyframes
+	- flicker when switching from between animations (hello, stop)
 
 	TODO
 	- additional animations for main character
@@ -160,6 +161,11 @@ class Main extends luxe.Game {
 	};
 	var joystick : UniversalJoystick;
 	var waitCounter = 0.0;
+	// coasting friction - controls how speed decreases after lifting the "joystick"
+	var coastingFrictionConstant = 4.0;
+	var coastingFrictionForce = 0.0;
+	var coastingFrictionAcceleration = 0.0;
+	var coastingFriction = 0.0;
 
 	/* STAGE */
 	public var stageSrc = "assets/playgroundstage.vex";
@@ -195,6 +201,8 @@ class Main extends luxe.Game {
 		/* INPUT */
 		joystick = new UniversalJoystick();
 		pullMaxDistance = Luxe.screen.height / 6;
+		Luxe.events.listen("joystick.pressed", on_joystick_pressed);
+		Luxe.events.listen("joystick.released", on_joystick_released);
 
 		/* CAMERA */
 		Luxe.camera.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
@@ -276,6 +284,25 @@ class Main extends luxe.Game {
 				set.depth = 0; //TODO this is likely broken...
 			});
 		});
+	}
+
+	function on_joystick_pressed( axis:Vector ) {
+		trace("PRESSED");
+		playerProps.velocity.x = axis.x * Settings.IDEAL_SCREEN_SIZE_W;
+	}
+
+	var testCoastingTimer = 0.0;
+	function on_joystick_released( axis:Vector ) {
+		trace("RELEASED");
+		playerProps.velocity.x = axis.x * Settings.IDEAL_SCREEN_SIZE_W;
+		coastingFrictionForce = playerProps.velocity.x * coastingFrictionConstant;
+
+		trace(playerProps.velocity.x);
+		trace(coastingFrictionForce);
+
+		coastingFrictionAcceleration = 0;
+		coastingFriction = 0;
+		testCoastingTimer = 0.0;
 	}
 
 	override function onkeydown( e:KeyEvent ) {
@@ -455,8 +482,32 @@ class Main extends luxe.Game {
 			}
 			else if ( Math.abs(playerProps.velocity.x) > 0 ) {
 				//coasting
+				//trace(coastingFriction);
+				testCoastingTimer += dt;
+				//coastingFrictionAcceleration += coastingFrictionForce * dt;
+				//coastingFriction += coastingFrictionAcceleration * dt;
+				coastingFriction += coastingFrictionForce * dt;
+				playerProps.velocity.x -= coastingFriction * dt; 
+
+				var hasVelocitySignSwitched = (playerProps.velocity.x < 0) != (coastingFrictionForce < 0);
+				//if ( Math.abs(playerProps.velocity.x) < 10 ) {
+				if ( hasVelocitySignSwitched ) {
+					playerProps.velocity.x = 0;
+					coastingFrictionForce = 0; //stop coasting
+					coastingFriction = 0;
+					trace("COASTING TOTAL TIME " + testCoastingTimer);
+					testCoastingTimer = 0;
+				}
+
+				/*
 				playerProps.velocity.x -= (playerProps.velocity.x * 5.0 * dt);
-				if ( Math.abs(playerProps.velocity.x) < 10 ) playerProps.velocity.x = 0;
+				testCoastingTimer += dt;
+				if ( Math.abs(playerProps.velocity.x) < 10 ) {
+					playerProps.velocity.x = 0;
+					trace("COASTING TOTAL TIME " + testCoastingTimer);
+					testCoastingTimer = 0;
+				}
+				*/
 				//TODO "3.0" and "10" need to be made into variables
 			}
 			playerProps.stagePos += playerProps.velocity.x * dt;
