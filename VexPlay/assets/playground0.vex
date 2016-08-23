@@ -9,7 +9,8 @@
 			"type": "poly",
 			"color": "pal(4)",
 			"id": "poly0",
-			"depth": "0"
+			"depth": "0",
+			"components": [{ "type":"AnotherTestComp", "name":"hello" }]
 		}
 	]
 }

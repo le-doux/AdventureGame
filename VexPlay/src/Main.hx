@@ -10,13 +10,20 @@ import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 
+class AnotherTestComp extends luxe.Component {
+	override public function init() {
+		trace("INIT TEST COMP!! " + this.name);
+	}
+}
+
+
 /*
 	NEXT
 	X y axis resistance
 	X y axis coasting
 	X revisit max coasting speed
 	- extendable ground
-	- revisit walking animation speed range
+	X revisit walking animation speed range
 	TRY THIS
 	X slow zoom out on idle (fast zoom in)
 	X y axis camera floating into position when moving uphill/downhill [tried this but I don't like it yet]
@@ -513,7 +520,7 @@ class Main extends luxe.Game {
 			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
 				var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
-				var walkAnimSpeed = 0.5 + ( 1.5 * maxPlayerSpeedPercent );
+				var walkAnimSpeed = 0.5 + ( 1.0 * maxPlayerSpeedPercent );
 				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
 				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
 				player.getAnimation("walk").t = nextWalkT;				

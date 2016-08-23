@@ -9,7 +9,7 @@ import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
 import phoenix.Batcher;
 
-typedef VexJsonFormat = {
+typedef VexJsonFormat = { //TODO rename?
 	@:optional public var type 		: Property;
 	@:optional public var id 		: Property;
 	@:optional public var pos 		: Property;
@@ -22,6 +22,13 @@ typedef VexJsonFormat = {
 	@:optional public var weight	: Property; //only for lines
 	@:optional public var src 		: Property;
 	@:optional public var children 	: Array<VexJsonFormat>;
+
+	@:optional public var components : Array<ComponentJsonFormat>;
+}
+
+typedef ComponentJsonFormat = { //TODO rename?
+	> luxe.options.ComponentOptions,
+	public var type : String;
 }
 
 class VexPropertyInterface {
@@ -36,6 +43,8 @@ class VexPropertyInterface {
 	public var path 	(default, set) : Null<Property>;
 	public var weight	(default, set) : Null<Property>;
 	public var src 		(default, set) : Null<Property>;
+
+	public var components (default, set) : Null<Array<ComponentJsonFormat>>;
 
 	var visual : Visual;
 
@@ -56,6 +65,9 @@ class VexPropertyInterface {
 		if (weight != null) json.weight = weight;
 		if (path != null) 	json.path = path;
 		if (src != null) 	json.src = src;
+
+		if (components != null) json.components = components;
+
 		return json;
 	}
 
@@ -71,6 +83,8 @@ class VexPropertyInterface {
 		if (json.path != null) 		path = json.path;
 		if (json.color != null) 	color = json.color;
 		if (json.src != null) 		src = json.src;
+
+		if (json.components != null) components = json.components;
 	}
 
 	public function deserializeRef(json:VexJsonFormat) {
@@ -259,6 +273,22 @@ class VexPropertyInterface {
 			}
 		}
 		return path;
+	}
+
+	function set_components(componentData:Array<ComponentJsonFormat>) : Array<ComponentJsonFormat> {
+		components = componentData;
+
+		for (c in components) {
+			trace("!!!!!!");
+			trace(Type.resolveClass("AnotherTestComp"));
+			trace(c);
+			var rc = Type.resolveClass(c.type);
+			trace(rc);
+			var ci = Type.createInstance( rc, [c] );
+			visual.add( ci );
+		}
+
+		return components;
 	}
 }
 

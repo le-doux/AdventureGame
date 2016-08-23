@@ -22,15 +22,8 @@ import Command;
 
 /*
 	TODO
-	- test main char movement
-		- animations
-			X walk
-			- run
-			- walk / run transition?
-			- turn around transition?
-			- hit wall
-			- suddent stop (same?)
-			- standing / waiting
+	X test main char movement
+		X animations
 		- particle effects
 		X fix bugs
 			X flashing vex bits [report bug]

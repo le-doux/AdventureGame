@@ -124,6 +124,7 @@ class UniversalJoystick extends luxe.Entity {
 
 	/* KEYBOARD INPUT */
 	var maxKeyboardSpeed = 0.8;
+	//var maxKeyboardSpeed = 2.0; //test max speed
 	var keyboardAcceleration = 0.6;
 	var keyboardUpSpeed = 0.5;
 	var areKeysAlreadyHeld = false;
