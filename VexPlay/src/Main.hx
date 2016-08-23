@@ -18,10 +18,12 @@ import vexlib.VexPropertyInterface;
 	- extendable ground
 	- revisit walking animation speed range
 	TRY THIS
-	- slow zoom out on idle (fast zoom in)
-	- y axis camera floating into position when moving uphill/downhill
+	X slow zoom out on idle (fast zoom in)
+	X y axis camera floating into position when moving uphill/downhill [tried this but I don't like it yet]
 	X max swiping speed
 		- build into joystick??
+	BUGS
+	- flashing avatar at start of swipe action (what's the cause?)
 
 	THIS WEEK
 	X player movement animation
@@ -179,7 +181,7 @@ class Main extends luxe.Game {
 	var coastingFrictionAcceleration = 0.0;
 	var coastingFriction = 0.0;
 	// new max scroll spped
-	var maxScrollSpeed = Settings.IDEAL_SCREEN_SIZE_W * 1.5;
+	var maxScrollSpeed = Settings.IDEAL_SCREEN_SIZE_W * 2.0;
 
 	/* STAGE */
 	public var stageSrc = "assets/playgroundstage.vex";
@@ -190,7 +192,7 @@ class Main extends luxe.Game {
 	var cameraProps = {
 		offsetX : 0.0,
 		speedMult : 2.0,
-		maxDistAheadOfPlayer : Settings.IDEAL_SCREEN_SIZE_W * 0.25, //200.0, //TODO express in terms of ideal screen size? what about zooming?
+		maxDistAheadOfPlayer : Settings.IDEAL_SCREEN_SIZE_W * 0.25,
 		edgeSpring : {
 			maxDist : Settings.IDEAL_SCREEN_SIZE_W * 0.2,
 			springConstant : 50.0,
@@ -198,6 +200,10 @@ class Main extends luxe.Game {
 		}
 	};
 	var cameraTopOffset = 0.0;
+	var cameraMaxYDist = Settings.IDEAL_SCREEN_SIZE_H * 0.25;
+	var curCamCenterY = 0.0;
+	var idleZoom = 1.0;
+	var idleZoomTimeCounter = 0.0;
 
 	/* PULL UP DOWN */
 	// TODO spend more time tuning this feature
@@ -208,6 +214,7 @@ class Main extends luxe.Game {
 	var pullFrictionConstant = 4.0;
 	var pullFrictionForce = 0.0;
 	var pullFriction = 0.0;
+	var pullDeltaMax = 0.0; //track how far up or down we went in a single pull
 
 	var shouldAnchorToBottom = true;
 
@@ -308,6 +315,10 @@ class Main extends luxe.Game {
 		trace("PRESSED");
 		playerProps.velocity.x = Math.min(maxScrollSpeed, axis.x * Settings.IDEAL_SCREEN_SIZE_W);
 		pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
+
+		pullDeltaMax = 0;
+
+		idleZoomTimeCounter = 0;
 	}
 
 	var testCoastingTimer = 0.0;
@@ -363,11 +374,13 @@ class Main extends luxe.Game {
 	}
 
 	override function onmouseup(e:MouseEvent) {
+	}
 
-		/*
-		//TODO add event from universal joystick so this works w/ keyboards as well
-		if (Math.abs(pullDelta) / pullMaxDistance > 0.5) {
+	function on_pull_complete() {
 
+		trace("PULL COMPLETE");
+
+		if (pullDeltaMax / pullMaxDistance > 0.5) {
 			//boilerplate to stop animation
 			player.stopAnimation();
 			var oldFacingScaleX = player.scale.x;
@@ -378,7 +391,8 @@ class Main extends luxe.Game {
 			player.playAnimation("hello", 1.5);
 
 		}
-		*/
+
+		pullDeltaMax = 0;
 	}
 
 	override function update(dt:Float) {
@@ -448,10 +462,16 @@ class Main extends luxe.Game {
 				var pullResistance = Math.pow( 1 - (Math.abs(pullDelta) / pullMaxDistance), 3 );
 				pullDelta += pullVelocity * pullResistance * dt;
 				pullDelta = Maths.clamp(pullDelta, -pullMaxDistance, pullMaxDistance);
+
+				if (Math.abs(pullDelta) > pullDeltaMax) pullDeltaMax = Math.abs(pullDelta);
 			}
 			else {
 				if (Math.abs(pullDelta) > 0) {
 					pullDelta *= 0.8;
+					if (Math.abs(pullDelta) < 5) {
+						pullDelta = 0;
+						on_pull_complete();
+					}
 				}
 			}
 
@@ -511,7 +531,7 @@ class Main extends luxe.Game {
 					//below line is necessary if not using compositing hack (but I am --- keeping this as a note)
 					//player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 
-					waitCounter = -animTime; //hack to delay counter start by 4 seconds
+					waitCounter = -animTime; //hack to delay counter start so animation lines up
 				}
 			}
 
@@ -631,20 +651,35 @@ class Main extends luxe.Game {
 				cameraProps.edgeSpring.velocityX = 0; //edge case protection
 			}
 			//keep camera attached to player
+			//x
 			Luxe.camera.center.x = player.pos.x + cameraProps.offsetX;
+			//y
 			var zoomAdjustedCameraTopOffset = cameraTopOffset / Luxe.camera.zoom;
 			var yOffsetToPutPlayerCloserToScreenBottom = Settings.IDEAL_SCREEN_SIZE_H * 0.25; //75; //TODO rename this?
-			Luxe.camera.center.y = player.pos.y - ( (shouldAnchorToBottom) ? zoomAdjustedCameraTopOffset : 0 ) - yOffsetToPutPlayerCloserToScreenBottom + (pullDelta * 0.5); //75 should be replaced w/ variable relative to screensize?
+			var totalYOffset = - ( (shouldAnchorToBottom) ? zoomAdjustedCameraTopOffset : 0 ) - yOffsetToPutPlayerCloserToScreenBottom;
+			curCamCenterY = Maths.clamp( curCamCenterY, player.pos.y + totalYOffset - cameraMaxYDist, player.pos.y + totalYOffset + cameraMaxYDist );
+			var camCenterYGoal = player.pos.y + totalYOffset;
+			var camCenterYDist = camCenterYGoal - curCamCenterY;
+			//curCamCenterY += camCenterYDist * 0.8 * dt; //float towards correct y pos [this didn't work how I wanted]
+			curCamCenterY = camCenterYGoal;
+			Luxe.camera.center.y = curCamCenterY + (pullDelta * 0.5); //what's the 0.5 for? I forgot
+
+			//zoom stuff
+			if (!joystick.isDown() && Math.abs(playerProps.velocity.x) <= 0) {
+				idleZoomTimeCounter += dt;
+			}
+
+			if (idleZoomTimeCounter > 12) {
+				idleZoom = 1 - (0.75 * Math.min( (idleZoomTimeCounter - 12) / 20, 1 ));
+			}
+			else if (joystick.isDown()) {
+				idleZoom += 2 * dt;
+				if (idleZoom > 1) idleZoom = 1;
+			}
+
 			//update camera zoom due to pull
 			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
-
-			//Luxe.camera.pos.x = centerX + cameraProps.offsetX;
-			//Luxe.camera.pos.y = player.pos.y;// - cameraTopOffset;// - cameraTopOffset;
-
-			//PREVIOUS CAMERA BEHAVIOR (kept for reference)
-			//Luxe.camera.pos.y = player.pos.y - (Luxe.screen.height * 0.9)z + (pullDelta * 0.5) + 150; //TODO *0.5 is a hack -- replace with proper percent to distance stuff
-			//update camera zoom due to pull
-			//Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
+			Luxe.camera.zoom *= idleZoom;
 		}
 	}
 
