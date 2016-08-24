@@ -22,15 +22,9 @@ import Command;
 
 /*
 	TODO
-	X test main char movement
-		X animations
-		- particle effects
-		X fix bugs
-			X flashing vex bits [report bug]
-			X phantom leg [fixed?]
 	- dialog only vignette
 		- script
-		- new dialog bulder tool
+		- new dialog builder tool
 	- other bugs and stuff
 		- origin drawn position gets off after translate
 		- !!! need to make movement/translation like this: click once to select, again to move
@@ -46,46 +40,26 @@ import Command;
 		- trouble subselecting (because of scaling?)
 
 	TODO Next
-	- vector vs. raster (tiling) decision
-	- attempt better character animation w/ vector
 	- script for dialog-only game/scene
-		- vex-based dialog editor?
+		- vex-based dialog editor
 			- line smoothing
-		- create new dialog system (raster font)?
-	- universal input handler
-	X z depth control
-		- allow relative depths for children vs parent
-		X keyboard controls
-	X draw lines
-		X line thickness control [started]
-		X line drawn with mesh
+		- create new dialog system
+	- allow relative depths for children vs parent
 	- path point editor mode
-	X TODO automatic DEPTH
-	X TODO sketch perf
-	~ better default palette for main char [started] (is there enough colors for a whole scene?)
 	- improved lines
 		- multipath vex
-		X mesh lines
 		- interpolateable paths
-		X different line widths
 		- line smoothing
 		- improve mesh line corners
-
-	BUGS
-	- flashing vex bits
-	- phantom leg bug
-	X selection bug
 
 	TODO
 	- commandify and catch errors gracefully
 	- text command palette
 	- right click pan
-	X z order vex children
 	- morph
 	- nongroup children
 	- temp file
 	- auto saving
-	X transparent sketch mode
 
 	TODO Backlog
 	- fix selection bug (happens after running animation???)
@@ -95,13 +69,11 @@ import Command;
 	- tween two animations
 	- palette editor
 	- naming scheme for Vex and related formats
-	X load palettes at will
 	- ? maybe switch bounds off of a bounding box model to collision polys??
 	- ? separate level editor
 	- ? level editor mode in editor
 	- animation references in models
 	- parallax layers
-	X why don't grays render the way I expect? color unpacking?
 	- animate palette colors (e.g. pal1 ---> pal2)
 	- commandify new actions to allow undo/redo
 	- rotate and scale "handles"

@@ -17,7 +17,7 @@ import vexlib.VexPropertyInterface;
 /*
 
 	TODO
-	- clean todos
+	- parallax
 
 	BACKLOG
 	- walking particles
@@ -51,23 +51,6 @@ class Settings {
 	}
 
 	public static function StandardScreenSize() : Vector {
-		/*
-		var realScreenSize = Luxe.screen.size;
-		var standardizedScreenSize = new Vector(0,0);
-
-		if (realScreenSize.x > realScreenSize.y) {
-			standardizedScreenSize.y = IDEAL_SCREEN_SIZE_H;
-			var ratio = IDEAL_SCREEN_SIZE_H / realScreenSize.y;
-			standardizedScreenSize.x = realScreenSize.x * ratio;
-		}
-		else {
-			standardizedScreenSize.x = IDEAL_SCREEN_SIZE_W;
-			var ratio = IDEAL_SCREEN_SIZE_W / realScreenSize.x;
-			standardizedScreenSize.y = realScreenSize.y * ratio;
-		}
-
-		return standardizedScreenSize;
-		*/
 		return RealScreenPosToStandardScreenPos( Luxe.screen.size );
 	}
 
@@ -151,10 +134,11 @@ class Main extends luxe.Game {
 	var pullDelta = 0.0;
 	var pullMaxDistance = Settings.IDEAL_SCREEN_SIZE_H / 3;
 	var pullZoomDelta = 0.10; // is this even having an impact?
-	var pullFrictionConstant = 4.0;
+	var pullFrictionConstant = 30.0;
 	var pullFrictionForce = 0.0;
 	var pullFriction = 0.0;
 	var pullDeltaMax = 0.0; //track how far up or down we went in a single pull
+	var maxPullSpeed = Settings.IDEAL_SCREEN_SIZE_H * 1.0;
 
 	var shouldAnchorToBottom = false;
 
@@ -188,7 +172,6 @@ class Main extends luxe.Game {
 			var json = jsonRes.asset.json;
 			player = new Vex(json);
 			player.properties.scale = new Vector(0.3,0.3);
-			//player.scale = new Vector(0.3,0.3,1);
 			
 			var loadPlayerAnim = Luxe.resources.load_json( "assets/walkanim0.vex" );
 			loadPlayerAnim.then(function(jsonRes : JSONResource) {
@@ -245,8 +228,8 @@ class Main extends luxe.Game {
 
 	function on_joystick_pressed( axis:Vector ) {
 		trace("PRESSED");
-		playerProps.velocity.x = Math.min(maxScrollSpeed, axis.x * Settings.IDEAL_SCREEN_SIZE_W);
-		pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
+		playerProps.velocity.x = Maths.clamp(axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
+		pullVelocity = Maths.clamp(axis.y * Settings.IDEAL_SCREEN_SIZE_H, -maxPullSpeed, maxPullSpeed);
 
 		pullDeltaMax = 0;
 
@@ -258,7 +241,7 @@ class Main extends luxe.Game {
 		trace("RELEASED");
 
 		//x
-		playerProps.velocity.x = Math.min(maxScrollSpeed, axis.x * Settings.IDEAL_SCREEN_SIZE_W);
+		playerProps.velocity.x = Maths.clamp(axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
 		coastingFrictionForce = playerProps.velocity.x * coastingFrictionConstant;
 		coastingFrictionAcceleration = 0;
 		coastingFriction = 0;
@@ -266,12 +249,17 @@ class Main extends luxe.Game {
 
 		//y
 		if (joystick.source != UniversalJoystick.InputSource.Keyboard) {
-			pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
+			trace("pull release mouse");
+			pullVelocity = Maths.clamp(axis.y * Settings.IDEAL_SCREEN_SIZE_H, -maxPullSpeed, maxPullSpeed);
 			pullFrictionForce = pullVelocity * pullFrictionConstant;
 			pullFriction = 0;
+			trace(pullVelocity);
+			trace(pullFrictionForce);
 		}
 		else {
 			pullVelocity = 0;
+			pullFrictionForce = 0;
+			pullFriction = 0;
 		}
 	}
 
@@ -286,28 +274,6 @@ class Main extends luxe.Game {
 	}
 
 	override function onmousedown(e:MouseEvent) {
-
-		trace(e.pos);
-
-		//removed because it causes flashing on mobile (too much animation interruption)
-		//TODO this could be fixed 
-		/*
-		//on sudden stops add an animation
-		//TODO this doesn't seem to add much -- possible remove or modify in some way?
-		//TODO her leg gets stuck in its "walk" position - how come?
-		if (Math.abs(playerProps.velocity.x) > 200) { //arbitrary speed for now
-			trace("play blocked anim!");
-
-			//boilerplate to stop animation
-			player.stopAnimation();
-			var oldFacingScaleX = player.scale.x;
-			player.resetToBasePose(); //this might overwrite things too often
-			player.scale.x = oldFacingScaleX; //hack
-
-			player.playAnimation("stop", 0.5);
-		}
-		*/
-
 	}
 
 	override function onmouseup(e:MouseEvent) {
@@ -338,15 +304,15 @@ class Main extends luxe.Game {
 		
 			/* PULL UP & DOWN */
 			if ( joystick.yAxisHeld() ) {
-				pullVelocity = joystick.axis.y * Settings.IDEAL_SCREEN_SIZE_H;
+				pullVelocity = Maths.clamp(joystick.axis.y * Settings.IDEAL_SCREEN_SIZE_H, -maxPullSpeed, maxPullSpeed);
 			}
-			else if ( Math.abs(pullVelocity) > 0 )  {
-				//todo coasting
+			else if ( Math.abs(pullVelocity) > 0 ) {
 				pullFriction += pullFrictionForce * dt;
 				pullVelocity -= pullFriction * dt;
 
 				var hasSignSwitched = (pullVelocity < 0) != (pullFrictionForce < 0);
 				if ( hasSignSwitched ) {
+					trace("friction done!");
 					pullVelocity = 0;
 					pullFriction = 0;
 					pullFrictionForce = 0;
@@ -354,19 +320,16 @@ class Main extends luxe.Game {
 			}
 
 			if ( Math.abs(pullVelocity) > 0 ) {
-				var pullResistance = Math.pow( 1 - (Math.abs(pullDelta) / pullMaxDistance), 3 );
+				var pullResistance = Math.pow( 1 - (Math.abs(pullDelta) / pullMaxDistance), 2 );
 				pullDelta += pullVelocity * pullResistance * dt;
 				pullDelta = Maths.clamp(pullDelta, -pullMaxDistance, pullMaxDistance);
-
 				if (Math.abs(pullDelta) > pullDeltaMax) pullDeltaMax = Math.abs(pullDelta);
 			}
-			else {
-				if (Math.abs(pullDelta) > 0) {
-					pullDelta *= 0.8;
-					if (Math.abs(pullDelta) < 5) {
-						pullDelta = 0;
-						on_pull_complete();
-					}
+			else if (Math.abs(pullDelta) > 0) {
+				pullDelta -= (pullDelta * 5) * dt;
+				if (Math.abs(pullDelta) < 5) {
+					pullDelta = 0;
+					on_pull_complete();
 				}
 			}
 
@@ -435,7 +398,7 @@ class Main extends luxe.Game {
 
 			//connect input to player
 			if ( joystick.isDown() ) {
-				playerProps.velocity.x = Math.min(maxScrollSpeed, joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W);
+				playerProps.velocity.x = Maths.clamp(joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
 			}
 			else if ( Math.abs(playerProps.velocity.x) > 0 ) {
 				//coasting
@@ -536,12 +499,12 @@ class Main extends luxe.Game {
 			//y
 			var yOffsetToPutPlayerCloserToScreenBottom = Settings.IDEAL_SCREEN_SIZE_H * 0.25; //75; //TODO rename this?
 			var totalYOffset = -yOffsetToPutPlayerCloserToScreenBottom;
-			curCamCenterY = Maths.clamp( curCamCenterY, player.pos.y + totalYOffset - cameraMaxYDist, player.pos.y + totalYOffset + cameraMaxYDist );
+			//curCamCenterY = Maths.clamp( curCamCenterY, player.pos.y + totalYOffset - cameraMaxYDist, player.pos.y + totalYOffset + cameraMaxYDist );
 			var camCenterYGoal = player.pos.y + totalYOffset;
-			var camCenterYDist = camCenterYGoal - curCamCenterY;
+			//var camCenterYDist = camCenterYGoal - curCamCenterY;
 			//curCamCenterY += camCenterYDist * 0.8 * dt; //float towards correct y pos [this didn't work how I wanted]
 			curCamCenterY = camCenterYGoal;
-			Luxe.camera.center.y = curCamCenterY + (pullDelta * 0.5); //what's the 0.5 for? I forgot
+			Luxe.camera.center.y = curCamCenterY + pullDelta; // * 0.5); //what's the 0.5 for? I forgot
 
 			//zoom stuff
 			if (!joystick.isDown() && Math.abs(playerProps.velocity.x) <= 0) {
@@ -557,8 +520,10 @@ class Main extends luxe.Game {
 			}
 
 			//update camera zoom due to pull
+			/*
 			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
 			Luxe.camera.zoom *= idleZoom;
+			*/
 		}
 	}
 
