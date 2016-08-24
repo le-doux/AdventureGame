@@ -5,6 +5,7 @@ import luxe.Input;
 import luxe.tween.Actuate;
 import luxe.Visual;
 import luxe.Color;
+import luxe.Camera;
 
 import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
@@ -34,6 +35,7 @@ import vexlib.VexPropertyInterface;
 	- make this code not ugly anymore
 	- parallax
 	- figure out a more reliable way to load assets
+	- better way to handle vex depth and internal, relative depth
 
 	BUGS
 	- flashing avatar at start of swipe action (what's the cause?)
@@ -140,7 +142,22 @@ class Main extends luxe.Game {
 	var pullDeltaMax = 0.0; //track how far up or down we went in a single pull
 	var maxPullSpeed = Settings.IDEAL_SCREEN_SIZE_H * 1.0;
 
-	var shouldAnchorToBottom = false;
+	/* PARALLAX */
+	var parallaxOrigin = new Vector(0,-1000);
+	var bg1_batch : Batcher;
+	var bg1_cam : Camera;
+	var bg1_parallax = 0.5;
+
+	var bg2_batch : Batcher;
+	var bg2_cam : Camera;
+	var bg2_parallax = 0.25;
+
+	var fg1_batch : Batcher; //foreground 1 is the default luxe camera
+	var fg1_cam : Camera;
+
+	var fg2_batch : Batcher;
+	var fg2_cam : Camera;
+	var fg2_parallax = 1.5;
 
 	override function ready() {
 
@@ -165,6 +182,73 @@ class Main extends luxe.Game {
 			Palette.Load(json);
 			Palette.Swap("test");
 		});
+
+		/* PARALLAX */
+		bg1_cam = new Camera({name:"bg1_cam"});
+		bg1_cam.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
+		bg1_cam.size_mode = luxe.Camera.SizeMode.fit;
+		bg1_batch = Luxe.renderer.create_batcher({name:"bg1_batch", layer:-10, camera:bg1_cam.view});
+
+		bg2_cam = new Camera({name:"bg2_cam"});
+		bg2_cam.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
+		bg2_cam.size_mode = luxe.Camera.SizeMode.fit;
+		bg2_batch = Luxe.renderer.create_batcher({name:"bg2_batch", layer:-20, camera:bg2_cam.view});
+
+		fg2_cam = new Camera({name:"fg2_cam"});
+		fg2_cam.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
+		fg2_cam.size_mode = luxe.Camera.SizeMode.fit;
+		fg2_batch = Luxe.renderer.create_batcher({name:"fg2_batch", layer:10, camera:fg2_cam.view});
+
+		//foreground test
+		Luxe.draw.box({
+				x : 1500, y : -2000,
+				w : 100, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
+		Luxe.draw.box({
+				x : 1800, y : -2000,
+				w : 50, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
+		Luxe.draw.box({
+				x : 2400, y : -2000,
+				w : 100, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
+		Luxe.draw.box({
+				x : 3000, y : -2000,
+				w : 120, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
+
+		Luxe.draw.box({
+				x : 3500, y : -2000,
+				w : 50, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
+		Luxe.draw.box({
+				x : 3800, y : -2000,
+				w : 150, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
+		Luxe.draw.box({
+				x : 4400, y : -2000,
+				w : 60, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
+		Luxe.draw.box({
+				x : 5000, y : -2000,
+				w : 100, h : 4000,
+				color : Palette.Colors[6],
+				batcher : fg2_batch
+			});
 
 		/* PLAYER */
 		var loadPlayer = Luxe.resources.load_json( playerSrc );
@@ -221,7 +305,22 @@ class Main extends luxe.Game {
 			loadSet.then(function(jsonRes : JSONResource) {
 				var json = jsonRes.asset.json;
 				set = new Vex(json);
-				set.depth = 0; //TODO this is likely broken...
+				//set.depth = 0; //TODO this IS broken...
+
+				/* PARALLAX */ //yo this is pretty hacky and doesn't handle children
+				var bg1 = set.find("bg1")[0];
+				Luxe.renderer.batcher.remove(bg1.geometry);
+				bg1_batch.add(bg1.geometry);
+
+				var bg2 = set.find("bg2")[0];
+				Luxe.renderer.batcher.remove(bg2.geometry);
+				bg2_batch.add(bg2.geometry);
+
+				/*
+				var fg2 = set.find("fg2")[0];
+				Luxe.renderer.batcher.remove(fg2.geometry);
+				fg2_batch.add(fg2.geometry);
+				*/
 			});
 		});
 	}
@@ -524,6 +623,18 @@ class Main extends luxe.Game {
 			Luxe.camera.zoom = 1 - (pullZoomDelta * (pullDelta / pullMaxDistance));
 			Luxe.camera.zoom *= idleZoom;
 			*/
+
+			/* PARALLAX */
+			var parallaxDisplacement = Vector.Subtract(Luxe.camera.center, parallaxOrigin);
+
+			var bg1_parallaxDisplacement = Vector.Multiply(parallaxDisplacement, bg1_parallax);
+			bg1_cam.center = parallaxOrigin.clone().add(bg1_parallaxDisplacement);
+
+			var bg2_parallaxDisplacement = Vector.Multiply(parallaxDisplacement, bg2_parallax);
+			bg2_cam.center = parallaxOrigin.clone().add(bg2_parallaxDisplacement);
+
+			var fg2_parallaxDisplacement = Vector.Multiply(parallaxDisplacement, fg2_parallax);
+			fg2_cam.center = parallaxOrigin.clone().add(fg2_parallaxDisplacement);
 		}
 	}
 
