@@ -10,7 +10,7 @@
 			"color": "pal(4)",
 			"id": "poly0",
 			"depth": "0",
-			"components": [{ "type":"AnotherTestComp", "name":"hello" }]
+			"components": [{ "type":"ResponsiveGround", "name":"responsive_ground" }]
 		}
 	]
 }

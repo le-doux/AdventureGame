@@ -191,6 +191,10 @@ class Vex extends Visual {
 		return null;
 	}
 
+	public function getPathInWorldSpace() : Array<Vector> {
+		return pathToWorldSpace(properties.path);
+	}
+
 	/* Am I recreating the static extension? Shoudl I move it in here? */
 	// Hooray this works!
 	function pathToWorldSpace(pathArray:Array<Vector>) : Array<Vector> {

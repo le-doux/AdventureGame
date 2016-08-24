@@ -6,23 +6,20 @@ import luxe.tween.Actuate;
 import luxe.Visual;
 import luxe.Color;
 
+import phoenix.geometry.Geometry;
+import phoenix.geometry.Vertex;
+import phoenix.Batcher;
+
 import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
-
-class AnotherTestComp extends luxe.Component {
-	override public function init() {
-		trace("INIT TEST COMP!! " + this.name);
-	}
-}
-
 
 /*
 	NEXT
 	X y axis resistance
 	X y axis coasting
 	X revisit max coasting speed
-	- extendable ground
+	X extendable ground
 	X revisit walking animation speed range
 	TRY THIS
 	X slow zoom out on idle (fast zoom in)
@@ -206,7 +203,6 @@ class Main extends luxe.Game {
 			velocityX : 0.0
 		}
 	};
-	var cameraTopOffset = 0.0;
 	var cameraMaxYDist = Settings.IDEAL_SCREEN_SIZE_H * 0.25;
 	var curCamCenterY = 0.0;
 	var idleZoom = 1.0;
@@ -223,7 +219,7 @@ class Main extends luxe.Game {
 	var pullFriction = 0.0;
 	var pullDeltaMax = 0.0; //track how far up or down we went in a single pull
 
-	var shouldAnchorToBottom = true;
+	var shouldAnchorToBottom = false;
 
 	override function ready() {
 
@@ -239,14 +235,6 @@ class Main extends luxe.Game {
 		/* CAMERA */
 		Luxe.camera.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
 		Luxe.camera.size_mode = luxe.Camera.SizeMode.fit;
-
-		//some weird mathy-ness
-		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
-		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
-		var width = bottomRight.x - topLeft.x;
-		var height = bottomRight.y - topLeft.y;
-		var leftoverHeight = height - 450;
-		cameraTopOffset = leftoverHeight/2; //assumes no zooming
 
 		/* PALETTE */
 		Palette.StartBlank(); //rename
@@ -661,9 +649,8 @@ class Main extends luxe.Game {
 			//x
 			Luxe.camera.center.x = player.pos.x + cameraProps.offsetX;
 			//y
-			var zoomAdjustedCameraTopOffset = cameraTopOffset / Luxe.camera.zoom;
 			var yOffsetToPutPlayerCloserToScreenBottom = Settings.IDEAL_SCREEN_SIZE_H * 0.25; //75; //TODO rename this?
-			var totalYOffset = - ( (shouldAnchorToBottom) ? zoomAdjustedCameraTopOffset : 0 ) - yOffsetToPutPlayerCloserToScreenBottom;
+			var totalYOffset = -yOffsetToPutPlayerCloserToScreenBottom;
 			curCamCenterY = Maths.clamp( curCamCenterY, player.pos.y + totalYOffset - cameraMaxYDist, player.pos.y + totalYOffset + cameraMaxYDist );
 			var camCenterYGoal = player.pos.y + totalYOffset;
 			var camCenterYDist = camCenterYGoal - curCamCenterY;
@@ -691,32 +678,7 @@ class Main extends luxe.Game {
 	}
 
 	override function onwindowresized(e:luxe.Screen.WindowEvent) {
-		trace(Luxe.screen.size);
-		trace("!!");
 
-		trace(e);
-		trace(Luxe.camera.size);
-		trace(Luxe.camera.viewport);
-
-		//some weird mathy-ness
-		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
-		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
-		var width = bottomRight.x - topLeft.x;
-		var height = bottomRight.y - topLeft.y;
-		var leftoverHeight = height - 450;
-		cameraTopOffset = (leftoverHeight/2); //doesn't account for zooming
-
-		trace(height);
-		trace(cameraTopOffset);
-
-		//Luxe.camera.view.scale = new Vector(1,1);
-
-		/*
-		Luxe.camera.viewport.w = Luxe.screen.w;
-		Luxe.camera.viewport.h = Luxe.screen.h;
-		Luxe.camera.viewport.x = 0;
-		Luxe.camera.viewport.y = 0;
-		*/
 	}
 
 	/* PLAYER */
@@ -827,6 +789,58 @@ typedef StageFormat = {
 	@:optional public var set : Property;
 	@:optional public var background : Property;
 	@:optional public var path : Property;
+}
+
+/* RESPONSIVE GROUND */
+//TODO what about horizontal responsiveness?
+//TODO can I make this just update on start and on screen size change
+class ResponsiveGround extends luxe.Component {
+	var vex : Vex;
+
+	var startPoint : Vector;
+	var endPoint : Vector;
+	var curBottomY : Float;
+	var screenBottomY : Float;
+	var geo : Geometry = null;
+
+	override public function init() {
+		vex = cast(this.entity);
+
+		var points : Array<Vector> = vex.getPathInWorldSpace();
+
+		startPoint = points[0];
+		endPoint = points[points.length-1];
+
+		curBottomY = (startPoint.y < endPoint.y) ? startPoint.y : endPoint.y;
+	}
+
+	override public function update(dt:Float) {
+		screenBottomY = Luxe.camera.screen_point_to_world( Luxe.screen.size ).y;
+
+		if (screenBottomY > curBottomY) {
+			curBottomY = screenBottomY;
+
+			if (geo != null) {
+				Luxe.renderer.batcher.remove(geo);
+			}
+
+			geo = new Geometry({
+						primitive_type: PrimitiveType.triangles,
+						batcher: Luxe.renderer.batcher
+					});
+
+			var startToBottom = new Vector(startPoint.x, curBottomY);
+			var endToBottom = new Vector(endPoint.x, curBottomY);
+
+			geo.add( new Vertex(startPoint, vex.color) );
+			geo.add( new Vertex(endPoint, vex.color) );
+			geo.add( new Vertex(startToBottom, vex.color) );
+			geo.add( new Vertex(endPoint, vex.color) );
+			geo.add( new Vertex(endToBottom, vex.color) );
+			geo.add( new Vertex(startToBottom, vex.color) );
+		}
+	}
+
 }
 
 /* DUST PARTICLE 
