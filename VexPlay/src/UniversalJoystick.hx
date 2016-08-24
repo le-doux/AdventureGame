@@ -11,9 +11,17 @@ import luxe.utils.Maths;
 	- question: should coasting really happen in here??? or does that belong to the player?
 */
 
+enum InputSource {
+	Mouse;
+	Keyboard;
+	Touch;
+	None;
+}
+
 class UniversalJoystick extends luxe.Entity {
 	
 	public var axis : Vector = new Vector(0,0);
+	public var source : InputSource = InputSource.None;
 
 	//todo replace with touch input?
 	/* MOUSE INPUT */
@@ -24,13 +32,14 @@ class UniversalJoystick extends luxe.Entity {
 	var samplesMax = 20;
 	var touchDelta : Vector;
 	var releaseVelocity : Vector;
-	public var maxScrollSpeed = 1200; //todo shouldn't be public really //TODO remove & replace
 	var timeSinceMouseReleased = 0.0;
 	var maxMouseReleaseTime = 0.1; // 1/10th of a second
 	var deadzoneVector : Vector;
 	var deadzoneSize = Main.Settings.IDEAL_SCREEN_SIZE_W * 0.02;
 
 	override function onmousedown( e:MouseEvent ) {
+		source = InputSource.Mouse;
+
 		if (hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime) {
 			//do nothing --- scrolling was only temporarily interrupted
 		}
@@ -102,13 +111,7 @@ class UniversalJoystick extends luxe.Entity {
 		else {
 			releaseVelocity.x = 0;
 		}
-
-		//TODO revisit maxScrollSpeed?
-		axis.x = Maths.clamp(releaseVelocity.x, -maxScrollSpeed, maxScrollSpeed) / Main.Settings.IDEAL_SCREEN_SIZE_W;
-
-		//TODO remove this nonsense below
-		//sort of a hack to avoid dealing with velocity in the y axis
-		axis.y = 0;
+		axis = releaseVelocity; //set axis
 
 		velocitySamples = []; //purge samples after successful release
 
@@ -136,6 +139,8 @@ class UniversalJoystick extends luxe.Entity {
 			e.keycode == Key.up || e.keycode == Key.key_w ||
 			e.keycode == Key.down || e.keycode == Key.key_s)
 		{
+			source = InputSource.Keyboard;
+
 			if ( !areKeysAlreadyHeld ) {
 				areKeysAlreadyHeld = true;
 				axis = new Vector(0,0);

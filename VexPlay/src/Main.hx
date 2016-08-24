@@ -15,6 +15,9 @@ import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 
 /*
+	TODO
+	- clean todos
+
 	NEXT
 	X y axis resistance
 	X y axis coasting
@@ -25,7 +28,6 @@ import vexlib.VexPropertyInterface;
 	X slow zoom out on idle (fast zoom in)
 	X y axis camera floating into position when moving uphill/downhill [tried this but I don't like it yet]
 	X max swiping speed
-		- build into joystick??
 	BUGS
 	- flashing avatar at start of swipe action (what's the cause?)
 
@@ -53,26 +55,26 @@ import vexlib.VexPropertyInterface;
 		X how to handle keyboard control speed at different screensizes?
 		- how to handle multiple interacting input types?
 		X events
-		- distinguish between input types
+		X distinguish between input types
 	X screen size / camera standardization
 		X how should screen resizing behave?
 		X where should player be relative to the camera?
-		- SOLUTION to bad screen sizes: extendable ground padding that grows to accomodate screensize
-		- explore possible downsides of anchoring to bottom (zooming)
+		X SOLUTION to bad screen sizes: extendable ground padding that grows to accomodate screensize
+		X explore possible downsides of anchoring to bottom (zooming)
 		- can we constrain the window size?
-		- are there any acceptable solutons for centering the camera on the "iphone screen"? (letterboxing? special "floor geometry")
+		X are there any acceptable solutons for centering the camera on the "iphone screen"? (letterboxing? special "floor geometry")
 	FOUND TODOS + BUGS
 	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
-	- fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
+	X fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
 	- stateful player redesign
 	- EDITOR: hard to delete animation keyframes
 	- flicker when switching from between animations (hello, stop)
 
 	TODO
-	- additional animations for main character
+	X additional animations for main character
 		X idle animation
-		- kick foot (boredom)
-		- sudden stop / hit wall
+		X kick foot (boredom)
+		X sudden stop / hit wall
 	- particle effects for walking
 		- todo: add typedef for options, particle system?, 
 	X universal input manager
@@ -82,7 +84,7 @@ import vexlib.VexPropertyInterface;
 		- isReverse movement?
 		- remove coasting from input manager?
 		- should keyboard controls be screen width independent?
-	- polish swipe controls (bounciness, up/down axis)
+	X polish swipe controls (bounciness, up/down axis)
 	X weird double bounce on edges
 	- more animation stuff
 		- blending
@@ -90,7 +92,7 @@ import vexlib.VexPropertyInterface;
 	- TODOs consolidate into one file?
 
 	TODO
-	- quickly establish standard screen size
+	X quickly establish standard screen size
 	- BUG loading ref objects has a race condition?
 	- make this code not ugly anymore
 	X BUG jittery movement bug again (check out the head)
@@ -98,11 +100,11 @@ import vexlib.VexPropertyInterface;
 	- parallax
 	X mushroom animations
 	X pull up / down
-	- input manager (THIS THIS THIS)
-		- inputs: mouse, touch, keyboard, joystick
-		- output: single vector X, Y
+	X input manager (THIS THIS THIS)
+		X inputs: mouse, touch, keyboard, joystick
+		X output: single vector X, Y
 	- figure out a more reliable way to load assets
-	- get rid of extraneous traces
+	X get rid of extraneous traces
 */
 
 class Settings {
@@ -328,9 +330,14 @@ class Main extends luxe.Game {
 		testCoastingTimer = 0.0;
 
 		//y
-		pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
-		pullFrictionForce = pullVelocity * pullFrictionConstant;
-		pullFriction = 0;
+		if (joystick.source != UniversalJoystick.InputSource.Keyboard) {
+			pullVelocity = axis.y * Settings.IDEAL_SCREEN_SIZE_H;
+			pullFrictionForce = pullVelocity * pullFrictionConstant;
+			pullFriction = 0;
+		}
+		else {
+			pullVelocity = 0;
+		}
 	}
 
 	override function onkeydown( e:KeyEvent ) {
@@ -391,48 +398,6 @@ class Main extends luxe.Game {
 	}
 
 	override function update(dt:Float) {
-
-		//some weird mathy-ness
-		var topLeft = Luxe.camera.screen_point_to_world( new Vector(0,0) );
-		var bottomRight = Luxe.camera.screen_point_to_world( Luxe.screen.size );
-		var width = bottomRight.x - topLeft.x;
-		var height = bottomRight.y - topLeft.y;
-		var leftOverWidth = width - 800;
-		var leftoverHeight = height - 450;
-
-		/*
-		//test for screen size
-		Luxe.draw.rectangle({
-				x: topLeft.x + (leftOverWidth/2) + 1,
-				y: bottomRight.y - 450 + 1,
-				w: 800 - 1,
-				h: 450 - 1,
-				immediate: true,
-				depth: 500
-			});
-		*/
-
-		/*
-		Luxe.draw.rectangle({
-				x: topLeft.x + (leftOverWidth/2) + 1,
-				y: topLeft.y + (leftoverHeight/2) + 1,
-				w: 800 - 1,
-				h: 450 - 1,
-				immediate: true,
-				depth: 500
-			});
-		*/
-
-		/*
-		//camera y
-		Luxe.draw.circle({
-				x: Luxe.camera.center.x,
-				y: Luxe.camera.center.y,
-				r: 20,
-				immediate: true,
-				depth: 500
-			});
-		*/
 
 		if (player != null && path != null) { //eventually need a smarter way to handle this
 		
@@ -534,17 +499,12 @@ class Main extends luxe.Game {
 			var prevBlocked = playerProps.blocked.left || playerProps.blocked.right;
 
 			//connect input to player
-			//playerProps.velocity.x = joystick.axis.x * Luxe.screen.width;
-
 			if ( joystick.isDown() ) {
 				playerProps.velocity.x = Math.min(maxScrollSpeed, joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W);
 			}
 			else if ( Math.abs(playerProps.velocity.x) > 0 ) {
 				//coasting
-				//trace(coastingFriction);
 				testCoastingTimer += dt;
-				//coastingFrictionAcceleration += coastingFrictionForce * dt;
-				//coastingFriction += coastingFrictionAcceleration * dt;
 				coastingFriction += coastingFrictionForce * dt;
 				playerProps.velocity.x -= coastingFriction * dt; 
 
@@ -558,16 +518,6 @@ class Main extends luxe.Game {
 					testCoastingTimer = 0;
 				}
 
-				/*
-				playerProps.velocity.x -= (playerProps.velocity.x * 5.0 * dt);
-				testCoastingTimer += dt;
-				if ( Math.abs(playerProps.velocity.x) < 10 ) {
-					playerProps.velocity.x = 0;
-					trace("COASTING TOTAL TIME " + testCoastingTimer);
-					testCoastingTimer = 0;
-				}
-				*/
-				//TODO "3.0" and "10" need to be made into variables
 			}
 			playerProps.stagePos += playerProps.velocity.x * dt;
 
