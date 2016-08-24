@@ -15,96 +15,31 @@ import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 
 /*
+
 	TODO
 	- clean todos
 
-	NEXT
-	X y axis resistance
-	X y axis coasting
-	X revisit max coasting speed
-	X extendable ground
-	X revisit walking animation speed range
-	TRY THIS
-	X slow zoom out on idle (fast zoom in)
-	X y axis camera floating into position when moving uphill/downhill [tried this but I don't like it yet]
-	X max swiping speed
-	BUGS
-	- flashing avatar at start of swipe action (what's the cause?)
-
-	THIS WEEK
-	X player movement animation
-		X idle
-		X edges
-			- the speed control of this could be tweaked
-			- I could take another go at the "sudden stop" version of this
-		X boredom
-			 - add variations in timing and animations later
-		X hello [this animation can be improved later - also the input needs help]
-		- particles? [save this for later]
-	- swipe control polish
-		- test variation in release speed max?
-		X get rid of reliance on actuate for coasting
-		X resistance on edges (both x and y axes)
-		X test a universal maximum movement speed for player?
-		X deadzone in center so player doesn't move at the slightest flick
-		X keep x and y axis movement separate (can't do both) (should this be in joystick or not?)
-		X stop instananeous speed from being so herky jerky
-		X use timers? to keep from switching back and forth all the time
-	- universal joystick refactoring
-		X re-remove coasting from joystick (maybe?)
-		X how to handle keyboard control speed at different screensizes?
-		- how to handle multiple interacting input types?
-		X events
-		X distinguish between input types
-	X screen size / camera standardization
-		X how should screen resizing behave?
-		X where should player be relative to the camera?
-		X SOLUTION to bad screen sizes: extendable ground padding that grows to accomodate screensize
-		X explore possible downsides of anchoring to bottom (zooming)
-		- can we constrain the window size?
-		X are there any acceptable solutons for centering the camera on the "iphone screen"? (letterboxing? special "floor geometry")
-	FOUND TODOS + BUGS
+	BACKLOG
+	- walking particles
+	- test different max swiping speeds
+	- handle conflicting input types
+	- can we constrain the window size?
 	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
-	X fix the fact that maxScrollSpeed does not constrain scroll speed while touch is down
 	- stateful player redesign
 	- EDITOR: hard to delete animation keyframes
-	- flicker when switching from between animations (hello, stop)
-
-	TODO
-	X additional animations for main character
-		X idle animation
-		X kick foot (boredom)
-		X sudden stop / hit wall
-	- particle effects for walking
-		- todo: add typedef for options, particle system?, 
-	X universal input manager
-		- polish input manager
-		- handle multiple input types at once
-		- register type of input
-		- isReverse movement?
-		- remove coasting from input manager?
-		- should keyboard controls be screen width independent?
-	X polish swipe controls (bounciness, up/down axis)
-	X weird double bounce on edges
-	- more animation stuff
+		- more animation stuff
 		- blending
 		- composite-ing of multiple animations at once
 	- TODOs consolidate into one file?
-
-	TODO
-	X quickly establish standard screen size
-	- BUG loading ref objects has a race condition?
 	- make this code not ugly anymore
-	X BUG jittery movement bug again (check out the head)
-	X walk animation needs to respond to player control
 	- parallax
-	X mushroom animations
-	X pull up / down
-	X input manager (THIS THIS THIS)
-		X inputs: mouse, touch, keyboard, joystick
-		X output: single vector X, Y
 	- figure out a more reliable way to load assets
-	X get rid of extraneous traces
+
+	BUGS
+	- flashing avatar at start of swipe action (what's the cause?)
+	- flicker when switching from between animations (hello, stop)
+	- BUG loading ref objects has a race condition?
+
 */
 
 class Settings {
