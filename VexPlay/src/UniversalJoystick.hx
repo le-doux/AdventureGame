@@ -28,14 +28,80 @@ class UniversalJoystick extends luxe.Entity {
 	var prevTouchPos : Vector;
 	var prevTouchTime : Float;
 	var velocitySamples = [];
-	var samplesMin = 5;
-	var samplesMax = 20;
+	//var samplesMin = 5;
+	//var samplesMax = 20;
+	var samplesMin = 1;
+	var samplesMax = 4;
 	var touchDelta : Vector;
 	var releaseVelocity : Vector;
 	var timeSinceMouseReleased = 0.0;
 	var maxMouseReleaseTime = 0.1; // 1/10th of a second
 	var deadzoneVector : Vector;
 	var deadzoneSize = Main.Settings.IDEAL_SCREEN_SIZE_W * 0.02;
+
+	override public function new(?opt) {
+		super(opt);
+		Luxe.timer.schedule(0.1, track_scrolling_velocity, true);
+	}
+
+	function track_scrolling_velocity() {
+		var dt = 0.1;
+		if (Luxe.input.mousedown(1)) {
+			var cursorPosStd = Main.Settings.RealScreenPosToStandardScreenPos( Luxe.screen.cursor.pos );
+			touchDelta = Vector.Subtract( prevTouchPos, cursorPosStd );
+
+			var sample = Vector.Divide( touchDelta, dt );
+			velocitySamples.insert(0,sample);
+
+			if (velocitySamples.length > samplesMax) velocitySamples.pop();
+
+			prevTouchPos = cursorPosStd;
+
+			//use average velocity to smooth things out
+			var avgVelocity = new Vector(0, 0);
+			for (s in velocitySamples) { //TODO can I make this average velocity feel snappier to respond?
+				avgVelocity.add(s);
+			}
+			avgVelocity.divideScalar(velocitySamples.length);
+
+			
+			if (deadzoneVector.length < deadzoneSize) {
+				//build up deadzone value
+				deadzoneVector.add( Vector.Multiply( avgVelocity, dt ) );
+				//axis = new Vector(0,0); //I don't think this will actually be necessary
+			}
+			else {
+				//out of deadzone, so we can actually set the axis
+				if ( Math.abs(deadzoneVector.x) > Math.abs(deadzoneVector.y) ) {
+					axis.x = avgVelocity.divide( Main.Settings.IdealScreenSize() ).x;
+					axis.y = 0; //only move in one axis at a time
+				}
+				else {
+					axis.x = 0;
+					axis.y = avgVelocity.divide( Main.Settings.IdealScreenSize() ).y;
+				}
+			}
+
+			
+		}
+		else if ( hasScrollingSamples() ) {
+			timeSinceMouseReleased += dt;
+
+			//deadzone calculations: redundant?
+			if (deadzoneVector.length < deadzoneSize) {
+				var avgVelocity = new Vector(0, 0);
+				for (s in velocitySamples) {
+					avgVelocity.add(s);
+				}
+				avgVelocity.divideScalar(velocitySamples.length);
+				deadzoneVector.add( Vector.Multiply( avgVelocity, dt ) );
+			}
+
+			if (timeSinceMouseReleased >= maxMouseReleaseTime) {
+				scrollrelease();
+			}
+		}
+	}
 
 	override function onmousedown( e:MouseEvent ) {
 		source = InputSource.Mouse;
@@ -48,7 +114,7 @@ class UniversalJoystick extends luxe.Entity {
 			velocitySamples = [];
 			deadzoneVector = new Vector(0,0);
 
-			for (i in  0 ... 5) { //this avoids sudden stops caused by not having enough samples (but it does "deaden" fast flicks... what's the solution?)
+			for (i in  0 ... samplesMin) { //this avoids sudden stops caused by not having enough samples (but it does "deaden" fast flicks... what's the solution?)
 				velocitySamples.push(new Vector(0,0));
 			}
 
@@ -85,7 +151,7 @@ class UniversalJoystick extends luxe.Entity {
 
 			//hack for sudden stops
 			var isSuddenStop = true;
-			for (i in 0 ... 5) {
+			for (i in 0 ... samplesMin) { //should I really use samplesMin like this?
 				if ( Math.abs(velocitySamples[i].x) > 0.1 ) {
 					isSuddenStop = false;
 				}
@@ -112,6 +178,7 @@ class UniversalJoystick extends luxe.Entity {
 			releaseVelocity.x = 0;
 		}
 		axis = releaseVelocity; //set axis
+		axis.divide( Main.Settings.IdealScreenSize() );
 
 		velocitySamples = []; //purge samples after successful release
 
@@ -177,6 +244,7 @@ class UniversalJoystick extends luxe.Entity {
 
 	override function update(dt:Float) {
 		/* MOUSE */
+		/*
 		if (Luxe.input.mousedown(1)) {
 			var cursorPosStd = Main.Settings.RealScreenPosToStandardScreenPos( Luxe.screen.cursor.pos );
 			touchDelta = Vector.Subtract( prevTouchPos, cursorPosStd );
@@ -232,6 +300,7 @@ class UniversalJoystick extends luxe.Entity {
 				scrollrelease();
 			}
 		}
+		*/
 
 		/* KEYBOARD */
 		if (Luxe.input.keydown(Key.right) || Luxe.input.keydown(Key.key_d)) {

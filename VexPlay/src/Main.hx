@@ -342,6 +342,7 @@ class Main extends luxe.Game {
 
 		//x
 		playerProps.velocity.x = Maths.clamp(axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
+		trace(playerProps.velocity.x);
 		coastingFrictionForce = playerProps.velocity.x * coastingFrictionConstant;
 		coastingFrictionAcceleration = 0;
 		coastingFriction = 0;
