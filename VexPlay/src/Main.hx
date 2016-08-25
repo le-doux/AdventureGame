@@ -84,7 +84,7 @@ class Settings {
 
 class Main extends luxe.Game {
 	/* PALETTE */
-	public var paletteSrc = "assets/testpal.vex";
+	public var paletteSrc = "assets/testpal2.vex";
 
 	/* PLAYER */
 	public var playerSrc = "assets/girl.vex";
@@ -200,6 +200,7 @@ class Main extends luxe.Game {
 		fg2_batch = Luxe.renderer.create_batcher({name:"fg2_batch", layer:10, camera:fg2_cam.view});
 
 		//foreground test
+		/*
 		Luxe.draw.box({
 				x : 1500, y : -2000,
 				w : 100, h : 4000,
@@ -224,7 +225,7 @@ class Main extends luxe.Game {
 				color : Palette.Colors[6],
 				batcher : fg2_batch
 			});
-
+		*/
 		Luxe.draw.box({
 				x : 3500, y : -2000,
 				w : 50, h : 4000,
