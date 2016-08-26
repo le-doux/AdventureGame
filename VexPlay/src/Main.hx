@@ -18,7 +18,11 @@ import vexlib.VexPropertyInterface;
 /*
 
 	TODO
-	- parallax
+	X re-implement ability for sudden stop
+	- ? return coasting to universal joystick (haha oh boy, but it might simplify some things) [maybe later]
+	- make y-axis pulling crisper somehow
+	X make y-axis "lock" zone smaller than x-axis (probably except for when an interactive thing is there)
+		- do I need to make swipe motions relative to the angle of the terrain?
 
 	BACKLOG
 	- walking particles
@@ -33,7 +37,6 @@ import vexlib.VexPropertyInterface;
 		- composite-ing of multiple animations at once
 	- TODOs consolidate into one file?
 	- make this code not ugly anymore
-	- parallax
 	- figure out a more reliable way to load assets
 	- better way to handle vex depth and internal, relative depth
 
@@ -421,7 +424,10 @@ class Main extends luxe.Game {
 			}
 
 			if ( Math.abs(pullVelocity) > 0 ) {
-				var pullResistance = Math.pow( 1 - (Math.abs(pullDelta) / pullMaxDistance), 2 );
+				var pullResistance = 1.0;
+				if ( (pullVelocity > 0) == (pullDelta > 0) ) {
+					pullResistance = Math.pow( 1 - (Math.abs(pullDelta) / pullMaxDistance), 2 );
+				}
 				pullDelta += pullVelocity * pullResistance * dt;
 				pullDelta = Maths.clamp(pullDelta, -pullMaxDistance, pullMaxDistance);
 				if (Math.abs(pullDelta) > pullDeltaMax) pullDeltaMax = Math.abs(pullDelta);

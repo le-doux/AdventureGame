@@ -30,22 +30,36 @@ class UniversalJoystick extends luxe.Entity {
 	var velocitySamples = [];
 	//var samplesMin = 5;
 	//var samplesMax = 20;
+	var sampleCollectionFrameTime = 0.05; //20 times per second
 	var samplesMin = 1;
-	var samplesMax = 4;
+	var samplesMax = 6;
 	var touchDelta : Vector;
 	var releaseVelocity : Vector;
+
 	var timeSinceMouseReleased = 0.0;
 	var maxMouseReleaseTime = 0.1; // 1/10th of a second
+
+	var timeSinceMousePressed = 0.0;
+	var isScrolling = false;
+	
 	var deadzoneVector : Vector;
 	var deadzoneSize = Main.Settings.IDEAL_SCREEN_SIZE_W * 0.02;
+	var minFastFlickSpeed = 100.0;
 
 	override public function new(?opt) {
 		super(opt);
-		Luxe.timer.schedule(0.1, track_scrolling_velocity, true);
+		Luxe.timer.schedule(sampleCollectionFrameTime, track_scrolling_velocity, true);
+	}
+
+	//todo rename
+	function scroll_joystick_down() {
+		isScrolling = true;
+		Luxe.events.fire("joystick.pressed", axis);
 	}
 
 	function track_scrolling_velocity() {
-		var dt = 0.1;
+		/* MOUSE */
+		var dt = sampleCollectionFrameTime;
 		if (Luxe.input.mousedown(1)) {
 			var cursorPosStd = Main.Settings.RealScreenPosToStandardScreenPos( Luxe.screen.cursor.pos );
 			touchDelta = Vector.Subtract( prevTouchPos, cursorPosStd );
@@ -64,15 +78,33 @@ class UniversalJoystick extends luxe.Entity {
 			}
 			avgVelocity.divideScalar(velocitySamples.length);
 
+			//allow suddent stops, despite deadzone logic
+			timeSinceMousePressed += dt;
+			if (timeSinceMousePressed >= 0.1 && Math.abs(avgVelocity.length) < 1 && !isScrolling) {
+				axis = new Vector(0,0);
+				scroll_joystick_down();
+			}
 			
 			if (deadzoneVector.length < deadzoneSize) {
 				//build up deadzone value
 				deadzoneVector.add( Vector.Multiply( avgVelocity, dt ) );
-				//axis = new Vector(0,0); //I don't think this will actually be necessary
+				if (deadzoneVector.length >= deadzoneSize && !isScrolling) {
+					//test -- joystick isn't "down" until we're out of the deadzone
+					if ( isScrollingLockedToXAxis() ) {
+						axis.x = avgVelocity.divide( Main.Settings.IdealScreenSize() ).x;
+						axis.y = 0; //only move in one axis at a time
+					}
+					else {
+						axis.x = 0;
+						axis.y = avgVelocity.divide( Main.Settings.IdealScreenSize() ).y;
+					}
+					scroll_joystick_down();
+					//test
+				}
 			}
 			else {
 				//out of deadzone, so we can actually set the axis
-				if ( Math.abs(deadzoneVector.x) > Math.abs(deadzoneVector.y) ) {
+				if ( isScrollingLockedToXAxis() ) {
 					axis.x = avgVelocity.divide( Main.Settings.IdealScreenSize() ).x;
 					axis.y = 0; //only move in one axis at a time
 				}
@@ -114,16 +146,21 @@ class UniversalJoystick extends luxe.Entity {
 			velocitySamples = [];
 			deadzoneVector = new Vector(0,0);
 
+			/*
 			for (i in  0 ... samplesMin) { //this avoids sudden stops caused by not having enough samples (but it does "deaden" fast flicks... what's the solution?)
 				velocitySamples.push(new Vector(0,0));
 			}
+			*/
 
 			prevTouchPos = Main.Settings.RealScreenPosToStandardScreenPos(e.pos);
 			prevTouchTime = e.timestamp;
 
 			axis = new Vector(0,0);
 
-			Luxe.events.fire("joystick.pressed", axis);
+			timeSinceMousePressed = 0; //hacky
+
+			//test
+			//Luxe.events.fire("joystick.pressed", axis);
 		}
 	}
 
@@ -131,6 +168,7 @@ class UniversalJoystick extends luxe.Entity {
 	}
 
 	override function onmouseup( e:MouseEvent ) {
+		isScrolling = false;
 		timeSinceMouseReleased = 0;
 	}
 
@@ -138,7 +176,7 @@ class UniversalJoystick extends luxe.Entity {
 		trace("scroll release!!!");
 		trace(velocitySamples);
 
-		if (velocitySamples.length > samplesMin && deadzoneVector.length > deadzoneSize) {
+		if (velocitySamples.length >= samplesMin /*&& deadzoneVector.length > deadzoneSize*/) {
 			
 			//normal calculations
 			var avgVelocity = new Vector(0, 0);
@@ -171,7 +209,7 @@ class UniversalJoystick extends luxe.Entity {
 		trace(releaseVelocity);
 
 		//lock axis
-		if ( Math.abs(deadzoneVector.x) > Math.abs(deadzoneVector.y) ) {
+		if ( isScrollingLockedToXAxis() ) {
 			releaseVelocity.y = 0;
 		}
 		else {
@@ -180,11 +218,25 @@ class UniversalJoystick extends luxe.Entity {
 		axis = releaseVelocity; //set axis
 		axis.divide( Main.Settings.IdealScreenSize() );
 
+		//check if we meet fast flick or slow flick criteria
+		var isSlowFlick = deadzoneVector.length > deadzoneSize;
+		if (!isSlowFlick) {
+			var isFastEnough = axis.length > minFastFlickSpeed;
+			if (!isFastEnough) {
+				axis = new Vector(0,0);
+				trace("fast flick isn't fast enough!");
+			}
+		}
+
 		velocitySamples = []; //purge samples after successful release
 
 		Luxe.events.fire("joystick.released", axis);
 
 		axis = new Vector(0,0); //clear axis after release
+	}
+
+	function isScrollingLockedToXAxis() {
+		return (Math.abs(deadzoneVector.x) * 1.5) > Math.abs(deadzoneVector.y); //1.5 multiplier makes x-axis lock zone bigger
 	}
 
 	//todo name?
@@ -243,65 +295,6 @@ class UniversalJoystick extends luxe.Entity {
 	//todo gamepad input?
 
 	override function update(dt:Float) {
-		/* MOUSE */
-		/*
-		if (Luxe.input.mousedown(1)) {
-			var cursorPosStd = Main.Settings.RealScreenPosToStandardScreenPos( Luxe.screen.cursor.pos );
-			touchDelta = Vector.Subtract( prevTouchPos, cursorPosStd );
-
-			var sample = Vector.Divide( touchDelta, dt );
-			velocitySamples.insert(0,sample);
-
-			if (velocitySamples.length > samplesMax) velocitySamples.pop();
-
-			prevTouchPos = cursorPosStd;
-
-			//use average velocity to smooth things out
-			var avgVelocity = new Vector(0, 0);
-			for (s in velocitySamples) { //TODO can I make this average velocity feel snappier to respond?
-				avgVelocity.add(s);
-			}
-			avgVelocity.divideScalar(velocitySamples.length);
-
-			
-			if (deadzoneVector.length < deadzoneSize) {
-				//build up deadzone value
-				deadzoneVector.add( Vector.Multiply( avgVelocity, dt ) );
-				//axis = new Vector(0,0); //I don't think this will actually be necessary
-			}
-			else {
-				//out of deadzone, so we can actually set the axis
-				if ( Math.abs(deadzoneVector.x) > Math.abs(deadzoneVector.y) ) {
-					axis.x = avgVelocity.divide( Main.Settings.IdealScreenSize() ).x;
-					axis.y = 0; //only move in one axis at a time
-				}
-				else {
-					axis.x = 0;
-					axis.y = avgVelocity.divide( Main.Settings.IdealScreenSize() ).y;
-				}
-			}
-
-			
-		}
-		else if ( hasScrollingSamples() ) {
-			timeSinceMouseReleased += dt;
-
-			//deadzone calculations: redundant?
-			if (deadzoneVector.length < deadzoneSize) {
-				var avgVelocity = new Vector(0, 0);
-				for (s in velocitySamples) {
-					avgVelocity.add(s);
-				}
-				avgVelocity.divideScalar(velocitySamples.length);
-				deadzoneVector.add( Vector.Multiply( avgVelocity, dt ) );
-			}
-
-			if (timeSinceMouseReleased >= maxMouseReleaseTime) {
-				scrollrelease();
-			}
-		}
-		*/
-
 		/* KEYBOARD */
 		if (Luxe.input.keydown(Key.right) || Luxe.input.keydown(Key.key_d)) {
 			axis.x += keyboardAcceleration * dt;
@@ -322,7 +315,9 @@ class UniversalJoystick extends luxe.Entity {
 	}
 
 	function isScrollOngoing() {
-		return ( Luxe.input.mousedown(1) ) || ( hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime );
+		//return ( Luxe.input.mousedown(1) ) || ( hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime );
+		//return ( Luxe.input.mousedown(1) && deadzoneVector.length > deadzoneSize ) || ( hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime );
+		return ( isScrolling ) || ( hasScrollingSamples() && timeSinceMouseReleased < maxMouseReleaseTime );
 	}
 
 	//is this really the best approach? ... probably not (but I'll do it "for now")
