@@ -216,10 +216,24 @@ class VexPropertyInterface {
 			}
 			else if (type == "line") { //best name? other options: stroke, outline
 				/* MESH LINES */
+				//multipath version
+				var lines : Array<Array<Vector>> = path;
+
+				//just make the damn geometry, it can be empty for all I care
+				visual.geometry = new Geometry({
+					primitive_type: PrimitiveType.triangles,
+					batcher: Luxe.renderer.batcher
+				});
+
+				for (l in lines) {
+					trace(l);
+					add_line_geometry(l);
+				}
+
+				/*
 				var linewidth = 1.0;
 				if (weight == "regular") linewidth = 2.0; //better way to control this?
 				if (weight == "thick") linewidth = 4.0;
-				trace("line width " + linewidth);
 
 				var pathAsVectors : Array<Vector> = path;
 
@@ -270,9 +284,139 @@ class VexPropertyInterface {
 						visual.geometry.add(new Vertex(right1));
 					}
 				}
+				*/
 			}
 		}
 		return path;
+	}
+
+	function add_line_geometry(line:Array<Vector>) {
+		/* MESH LINES */
+		var linewidth = 1.0;
+		if (weight == "regular") linewidth = 2.0; //better way to control this?
+		if (weight == "thick") linewidth = 4.0;
+
+		var pathAsVectors : Array<Vector> = line;
+
+		if (pathAsVectors.length >= 2) {
+			var left0 : Vector = null;
+			var right0 : Vector = null;
+			var left1 : Vector = null;
+			var right1 : Vector = null;
+
+			for (i in 2 ... pathAsVectors.length) {
+				var p0 = pathAsVectors[i-2];
+				var p1 = pathAsVectors[i-1];
+				var p2 = pathAsVectors[i-0];
+
+				var p0_to_p1 = Vector.Subtract(p1, p0);
+				var p1_to_p2 = Vector.Subtract(p2, p1);
+				var unitForward = Vector.Add( p0_to_p1.normalized, p1_to_p2.normalized ).normalized;
+				var radiansForward = unitForward.angle2D;
+				var degreesForward = Maths.degrees(radiansForward);
+				var degreesRight = degreesForward + 90;
+				var radiansRight = Maths.radians(degreesRight);
+				var unitRight = (new Vector(1,0));
+				unitRight.angle2D = radiansRight;
+				var rightward = Vector.Multiply(unitRight, linewidth);
+				var leftward = Vector.Multiply(rightward, -1);
+
+				//todo
+				if (i-2 == 0) {
+					/* FIRST QUAD */
+					var unitForward0 = p0_to_p1.normalized;
+					var radiansForward0 = unitForward0.angle2D;
+					var degreesForward0 = Maths.degrees(radiansForward0);
+					var degreesRight0 = degreesForward0 + 90;
+					var radiansRight0 = Maths.radians(degreesRight0);
+					var unitRight0 = (new Vector(1,0));
+					unitRight0.angle2D = radiansRight0;
+					var rightward0 = Vector.Multiply(unitRight0, linewidth);
+					var leftward0 = Vector.Multiply(rightward0, -1);
+
+					left0 = Vector.Add(p0, leftward0);
+					right0 = Vector.Add(p0, rightward0);
+				}
+				else {
+					/* MIDDLE QUADS */
+					left0 = left1;
+					right0 = right1;
+				}
+
+				left1 = Vector.Add(p1, leftward);
+				right1 = Vector.Add(p1, rightward);
+
+				//line segment quad
+				visual.geometry.add(new Vertex(left0)); //left triangle
+				visual.geometry.add(new Vertex(right0));
+				visual.geometry.add(new Vertex(left1));
+				visual.geometry.add(new Vertex(right0)); //right triangle
+				visual.geometry.add(new Vertex(left1));
+				visual.geometry.add(new Vertex(right1));
+
+				if (i == pathAsVectors.length-1) {
+					/* LAST QUAD */
+					var unitForward2 = p1_to_p2.normalized;
+					var radiansForward2 = unitForward2.angle2D;
+					var degreesForward2 = Maths.degrees(radiansForward2);
+					var degreesRight2 = degreesForward2 + 90;
+					var radiansRight2 = Maths.radians(degreesRight2);
+					var unitRight2 = (new Vector(1,0));
+					unitRight2.angle2D = radiansRight2;
+					var rightward2 = Vector.Multiply(unitRight2, linewidth);
+					var leftward2 = Vector.Multiply(rightward2, -1);
+
+					var left2 = Vector.Add(p2, leftward2);
+					var right2 = Vector.Add(p2, rightward2);
+
+					//line segment quad
+					visual.geometry.add(new Vertex(left1)); //left triangle
+					visual.geometry.add(new Vertex(right1));
+					visual.geometry.add(new Vertex(left2));
+					visual.geometry.add(new Vertex(right1)); //right triangle
+					visual.geometry.add(new Vertex(left2));
+					visual.geometry.add(new Vertex(right2));
+				}
+
+			}
+
+			/*
+			for (i in 1 ... pathAsVectors.length) {
+				var p0 = pathAsVectors[i-1];
+				var p1 = pathAsVectors[i];
+
+				var p0_to_p1 = Vector.Subtract(p1, p0);
+				var unitForward = p0_to_p1.normalized;
+				var radiansForward = unitForward.angle2D;
+				var degreesForward = Maths.degrees(radiansForward);
+				var degreesRight = degreesForward + 90;
+				var radiansRight = Maths.radians(degreesRight);
+				var unitRight = (new Vector(1,0));
+				unitRight.angle2D = radiansRight;
+				var rightward = Vector.Multiply(unitRight, linewidth);
+				var leftward = Vector.Multiply(rightward, -1);
+
+				if (left1 == null) {
+					left0 = Vector.Add(p0, leftward);
+					right0 = Vector.Add(p0, rightward);
+				}
+				else {
+					left0 = left1;
+					right0 = right1;
+				}
+				left1 = Vector.Add(p1, leftward);
+				right1 = Vector.Add(p1, rightward);
+
+				//line segment quad
+				visual.geometry.add(new Vertex(left0)); //left triangle
+				visual.geometry.add(new Vertex(right0));
+				visual.geometry.add(new Vertex(left1));
+				visual.geometry.add(new Vertex(right0)); //right triangle
+				visual.geometry.add(new Vertex(left1));
+				visual.geometry.add(new Vertex(right1));
+			}
+			*/
+		}
 	}
 
 	function set_components(componentData:Array<ComponentJsonFormat>) : Array<ComponentJsonFormat> {
@@ -326,6 +470,11 @@ abstract Property(String) from String to String {
 
 	@:to
 	public function toPath() : Array<Vector> {
+		if (this.indexOf("Z") != -1) {
+			//hacky solution for now
+			return toMultiPath()[0];
+		}
+
 		var path : Array<Vector> = [];
 		var points = this.split(" ");
 		for (p in points) {
@@ -333,6 +482,30 @@ abstract Property(String) from String to String {
 			path.push(pointProp);
 		}
 		return path;
+	}
+
+	@:from
+	static public function fromMultiPath(multipath:Array<Array<Vector>>) {
+		var multiPathStr = "";
+		for (p in multipath) {
+			var prop : Property = p;
+			multiPathStr += p;
+			multiPathStr += " Z ";
+		}
+		return new Property(multiPathStr);
+	}
+
+	@:to
+	public function toMultiPath() : Array<Array<Vector>> {
+		var multipath : Array<Array<Vector>> = [];
+		var paths = this.split("Z"); //todo is this a good path end marker?
+		for (p in paths) {
+			trace(p);
+			p = StringTools.trim(p);
+			var prop : Property = p;
+			multipath.push( prop.toPath() );
+		}
+		return multipath;
 	}
 
 	/*

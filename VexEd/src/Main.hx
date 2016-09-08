@@ -21,10 +21,13 @@ import vexlib.Animation;
 import Command;
 
 /*
-	TODO
+	TODO NEXT WEEK
 	- dialog only vignette
 		- script
 		- new dialog builder tool
+		- order: 1. write script, 2. brainstorm dialog needs, 3. create dialog tool, 4. make game, 5. release !?!?
+
+	BUGS
 	- other bugs and stuff
 		- origin drawn position gets off after translate
 		- !!! need to make movement/translation like this: click once to select, again to move
