@@ -290,6 +290,7 @@ class VexPropertyInterface {
 		return path;
 	}
 
+	//todo improve width at joints
 	function add_line_geometry(line:Array<Vector>) {
 		/* MESH LINES */
 		var linewidth = 1.0;
@@ -379,43 +380,6 @@ class VexPropertyInterface {
 				}
 
 			}
-
-			/*
-			for (i in 1 ... pathAsVectors.length) {
-				var p0 = pathAsVectors[i-1];
-				var p1 = pathAsVectors[i];
-
-				var p0_to_p1 = Vector.Subtract(p1, p0);
-				var unitForward = p0_to_p1.normalized;
-				var radiansForward = unitForward.angle2D;
-				var degreesForward = Maths.degrees(radiansForward);
-				var degreesRight = degreesForward + 90;
-				var radiansRight = Maths.radians(degreesRight);
-				var unitRight = (new Vector(1,0));
-				unitRight.angle2D = radiansRight;
-				var rightward = Vector.Multiply(unitRight, linewidth);
-				var leftward = Vector.Multiply(rightward, -1);
-
-				if (left1 == null) {
-					left0 = Vector.Add(p0, leftward);
-					right0 = Vector.Add(p0, rightward);
-				}
-				else {
-					left0 = left1;
-					right0 = right1;
-				}
-				left1 = Vector.Add(p1, leftward);
-				right1 = Vector.Add(p1, rightward);
-
-				//line segment quad
-				visual.geometry.add(new Vertex(left0)); //left triangle
-				visual.geometry.add(new Vertex(right0));
-				visual.geometry.add(new Vertex(left1));
-				visual.geometry.add(new Vertex(right0)); //right triangle
-				visual.geometry.add(new Vertex(left1));
-				visual.geometry.add(new Vertex(right1));
-			}
-			*/
 		}
 	}
 
