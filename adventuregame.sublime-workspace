@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"w",
+				"p· width	Float"
+			],
+			[
+				"reflec",
+				"reflectVectorByNormal"
+			],
+			[
+				"norma",
+				"normalComponentV"
+			],
+			[
+				"terr",
+				"terrainPoints"
+			],
+			[
+				"file",
+				"filename"
+			],
+			[
 				"eas",
 				"easeOut"
 			],
@@ -166,10 +186,6 @@
 			[
 				"File",
 				"FileOutput"
-			],
-			[
-				"file",
-				"m· file_write	Int"
 			],
 			[
 				"mo",
@@ -416,10 +432,6 @@
 				"p· enter	Int"
 			],
 			[
-				"w",
-				"p· wordHeight	Int"
-			],
-			[
 				"new",
 				"newWord"
 			],
@@ -454,10 +466,6 @@
 			[
 				"onCom",
 				"onCompleteCallback"
-			],
-			[
-				"terr",
-				"terrain"
 			],
 			[
 				"on",
@@ -506,14 +514,6 @@
 			[
 				"tri",
 				"m· triggerDisappear	 "
-			],
-			[
-				"d",
-				"m· drawImmediate	 "
-			],
-			[
-				"act",
-				"actionButtons"
 			]
 		]
 	},
@@ -524,6 +524,14 @@
 			"settings":
 			{
 				"buffer_size": 327,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "AventurLib/adventurlib/Terrain.hx",
+			"settings":
+			{
+				"buffer_size": 3149,
 				"line_ending": "Unix"
 			}
 		},
@@ -539,39 +547,7 @@
 			"file": "AdventurEr/src/Main.hx",
 			"settings":
 			{
-				"buffer_size": 16280,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "AdventurEr/assets/3_street_b",
-			"settings":
-			{
-				"buffer_size": 471048,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "AdventurEr/assets/2_mahjongApt",
-			"settings":
-			{
-				"buffer_size": 361041,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "AdventurEr/assets/4_bagelEntrance_b",
-			"settings":
-			{
-				"buffer_size": 603933,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "AdventurEr/assets/5_bagelBakery_b",
-			"settings":
-			{
-				"buffer_size": 679019,
+				"buffer_size": 18435,
 				"line_ending": "Unix"
 			}
 		},
@@ -584,18 +560,10 @@
 			}
 		},
 		{
-			"file": "AventurLib/adventurlib/ActionButton.hx",
-			"settings":
-			{
-				"buffer_size": 11358,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "AventurLib/adventurlib/Level.hx",
 			"settings":
 			{
-				"buffer_size": 4125,
+				"buffer_size": 4427,
 				"line_ending": "Unix"
 			}
 		},
@@ -636,6 +604,31 @@
 			"settings":
 			{
 				"buffer_size": 3818,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "VexPlay/src/Main.hx",
+			"settings":
+			{
+				"buffer_size": 27585,
+				"line_ending": "Unix",
+				"name": "/*"
+			}
+		},
+		{
+			"file": "VexPlay/project.flow",
+			"settings":
+			{
+				"buffer_size": 347,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "VexPlay/src/UniversalJoystick.hx",
+			"settings":
+			{
+				"buffer_size": 9349,
 				"line_ending": "Unix"
 			}
 		}
@@ -813,11 +806,12 @@
 	},
 	"file_history":
 	[
-		"/Users/adamrossledoux/Code/Haxe/AdventureGame/adventuregame.sublime-workspace",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/5_bagelBakery_b",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/4_bagelEntrance_b",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/2_mahjongApt",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/3_street_b",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ActionButton.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/adventuregame.sublime-workspace",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEd/assets/4_bagelEntrance_b",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEd/assets/4_bagelEntrance_c",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEd/assets/4_bagelEntrance",
@@ -838,7 +832,6 @@
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Level.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ColorExtender.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Avatar.hx",
-		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ActionButton.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/project.flow",
 		"/Users/adamrossledoux/Code/Haxe/libs/pincushion/pincushion/Pincushion.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventurEd/assets/leveltest7",
@@ -964,6 +957,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"scrollinput",
+			"camera.",
+			"player.",
+			"coast",
 			"disappear",
 			"button_",
 			"backgroundColor",
@@ -1087,11 +1084,7 @@
 			"isDragging",
 			"data = ",
 			"mode == 0",
-			"setstartpose",
-			"cast",
-			"generateFrameFrom",
-			"trace",
-			"childPins"
+			"setstartpose"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1159,7 +1152,7 @@
 	"groups":
 	[
 		{
-			"selected": 2,
+			"selected": 0,
 			"sheets":
 			[
 				{
@@ -1175,8 +1168,8 @@
 						"selection":
 						[
 							[
-								266,
-								266
+								88,
+								88
 							]
 						],
 						"settings":
@@ -1189,11 +1182,40 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 5,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
+					"file": "AventurLib/adventurlib/Terrain.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3149,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1600,
+								1600
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 910.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
 					"file": "AdventurEd/src/Main.hx",
 					"semi_transient": false,
 					"settings":
@@ -1205,281 +1227,8 @@
 						"selection":
 						[
 							[
-								415,
-								415
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 3,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "AdventurEr/src/Main.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 16280,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								635,
-								635
-							]
-						],
-						"settings":
-						{
-							"history_list_is_closing": true,
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 388.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
-					"file": "AdventurEr/assets/3_street_b",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 471048,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								28375,
-								28375
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 11183.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				},
-				{
-					"buffer": 4,
-					"file": "AdventurEr/assets/2_mahjongApt",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 361041,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								60626,
-								60626
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 23858.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 2,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "AdventurEr/assets/4_bagelEntrance_b",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 603933,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								282353,
-								282353
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 114563.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "AdventurEr/assets/5_bagelBakery_b",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 679019,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								30122,
-								30129
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/Text/Plain text.tmLanguage",
-							"tab_size": 4,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 12563.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 5,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 1,
-			"sheets":
-			[
-				{
-					"buffer": 7,
-					"file": "DialogWriter/dialogwriter.flow",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 361,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								307,
-								307
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_flow/flow-file.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 14,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "AventurLib/adventurlib/ActionButton.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11358,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								7744,
-								7744
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 4747.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "AventurLib/adventurlib/Level.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4125,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3833,
-								3833
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1586.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 10,
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "DialogWriter/src/Main.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4497,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1355,
-								1355
+								1118,
+								1118
 							]
 						],
 						"settings":
@@ -1495,7 +1244,131 @@
 					"type": "text"
 				},
 				{
-					"buffer": 11,
+					"buffer": 3,
+					"file": "AdventurEr/src/Main.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 18435,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								625,
+								625
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 10.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 2,
+			"sheets":
+			[
+				{
+					"buffer": 4,
+					"file": "DialogWriter/dialogwriter.flow",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 361,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								292,
+								264
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_flow/flow-file.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 11,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "AventurLib/adventurlib/Level.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4427,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1770,
+								1771
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 277.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "DialogWriter/src/Main.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4497,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								632,
+								632
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
 					"file": "AventurLib/adventurlib/Dialog.hx",
 					"semi_transient": false,
 					"settings":
@@ -1520,11 +1393,11 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 8,
+					"stack_index": 13,
 					"type": "text"
 				},
 				{
-					"buffer": 12,
+					"buffer": 8,
 					"file": "AventurLib/adventurlib/Avatar.hx",
 					"semi_transient": false,
 					"settings":
@@ -1536,8 +1409,8 @@
 						"selection":
 						[
 							[
-								1137,
-								1137
+								487,
+								493
 							]
 						],
 						"settings":
@@ -1546,14 +1419,14 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 176.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 11,
+					"stack_index": 8,
 					"type": "text"
 				},
 				{
-					"buffer": 13,
+					"buffer": 9,
 					"file": "AdventurEr/src/ScrollInputHandler.hx",
 					"semi_transient": false,
 					"settings":
@@ -1565,8 +1438,8 @@
 						"selection":
 						[
 							[
-								895,
-								895
+								665,
+								665
 							]
 						],
 						"settings":
@@ -1575,14 +1448,14 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 74.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 13,
+					"stack_index": 10,
 					"type": "text"
 				},
 				{
-					"buffer": 14,
+					"buffer": 10,
 					"file": "AventurLib/adventurlib/Word.hx",
 					"semi_transient": false,
 					"settings":
@@ -1607,7 +1480,133 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 9,
+					"stack_index": 14,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 11,
+					"file": "VexPlay/src/Main.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 27585,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								374,
+								374
+							]
+						],
+						"settings":
+						{
+							"auto_name": "/*",
+							"history_list_is_closing": true,
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3110.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 12,
+					"file": "VexPlay/project.flow",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 347,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								347,
+								347
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_flow/flow-file.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "VexPlay/src/UniversalJoystick.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9349,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5414,
+								5414
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "VexPlay/src/UniversalJoystick.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 9349,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2978,
+								2978
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 1014.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
 					"type": "text"
 				}
 			]
@@ -1636,12 +1635,19 @@
 				0,
 				2,
 				1
+			],
+			[
+				2,
+				0,
+				3,
+				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.888366699219,
+			0.33,
+			0.66,
 			1.0
 		],
 		"rows":
@@ -1653,7 +1659,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 294.0
+		"height": 374.0
 	},
 	"output.find_results":
 	{
@@ -1690,10 +1696,34 @@
 	},
 	"select_symbol":
 	{
-		"height": 87.0,
-		"last_filter": "disapp",
+		"height": 47.0,
+		"last_filter": "camerl",
 		"selected_items":
 		[
+			[
+				"camerl",
+				"cameraLogic"
+			],
+			[
+				"came",
+				"cameraLogic"
+			],
+			[
+				"cam",
+				"cameraLogic"
+			],
+			[
+				"ballu",
+				"ballUpdate"
+			],
+			[
+				"showl",
+				"showLevel"
+			],
+			[
+				"sw",
+				"switchLevels"
+			],
 			[
 				"disapp",
 				"animateDisappear"
@@ -1733,10 +1763,6 @@
 			[
 				"upd",
 				"update"
-			],
-			[
-				"showl",
-				"showLevel"
 			],
 			[
 				"insertp",
@@ -2185,31 +2211,11 @@
 			[
 				"enterp",
 				"enterPlayMode"
-			],
-			[
-				"play",
-				"PlayState"
-			],
-			[
-				"animat",
-				"AnimationState"
-			],
-			[
-				"anim",
-				"AnimationState"
-			],
-			[
-				"drawp",
-				"drawPlayPauseText"
-			],
-			[
-				"drawf",
-				"drawFileName"
 			]
 		],
 		"width": 392.0
 	},
-	"selected_group": 0,
+	"selected_group": 2,
 	"settings":
 	{
 	},

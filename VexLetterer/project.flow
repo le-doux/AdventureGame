@@ -1,0 +1,27 @@
+{
+
+  project : {
+    name : 'letterrer',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'letterrer',
+      package : 'org.luxeengine.letterrer'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        poly2trihx : '*',
+        vexlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

@@ -220,71 +220,27 @@ class VexPropertyInterface {
 				var lines : Array<Array<Vector>> = path;
 
 				//just make the damn geometry, it can be empty for all I care
+
+				/*
+				//old approach
+				visual.geometry = new Geometry({
+					primitive_type: PrimitiveType.lines,
+					batcher: Luxe.renderer.batcher
+				});
+				*/
+
+				
+				//new approach
 				visual.geometry = new Geometry({
 					primitive_type: PrimitiveType.triangles,
 					batcher: Luxe.renderer.batcher
 				});
+				
 
 				for (l in lines) {
 					trace(l);
 					add_line_geometry(l);
 				}
-
-				/*
-				var linewidth = 1.0;
-				if (weight == "regular") linewidth = 2.0; //better way to control this?
-				if (weight == "thick") linewidth = 4.0;
-
-				var pathAsVectors : Array<Vector> = path;
-
-				if (pathAsVectors.length >= 2) {
-					visual.geometry = new Geometry({
-						primitive_type: PrimitiveType.triangles,
-						batcher: Luxe.renderer.batcher
-					});
-
-
-					var left0 : Vector = null;
-					var right0 : Vector = null;
-					var left1 : Vector = null;
-					var right1 : Vector = null;
-
-					for (i in 1 ... pathAsVectors.length) {
-						var p0 = pathAsVectors[i-1];
-						var p1 = pathAsVectors[i];
-
-						var p0_to_p1 = Vector.Subtract(p1, p0);
-						var unitForward = p0_to_p1.normalized;
-						var radiansForward = unitForward.angle2D;
-						var degreesForward = Maths.degrees(radiansForward);
-						var degreesRight = degreesForward + 90;
-						var radiansRight = Maths.radians(degreesRight);
-						var unitRight = (new Vector(1,0));
-						unitRight.angle2D = radiansRight;
-						var rightward = Vector.Multiply(unitRight, linewidth);
-						var leftward = Vector.Multiply(rightward, -1);
-
-						if (left1 == null) {
-							left0 = Vector.Add(p0, leftward);
-							right0 = Vector.Add(p0, rightward);
-						}
-						else {
-							left0 = left1;
-							right0 = right1;
-						}
-						left1 = Vector.Add(p1, leftward);
-						right1 = Vector.Add(p1, rightward);
-
-						//line segment quad
-						visual.geometry.add(new Vertex(left0)); //left triangle
-						visual.geometry.add(new Vertex(right0));
-						visual.geometry.add(new Vertex(left1));
-						visual.geometry.add(new Vertex(right0)); //right triangle
-						visual.geometry.add(new Vertex(left1));
-						visual.geometry.add(new Vertex(right1));
-					}
-				}
-				*/
 			}
 		}
 		return path;
@@ -292,12 +248,26 @@ class VexPropertyInterface {
 
 	//todo improve width at joints
 	function add_line_geometry(line:Array<Vector>) {
-		/* MESH LINES */
+
+		var pathAsVectors : Array<Vector> = line;
+
+		/*
+		//old approach
+		for (i in 1 ... pathAsVectors.length) {
+			visual.geometry.add(new Vertex(pathAsVectors[i-1]));
+			visual.geometry.add(new Vertex(pathAsVectors[i-0]));
+		}
+		*/
+
+		//new approach
+		// MESH LINES //
+		/*
 		var linewidth = 1.0;
 		if (weight == "regular") linewidth = 2.0; //better way to control this?
 		if (weight == "thick") linewidth = 4.0;
-
-		var pathAsVectors : Array<Vector> = line;
+		*/
+		
+		var linewidth = weight;
 
 		if (pathAsVectors.length >= 2) {
 			var left0 : Vector = null;
@@ -324,7 +294,7 @@ class VexPropertyInterface {
 
 				//todo
 				if (i-2 == 0) {
-					/* FIRST QUAD */
+					// FIRST QUAD //
 					var unitForward0 = p0_to_p1.normalized;
 					var radiansForward0 = unitForward0.angle2D;
 					var degreesForward0 = Maths.degrees(radiansForward0);
@@ -339,7 +309,7 @@ class VexPropertyInterface {
 					right0 = Vector.Add(p0, rightward0);
 				}
 				else {
-					/* MIDDLE QUADS */
+					// MIDDLE QUADS //
 					left0 = left1;
 					right0 = right1;
 				}
@@ -356,7 +326,7 @@ class VexPropertyInterface {
 				visual.geometry.add(new Vertex(right1));
 
 				if (i == pathAsVectors.length-1) {
-					/* LAST QUAD */
+					// LAST QUAD //
 					var unitForward2 = p1_to_p2.normalized;
 					var radiansForward2 = unitForward2.angle2D;
 					var degreesForward2 = Maths.degrees(radiansForward2);
@@ -381,6 +351,7 @@ class VexPropertyInterface {
 
 			}
 		}
+
 	}
 
 	function set_components(componentData:Array<ComponentJsonFormat>) : Array<ComponentJsonFormat> {
@@ -423,12 +394,15 @@ abstract Property(String) from String to String {
 		var pathStr = "";
 		for (i in 0 ... path.length) {
 			var p = path[i];
+			trace(p);
 			var pointProp : Property = p;
+			trace(pointProp);
 			pathStr += pointProp;
 			if (i < path.length - 1) {
 				pathStr += " ";
 			}
 		}
+		trace(pathStr);
 		return new Property(pathStr);
 	}
 
@@ -436,11 +410,16 @@ abstract Property(String) from String to String {
 	public function toPath() : Array<Vector> {
 		if (this.indexOf("Z") != -1) {
 			//hacky solution for now
+			trace("z1");
 			return toMultiPath()[0];
 		}
 
+		trace("z2");
+		trace(this);
+
 		var path : Array<Vector> = [];
 		var points = this.split(" ");
+		trace(points);
 		for (p in points) {
 			var pointProp : Property = p;
 			path.push(pointProp);
@@ -452,23 +431,31 @@ abstract Property(String) from String to String {
 	static public function fromMultiPath(multipath:Array<Array<Vector>>) {
 		var multiPathStr = "";
 		for (p in multipath) {
+			trace(p);
 			var prop : Property = p;
-			multiPathStr += p;
+			trace(prop);
+			multiPathStr += prop;
 			multiPathStr += " Z ";
 		}
+		trace(multiPathStr);
 		return new Property(multiPathStr);
 	}
 
 	@:to
 	public function toMultiPath() : Array<Array<Vector>> {
+		trace(this);
 		var multipath : Array<Array<Vector>> = [];
 		var paths = this.split("Z"); //todo is this a good path end marker?
 		for (p in paths) {
-			trace(p);
+			//trace(p);
 			p = StringTools.trim(p);
 			var prop : Property = p;
+			//trace(prop);
+			//trace(prop.toPath());
+			//trace("--");
 			multipath.push( prop.toPath() );
 		}
+		trace(multipath);
 		return multipath;
 	}
 

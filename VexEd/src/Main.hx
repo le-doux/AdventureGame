@@ -21,9 +21,13 @@ import vexlib.Animation;
 import Command;
 
 /*
+	TODO
+	- remove poly2trihx dependency from everything except vexlib
+
+
 	TODO NEXT WEEK
 	- dialog only vignette
-		- script
+		X script
 		- new dialog builder tool
 		- order: 1. write script, 2. brainstorm dialog needs, 3. create dialog tool, 4. make game, 5. release !?!?
 
@@ -149,6 +153,7 @@ class Main extends luxe.Game {
 		instance = this;
 
 		Luxe.camera.pos.subtract(Luxe.screen.mid); //put 0,0 in the center of the camera
+		Luxe.camera.size_mode = luxe.Camera.SizeMode.fit;
 
 		Luxe.renderer.batcher.layer = 0;
 
