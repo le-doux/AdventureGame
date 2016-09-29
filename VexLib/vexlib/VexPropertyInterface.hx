@@ -238,7 +238,6 @@ class VexPropertyInterface {
 				
 
 				for (l in lines) {
-					trace(l);
 					add_line_geometry(l);
 				}
 			}
@@ -394,32 +393,24 @@ abstract Property(String) from String to String {
 		var pathStr = "";
 		for (i in 0 ... path.length) {
 			var p = path[i];
-			trace(p);
 			var pointProp : Property = p;
-			trace(pointProp);
 			pathStr += pointProp;
 			if (i < path.length - 1) {
 				pathStr += " ";
 			}
 		}
-		trace(pathStr);
 		return new Property(pathStr);
 	}
 
 	@:to
 	public function toPath() : Array<Vector> {
-		if (this.indexOf("Z") != -1) {
+		if (this.indexOf("Z") != -1) { //if it has a Z, it's really a multipath
 			//hacky solution for now
-			trace("z1");
 			return toMultiPath()[0];
 		}
 
-		trace("z2");
-		trace(this);
-
 		var path : Array<Vector> = [];
 		var points = this.split(" ");
-		trace(points);
 		for (p in points) {
 			var pointProp : Property = p;
 			path.push(pointProp);
@@ -431,31 +422,22 @@ abstract Property(String) from String to String {
 	static public function fromMultiPath(multipath:Array<Array<Vector>>) {
 		var multiPathStr = "";
 		for (p in multipath) {
-			trace(p);
 			var prop : Property = p;
-			trace(prop);
 			multiPathStr += prop;
 			multiPathStr += " Z ";
 		}
-		trace(multiPathStr);
 		return new Property(multiPathStr);
 	}
 
 	@:to
 	public function toMultiPath() : Array<Array<Vector>> {
-		trace(this);
 		var multipath : Array<Array<Vector>> = [];
 		var paths = this.split("Z"); //todo is this a good path end marker?
 		for (p in paths) {
-			//trace(p);
 			p = StringTools.trim(p);
 			var prop : Property = p;
-			//trace(prop);
-			//trace(prop.toPath());
-			//trace("--");
 			multipath.push( prop.toPath() );
 		}
-		trace(multipath);
 		return multipath;
 	}
 

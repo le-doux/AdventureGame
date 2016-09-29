@@ -2,6 +2,7 @@
 import luxe.Input;
 import luxe.Vector;
 import luxe.Color;
+import luxe.tween.Actuate;
 
 import vexlib.Vex;
 import vexlib.VexPropertyInterface;
@@ -19,25 +20,34 @@ enum EditorMode {
 	FontView;
 	CharEdit;
 	CharReplay;
+	TypingTest;
 }
 
 class Main extends luxe.Game {
 
 	var mode : EditorMode = EditorMode.FontView;
 
-	var curChar : String = null;
 
+	//char edit mode
+	var curChar : String = null;
 	//character box
 	var charBoxW = 300;
 	var charBoxH = 550;
 	var charBoxBaseline = 400;
-
 	//strokes
 	var isDrawing = false;
 	var curStroke = [];
 	var strokes : Array<Array<Vector>> = [];
 
+	//font storage
 	var fontMap : Map<String,VexJsonFormat> = new Map<String,VexJsonFormat>();
+
+	//font view mode
+	var fontVex : Array<Vex> = [];
+
+	//typing test mode
+	var typingCount = 0;
+	var typingVex : Array<Vex> = [];
 
 	override function ready() {
 
@@ -55,6 +65,8 @@ class Main extends luxe.Game {
 	} //onkeyup
 
 	override function onkeydown( e:KeyEvent ) {
+
+		/*
 		//hack
 		if (e.keycode == Key.key_p) {
 			Luxe.camera.zoom += 0.1;
@@ -68,6 +80,7 @@ class Main extends luxe.Game {
 			}
 		}
 		//hack
+		*/
 
 		if (mode == EditorMode.CharEdit){
 			if (e.keycode == Key.backspace) {
@@ -87,7 +100,18 @@ class Main extends luxe.Game {
 				if (strokes.length > 0) {
 					saveChar(curChar, strokes);
 				}
-				mode = EditorMode.FontView;
+				//mode = EditorMode.FontView;
+				switchMode(EditorMode.FontView);
+			}
+		}
+		else if (mode == EditorMode.FontView) {
+			if (e.keycode == Key.tab) {
+				switchMode(EditorMode.TypingTest);
+			}
+		}
+		else if (mode == EditorMode.TypingTest) {
+			if (e.keycode == Key.tab) {
+				switchMode(EditorMode.FontView);
 			}
 		}
 	}
@@ -139,7 +163,7 @@ class Main extends luxe.Game {
 		}
 	}
 	*/
-	
+
 
 	override function update(dt:Float) {
 
@@ -204,22 +228,37 @@ class Main extends luxe.Game {
 
 	override function ontextinput(e:TextEvent) {
 		var nextChar = e.text.charAt(0); //grab first char as current char
-		if (curChar != nextChar) {
+		if (mode == EditorMode.FontView || mode == EditorMode.CharEdit) {
+			if (curChar != nextChar) {
 
-			//save current work
-			if (mode == EditorMode.CharEdit) {
-				if (strokes.length > 0) {
-					saveChar(curChar, strokes);
+				//save current work
+				if (mode == EditorMode.CharEdit) {
+					if (strokes.length > 0) {
+						saveChar(curChar, strokes);
+					}
 				}
-			}
 
-			//set char
-			curChar = nextChar;
-			//clear strokes
-			curStroke = [];
-			strokes = [];
-			//set mode
-			mode = EditorMode.CharEdit;
+				//set char
+				curChar = nextChar;
+				//set mode
+				//mode = EditorMode.CharEdit;
+				switchMode(EditorMode.CharEdit);
+			}
+		}
+		else if (mode == EditorMode.TypingTest) {
+			var scale = 0.1; //duped code
+			var topLeft = Luxe.camera.pos.clone().add(new Vector(300 * scale * 0.5, 550 * scale * 0.5));
+			if (fontMap.exists(nextChar)) {
+				var v = new Vex(fontMap[nextChar]);
+				v.pos = topLeft.clone().add( new Vector(300 * scale * typingCount, 0) );
+				v.scale = new Vector(scale, scale, scale);
+				typingVex.push(v);
+				animateStrokes(v,0.3);
+			}
+			else {
+				//ignore undefined characters
+			}
+			typingCount++;
 		}
 	}
 
@@ -234,16 +273,99 @@ class Main extends luxe.Game {
 
 	function drawFont() {
 		var scale = 0.1;
+		var topLeft = Luxe.camera.pos.clone().add(new Vector(300 * scale * 0.5, 550 * scale * 0.5));
 		var vexCharacters = [];
 		var i = 0;
+
+		var keyArr = [];
 		for (k in fontMap.keys()) {
+			keyArr.push(k);
+		}
+		keyArr.sort( function(a:String, b:String):Int
+		{
+			//a = a.toLowerCase();
+			//b = b.toLowerCase();
+			if (a < b) return -1;
+			if (a > b) return 1;
+			return 0;
+		} );
+
+		for (k in keyArr) {
 			var v = new Vex(fontMap[k]);
-			v.pos = new Vector(300 * scale * i, 0);
+			v.pos = topLeft.clone().add( new Vector(300 * scale * i, 0) );
 			v.scale = new Vector(scale, scale, scale);
 			vexCharacters.push(v);
 			i++;
 		}
 		return vexCharacters;
+	}
+
+	//this is hacky as heck but it's just a test really
+	function animateStrokes(v:Vex, time:Float) {
+		var strokes : Array<Array<Vector>> = v.properties.path.toMultiPath();
+
+		var pointCounter = {
+			count : 0
+		};
+		var totalLength = 0;
+		for (s in strokes) {
+			totalLength += s.length;
+		}
+
+		Actuate.tween(pointCounter, time, {count:totalLength-1})
+			.onUpdate(function(){
+				var curCount = pointCounter.count;
+				var curStrokes = [];
+				var curStrokeIndex = 0;
+				while (strokes[curStrokeIndex].length < curCount) {
+					var s = strokes[curStrokeIndex];
+					curCount -= s.length;
+					curStrokes.push(s);
+					curStrokeIndex++;
+				}
+				if (curCount > 0 && curStrokeIndex < strokes.length) {
+					curStrokes.push([]);
+					for (i in 0 ... curCount) {
+						curStrokes[curStrokeIndex].push( strokes[curStrokeIndex][i] );
+					}
+				}
+				v.properties.path = curStrokes;
+			});
+	}
+
+	function switchMode(nextMode) {
+		//cleanup
+		if (mode == EditorMode.FontView) {
+			for (v in fontVex) {
+				v.destroy();
+			}
+			fontVex = [];
+		}
+		else if (mode == EditorMode.CharEdit) {
+			//todo save work here?
+		}
+		else if (mode == EditorMode.TypingTest) {
+			for (v in typingVex) {
+				v.destroy();
+			}
+			typingVex = [];
+		}
+
+		//init
+		if (nextMode == EditorMode.FontView) {
+			fontVex = drawFont();
+		}
+		else if (nextMode == EditorMode.CharEdit) {
+			//clear strokes
+			curStroke = [];
+			strokes = [];
+		}
+		else if (nextMode == EditorMode.TypingTest) {
+			typingVex = [];
+			typingCount = 0;
+		}
+
+		mode = nextMode;
 	}
 
 } //Main
