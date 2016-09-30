@@ -28,8 +28,9 @@ import haxe.Json;
 	X clear typing test
 	X default font
 	X new font
-	- escape without saving chars
+	X escape without saving chars
 	- action message (like save)
+	- figure out the right speed of drawing vs typing for dialog 
 */
 
 enum EditorMode {
@@ -350,7 +351,7 @@ class Main extends luxe.Game {
 				v.pos = topLeft.clone().add( new Vector(300 * scale * col, 550 * scale * row) );
 				v.scale = new Vector(scale, scale, scale);
 				typingVex.push(v);
-				animateStrokes(v,0.3);
+				animateStrokes(v,0.6);
 			}
 
 			typingCount++;
@@ -398,7 +399,7 @@ class Main extends luxe.Game {
 			totalLength += s.length;
 		}
 
-		Actuate.tween(pointCounter, time, {count:totalLength-1})
+		Actuate.tween(pointCounter, time, {count:totalLength-1}).ease(luxe.tween.easing.Quad.easeIn)
 			.onUpdate(function(){
 				var curCount = pointCounter.count;
 				var curStrokes = [];
