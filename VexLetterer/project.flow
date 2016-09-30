@@ -14,7 +14,8 @@
       dependencies : {
         luxe : '*',
         poly2trihx : '*',
-        vexlib : '*'
+        vexlib : '*',
+        linc_dialogs : '*'
       }
     },
 
