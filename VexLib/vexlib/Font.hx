@@ -1,3 +1,5 @@
+package vexlib;
+
 import vexlib.Vex;
 import vexlib.VexPropertyInterface;
 

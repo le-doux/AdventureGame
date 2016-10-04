@@ -6,6 +6,7 @@ import luxe.Color;
 import luxe.tween.Actuate;
 
 //for vex
+import vexlib.Font;
 import vexlib.Vex;
 import vexlib.VexPropertyInterface;
 
@@ -15,6 +16,15 @@ import dialogs.Dialogs;
 import haxe.Json;
 
 /*
+	GOALS for dialog prototype (in priority order)
+	1. test interactions for next dialog & choices (on mobile)
+	2. prototype I can get feedback on (need prototype dialog)
+	3. test "dialog effects" (speed, colors, bounce, etc)
+	4. shareable vignette (requires dialog I'm proud of... related to final game?)
+	THIS WEEK
+	- v1 of dialog player
+	- more writing practice
+
 	TODO
 	X instant replay
 	X font-view
@@ -23,14 +33,16 @@ import haxe.Json;
 	X word wrap in typing test mode
 	- variable-width characters?
 	X edit characters that already exist
-	- don't save a weight?
+	- don't save a weight? (10 pt font)
 	- scrolling through letters?
 	X clear typing test
 	X default font
 	X new font
 	X escape without saving chars
-	- action message (like save)
-	- figure out the right speed of drawing vs typing for dialog 
+	- action messages for editor (like save)
+	- figure out the right speed of drawing vs typing for dialog
+	- move font into vexlib
+	- optimize font rendering
 */
 
 enum EditorMode {

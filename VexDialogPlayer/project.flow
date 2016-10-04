@@ -1,0 +1,27 @@
+{
+
+  project : {
+    name : 'dialogplayer',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'dialogplayer',
+      package : 'org.luxeengine.dialogplayer'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        poly2trihx : '*',
+        vexlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
