@@ -3,6 +3,7 @@ import luxe.Input;
 import luxe.Vector;
 import luxe.tween.Actuate;
 import luxe.resource.Resource.JSONResource;
+import luxe.Color;
 
 import vexlib.Font;
 import vexlib.Vex;
@@ -12,9 +13,13 @@ TODO THIS WEEK
 X new dialog project
 X move font into vexlib
 - basic dialog file format
-- progressive dialog rendering
-	- with word wrap
+X progressive dialog rendering
+	X with word wrap
 - pull to advance
+X restart dialog
+- adjustable box size
+- adjustable char size
+- perf and visual test on mobile
 
 GOALS for dialog prototype (in priority order)
 1. test interactions for next dialog & choices (on mobile)
@@ -29,14 +34,14 @@ THIS WEEK
 class Main extends luxe.Game {
 
 	//settings
-	var charWidth = 48;
-	var charHeight = 96;
-	var charactersPerLine = 16;
+	var charWidth = 32;
+	var charHeight = 64;
+	var charactersPerLine = 24;
 	var linesPerPage = 4;
-	//var charTypeSpeed = 0.1;
-	//var charDrawSpeed = 0.3;
-	var charTypeSpeed = 0.3;
-	var charDrawSpeed = 0.5;
+	var charTypeSpeed = 0.1;
+	var charDrawSpeed = 0.3;
+	//var charTypeSpeed = 0.3;
+	//var charDrawSpeed = 0.5;
 
 	//constants
 	var defaultCharBox = { //the arbitrariness bothers me
@@ -56,8 +61,8 @@ class Main extends luxe.Game {
 	//storage
 	var font : Font;
 
-	//debug
-	var debugDialog = ["Hello world", "This is some test dialog. Isn't it nice? It sure is nice. Yes it is.", "Ok, goodbye ya'll."];
+	//page data
+	var pages = ["Hello world", "This is some test dialog. Isn't it nice? It sure is nice. Yes it is.", "Ok, goodbye ya'll."];
 	var pageIndex = 0;
 	var isWaiting = false;
 	var pageVex = [];
@@ -68,18 +73,18 @@ class Main extends luxe.Game {
 		textBoxX = (Luxe.screen.w/2) - (textBoxWidth/2);
 		textBoxY = (Luxe.screen.h/2) - (textBoxHeight/2);
 
-		trace(textBoxX + " " + textBoxY);
-		trace(textBoxWidth + " " + textBoxHeight);
-		trace(Luxe.screen.size);
-
-		//debug draw text box
-		Luxe.draw.rectangle({x:textBoxX,y:textBoxX,w:textBoxWidth,h:textBoxHeight});
-
 		charWidthScale = charWidth / defaultCharBox.width;
 		charHeightScale = charHeight / defaultCharBox.height;
 
+		/*
+		trace(textBoxX + " " + textBoxY);
+		trace(textBoxWidth + " " + textBoxHeight);
+		trace(Luxe.screen.size);
+		//debug draw text box
+		Luxe.draw.rectangle({x:textBoxX,y:textBoxY,w:textBoxWidth,h:textBoxHeight});
 		//debug draw char box size
-		Luxe.draw.rectangle({x:textBoxX,y:textBoxX,w:charWidth,h:charHeight});
+		Luxe.draw.rectangle({x:textBoxX,y:textBoxY,w:charWidth,h:charHeight});
+		*/
 
 		//load the system font (aka the default font I made)
 		var load = Luxe.resources.load_json("assets/sysfont.vex");
@@ -87,13 +92,6 @@ class Main extends luxe.Game {
 			var json = jsonRes.asset.json;
 			font = new Font(json);
 			trace("font loaded! " + font.id);
-
-			/*
-			//start dialog
-			writeText( debugDialog[pageIndex], function() {
-					isWaiting = true;
-				});
-			*/
 			isWaiting = true;
 		});
 
@@ -105,7 +103,18 @@ class Main extends luxe.Game {
 			Luxe.shutdown();
 		}
 
+		if (e.keycode == Key.key_r) {
+			//restart
+			restart();
+		}
+
 	} //onkeyup
+
+	function restart() {
+		clearPage(); 
+		pageIndex = 0;
+		isWaiting = true;
+	}
 
 	override function update(dt:Float) {
 		if (isWaiting) {
@@ -127,8 +136,8 @@ class Main extends luxe.Game {
 		if (isWaiting) {
 			clearPage();
 			isWaiting = false;
-			if (pageIndex < debugDialog.length) {
-				writeText( debugDialog[pageIndex], function() {
+			if (pageIndex < pages.length) {
+				writeText( pages[pageIndex], function() {
 						isWaiting = true;
 						pageIndex++;
 					});
@@ -144,28 +153,36 @@ class Main extends luxe.Game {
 	}
 
 	function writeText(text:String, ?onComplete:Dynamic) {
-		var count = 0;
+		//var count = 0;
 		var typeTimer : snow.api.Timer = null;
+
+		var textLines = preprocessText(text);
+		var row = 0;
+		var col = 0;
 
 		var typeNext = function() {
 
 			//calculate row & column position of character
+			/*
 			var row : Int = cast(count / charactersPerLine); //arbitary line width
 			var col : Int = count - (row * charactersPerLine);
+			*/
+			trace(row);
 
 			if (row > linesPerPage) trace("OH NO too many characters on this page");
 
 			//create vex representation of character
-			var nextChar = text.charAt(count);
+			//var nextChar = text.charAt(count);
+			var nextChar = textLines[row].charAt(col);
 			var tweenNextChar = null;
 			if (font.exists(nextChar)) { //skip undefined characters
-				var v = new Vex(font.get(nextChar));
+				var v = new Vex(font.get(nextChar)); //TODO define font.getVex
 				//scale character
 				v.scale.x = charWidthScale;
 				v.scale.y = charHeightScale;
 				//position character
 				v.pos.x = textBoxX + (col * charWidth) + (charWidth/2);
-				v.pos.y = textBoxY + (row * charHeight); //why isn't the height/2 needed?
+				v.pos.y = textBoxY + (row * charHeight) + (charHeight/2);
 
 				//start character animation
 				tweenNextChar = animateStrokes(v, charDrawSpeed);
@@ -174,6 +191,7 @@ class Main extends luxe.Game {
 			}
 
 			//increment count and look for end of page
+			/*
 			count++;
 			if (count >= text.length) {
 				typeTimer.stop();
@@ -191,9 +209,62 @@ class Main extends luxe.Game {
 					}
 				}
 			}
+			*/
+			//increment col and look for end of page
+			col++;
+			if (col >= textLines[row].length) {
+				//go to next row
+				col = 0;
+				row++;
+
+				if (row >= textLines.length) {
+					//page is finished!
+					typeTimer.stop();
+
+					if (onComplete != null) {
+						if (tweenNextChar != null) {
+							//if there's a character drawing, wait until it finishes to launch oncomplete
+							tweenNextChar.onComplete(function() {
+									onComplete();
+								});
+						}
+						else {
+							//or just do it now (will this ever happen?)
+							onComplete();
+						}
+					}
+				}
+			}
 		};
 
 		typeTimer = Luxe.timer.schedule(charTypeSpeed, typeNext, true);
+	}
+
+	function preprocessText(text:String) : Array<String> {
+		//splits page into lines and does word wrap
+		var textLines = [];
+		textLines.push(""); //newline
+		var lineIndex = 0;
+		for (word in text.split(" ")) {
+			trace(word);
+			//word
+			if (textLines[lineIndex].length + word.length > charactersPerLine) {
+				textLines.push(""); //newline
+				lineIndex++;
+			}
+			textLines[lineIndex] += word;
+
+			//space after word
+			if (textLines[lineIndex].length + 1 > charactersPerLine) {
+				textLines.push(""); //newline
+				lineIndex++;
+			}
+			else {
+				//add space
+				textLines[lineIndex] += " ";
+			}
+		}
+		return textLines;
 	}
 
 	//this is hacky as heck but it's just a test really
