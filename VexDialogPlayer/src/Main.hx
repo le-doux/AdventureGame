@@ -15,11 +15,12 @@ X move font into vexlib
 - basic dialog file format
 X progressive dialog rendering
 	X with word wrap
-- pull to advance
+X pull to advance
 X restart dialog
 - adjustable box size
 - adjustable char size
 - perf and visual test on mobile
+- floaty effect (for fun)
 
 GOALS for dialog prototype (in priority order)
 1. test interactions for next dialog & choices (on mobile)
@@ -66,6 +67,11 @@ class Main extends luxe.Game {
 	var pageIndex = 0;
 	var isWaiting = false;
 	var pageVex = [];
+
+	//pull tab
+	var pullDistY:Float = 0;
+	var minPullDist = 128;
+	var maxPullDist = 200;
 
 	override function ready() {
 		textBoxWidth = charWidth * charactersPerLine;
@@ -119,14 +125,15 @@ class Main extends luxe.Game {
 	override function update(dt:Float) {
 		if (isWaiting) {
 			//draw next arrow
+			var arrowBottom = new Vector(textBoxX + (textBoxWidth/2), textBoxY + textBoxHeight + charHeight + pullDistY);
 			Luxe.draw.line({
-					p0: new Vector(textBoxX + (textBoxWidth/2), textBoxY + textBoxHeight + charHeight),
-					p1: new Vector(textBoxX + (textBoxWidth/2) - charWidth, textBoxY + textBoxHeight + 2),
+					p0: arrowBottom,
+					p1: arrowBottom.clone().add(new Vector(-charWidth,-charHeight/2)),
 					immediate: true
 				});
 			Luxe.draw.line({
-					p0: new Vector(textBoxX + (textBoxWidth/2), textBoxY + textBoxHeight + charHeight),
-					p1: new Vector(textBoxX + (textBoxWidth/2) + charWidth, textBoxY + textBoxHeight + 2),
+					p0: arrowBottom,
+					p1: arrowBottom.clone().add(new Vector(charWidth,-charHeight/2)),
 					immediate: true
 				});
 		}
@@ -134,14 +141,42 @@ class Main extends luxe.Game {
 
 	override function onmousedown(e:MouseEvent) {
 		if (isWaiting) {
-			clearPage();
-			isWaiting = false;
-			if (pageIndex < pages.length) {
-				writeText( pages[pageIndex], function() {
-						isWaiting = true;
-						pageIndex++;
-					});
+			pullDistY = 0;
+		}
+		else {
+			restart();
+		}
+	}
+
+	override function onmousemove(e:MouseEvent) {
+		if (isWaiting && Luxe.input.mousedown(1)) {
+			pullDistY += e.yrel;
+			pullDistY = Math.max(0, pullDistY);
+
+			if (pullDistY > maxPullDist) {
+				pullDistY = 0;
+				doNextPage();
 			}
+		}
+	}
+
+	override function onmouseup(e:MouseEvent) {
+		if (isWaiting) {
+			if (pullDistY > minPullDist) {
+				doNextPage();
+			}
+			pullDistY = 0;
+		}
+	}
+
+	function doNextPage() {
+		clearPage();
+		isWaiting = false;
+		if (pageIndex < pages.length) {
+			writeText( pages[pageIndex], function() {
+					isWaiting = true;
+					pageIndex++;
+				});
 		}
 	}
 
