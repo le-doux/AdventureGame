@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'gridmove',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'gridmove',
+      package : 'org.luxeengine.gridmove'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

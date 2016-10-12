@@ -221,20 +221,21 @@ class VexPropertyInterface {
 
 				//just make the damn geometry, it can be empty for all I care
 
-				/*
+				
 				//old approach
 				visual.geometry = new Geometry({
 					primitive_type: PrimitiveType.lines,
 					batcher: Luxe.renderer.batcher
 				});
-				*/
-
+				
 				
 				//new approach
+				/*
 				visual.geometry = new Geometry({
 					primitive_type: PrimitiveType.triangles,
 					batcher: Luxe.renderer.batcher
 				});
+				*/
 				
 
 				for (l in lines) {
@@ -250,13 +251,13 @@ class VexPropertyInterface {
 
 		var pathAsVectors : Array<Vector> = line;
 
-		/*
+		
 		//old approach
 		for (i in 1 ... pathAsVectors.length) {
 			visual.geometry.add(new Vertex(pathAsVectors[i-1]));
 			visual.geometry.add(new Vertex(pathAsVectors[i-0]));
 		}
-		*/
+		
 
 		//new approach
 		// MESH LINES //
@@ -266,6 +267,7 @@ class VexPropertyInterface {
 		if (weight == "thick") linewidth = 4.0;
 		*/
 		
+		/*
 		var linewidth = weight;
 
 		if (pathAsVectors.length >= 2) {
@@ -350,6 +352,7 @@ class VexPropertyInterface {
 
 			}
 		}
+		*/
 
 	}
 

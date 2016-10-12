@@ -9,6 +9,10 @@ import vexlib.Font;
 import vexlib.Vex;
 
 /*
+TODO
+- dialog choice prototype
+- grid movement prototype
+
 TODO THIS WEEK
 X new dialog project
 X move font into vexlib
@@ -19,8 +23,14 @@ X pull to advance
 X restart dialog
 - adjustable box size
 - adjustable char size
-- perf and visual test on mobile
+X perf and visual test on mobile
+	NOTES (with quad rendering)
+	- size is small on retina screens (needs to be adaptive)
+	- perf suffers with two many characters (too much geometry) on screen; is ok for small amounts
+	NOTES (with regular line rendering)
+	- it's a lot faster
 - floaty effect (for fun)
+X write up learnings from bitsy engine
 
 GOALS for dialog prototype (in priority order)
 1. test interactions for next dialog & choices (on mobile)
