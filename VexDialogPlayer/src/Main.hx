@@ -116,6 +116,9 @@ class Main extends luxe.Game {
 		Luxe.draw.rectangle({x:textBoxX,y:textBoxY,w:charWidth,h:charHeight});
 		*/
 
+		//set the screen size
+		Luxe.camera.size = new Vector(textBoxWidth + 200, textBoxHeight + 400);
+
 		//load the system font (aka the default font I made)
 		var load = Luxe.resources.load_json("assets/sysfont.vex");
 		load.then(function(jsonRes : JSONResource) {
@@ -212,8 +215,8 @@ class Main extends luxe.Game {
 	//todo rename
 	function onChoiceMouseUp() {
 		if (pullDistX > 100) {
-			Actuate.tween(choiceBViz.pos, 1, {x:Luxe.screen.w * 2});
-			Actuate.tween(choiceAViz.pos, 1, {x:Luxe.screen.mid.x - (charWidth*4)})
+			Actuate.tween(choiceBViz.pos, 1, {x:Luxe.camera.size.x * 2});
+			Actuate.tween(choiceAViz.pos, 1, {x:(Luxe.camera.size.x/2) - (charWidth*4)})
 				.onComplete(function() {
 						//todo wrap in function
 						choiceAViz.destroy();
@@ -228,8 +231,8 @@ class Main extends luxe.Game {
 					});
 		}
 		else if (pullDistX < -100) {
-			Actuate.tween(choiceAViz.pos, 1, {x:-1 * Luxe.screen.w * 2});
-			Actuate.tween(choiceBViz.pos, 1, {x:Luxe.screen.mid.x + (charWidth*4)})
+			Actuate.tween(choiceAViz.pos, 1, {x:-1 * Luxe.camera.size.x * 2});
+			Actuate.tween(choiceBViz.pos, 1, {x:(Luxe.camera.size.x/2) + (charWidth*4)})
 				.onComplete(function() {
 						choiceAViz.destroy();
 						choiceBViz.destroy();
@@ -244,7 +247,7 @@ class Main extends luxe.Game {
 		}
 		else {
 			Actuate.tween(choiceAViz.pos, 0.5, {x:charWidth*2});
-			Actuate.tween(choiceBViz.pos, 0.5, {x:Luxe.screen.w-(charWidth*2)});
+			Actuate.tween(choiceBViz.pos, 0.5, {x:Luxe.camera.size.x-(charWidth*2)});
 		}
 	}
 
@@ -261,7 +264,7 @@ class Main extends luxe.Game {
 		choiceAGeomArrow.vertices.push(new Vertex(new Vector(0,-charHeight/2)));
 
 		choiceAViz = new Visual({
-				pos: new Vector(charWidth*2,Luxe.screen.mid.y),
+				pos: new Vector(charWidth*2,(Luxe.camera.size.y/2)),
 				geometry: choiceAGeomArrow
 			});
 
@@ -291,7 +294,7 @@ class Main extends luxe.Game {
 		choiceBGeomArrow.vertices.push(new Vertex(new Vector(0,-charHeight/2)));
 
 		choiceBViz = new Visual({
-				pos: new Vector(Luxe.screen.w - (charWidth*2),Luxe.screen.mid.y),
+				pos: new Vector(Luxe.camera.size.x - (charWidth*2),(Luxe.camera.size.y/2)),
 				geometry: choiceBGeomArrow
 			});
 
