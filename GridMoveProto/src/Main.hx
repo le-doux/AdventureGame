@@ -8,7 +8,7 @@ class Main extends luxe.Game {
 
 	var gridW = 4;
 	var gridH = 4;
-	var squareSize = 130;
+	var squareSize = 200;
 
 	var playerGridX = 2;
 	var playerGridY = 2;
@@ -27,8 +27,15 @@ class Main extends luxe.Game {
 	var roomOffY = 0.0;
 	var roomSlideTime = 0.3;
 
-	override function ready() {
+	//screen size obj
+	var screen = {
+		w: 1000,
+		h: 1000,
+		mid: new Vector(500,500)
+	};
 
+	override function ready() {
+		Luxe.camera.size = new Vector(screen.w,screen.h);
 	} //ready
 
 	override function onkeyup( e:KeyEvent ) {
@@ -139,15 +146,15 @@ class Main extends luxe.Game {
 			var tOff = {
 				x: 0.0
 			};
-			Actuate.tween(tOff, roomSlideTime, {x:Luxe.screen.w})
+			Actuate.tween(tOff, roomSlideTime, {x:screen.w})
 				.onUpdate(function() {
 						roomOffX = tOff.x;
 					})
 				.onComplete(function() {
 						//slide in
 						playerGridX = gridW - 1;
-						roomOffX = -Luxe.screen.w;
-						tOff.x = -Luxe.screen.w;
+						roomOffX = -screen.w;
+						tOff.x = -screen.w;
 						Actuate.tween(tOff, roomSlideTime, {x:0})
 							.onUpdate(function() {
 									roomOffX = tOff.x;
@@ -165,15 +172,15 @@ class Main extends luxe.Game {
 			var tOff = {
 				x: 0.0
 			};
-			Actuate.tween(tOff, roomSlideTime, {x:-Luxe.screen.w})
+			Actuate.tween(tOff, roomSlideTime, {x:-screen.w})
 				.onUpdate(function() {
 						roomOffX = tOff.x;
 					})
 				.onComplete(function() {
 						//slide in
 						playerGridX = 0;
-						roomOffX = Luxe.screen.w;
-						tOff.x = Luxe.screen.w;
+						roomOffX = screen.w;
+						tOff.x = screen.w;
 						Actuate.tween(tOff, roomSlideTime, {x:0})
 							.onUpdate(function() {
 									roomOffX = tOff.x;
@@ -191,15 +198,15 @@ class Main extends luxe.Game {
 			var tOff = {
 				y: 0.0
 			};
-			Actuate.tween(tOff, roomSlideTime, {y:Luxe.screen.h})
+			Actuate.tween(tOff, roomSlideTime, {y:screen.h})
 				.onUpdate(function() {
 						roomOffY = tOff.y;
 					})
 				.onComplete(function() {
 						//slide in
 						playerGridY = gridH - 1;
-						roomOffY = -Luxe.screen.h;
-						tOff.y = -Luxe.screen.h;
+						roomOffY = -screen.h;
+						tOff.y = -screen.h;
 						Actuate.tween(tOff, roomSlideTime, {y:0})
 							.onUpdate(function() {
 									roomOffY = tOff.y;
@@ -217,15 +224,15 @@ class Main extends luxe.Game {
 			var tOff = {
 				y: 0.0
 			};
-			Actuate.tween(tOff, roomSlideTime, {y:-Luxe.screen.h})
+			Actuate.tween(tOff, roomSlideTime, {y:-screen.h})
 				.onUpdate(function() {
 						roomOffY = tOff.y;
 					})
 				.onComplete(function() {
 						//slide in
 						playerGridY = 0;
-						roomOffY = Luxe.screen.h;
-						tOff.y = Luxe.screen.h;
+						roomOffY = screen.h;
+						tOff.y = screen.h;
 						Actuate.tween(tOff, roomSlideTime, {y:0})
 							.onUpdate(function() {
 									roomOffY = tOff.y;
@@ -241,7 +248,7 @@ class Main extends luxe.Game {
 	override function update(dt:Float) {
 		//draw grid
 		var gridSize = new Vector(gridW * squareSize, gridH * squareSize);
-		var topCorner = Luxe.screen.mid.clone().subtract( gridSize.clone().multiplyScalar(0.5) ).add( new Vector(roomOffX, roomOffY) );
+		var topCorner = screen.mid.clone().subtract( gridSize.clone().multiplyScalar(0.5) ).add( new Vector(roomOffX, roomOffY) );
 		for (x in 0 ... gridW) {
 			for (y in 0 ... gridH) {
 				Luxe.draw.rectangle({
