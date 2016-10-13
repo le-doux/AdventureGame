@@ -4,14 +4,18 @@ import luxe.Vector;
 import luxe.tween.Actuate;
 import luxe.resource.Resource.JSONResource;
 import luxe.Color;
+import luxe.Visual;
+import phoenix.geometry.Geometry;
+import phoenix.geometry.Vertex;
+import phoenix.Batcher; //for primitivetypes
 
 import vexlib.Font;
 import vexlib.Vex;
 
 /*
 TODO
-- dialog choice prototype
-- grid movement prototype
+X dialog choice prototype
+X grid movement prototype
 
 TODO THIS WEEK
 X new dialog project
@@ -73,7 +77,7 @@ class Main extends luxe.Game {
 	var font : Font;
 
 	//page data
-	var pages = ["Hello world", "This is some test dialog. Isn't it nice? It sure is nice. Yes it is.", "Ok, goodbye ya'll."];
+	var pages = ["Hello world", "This is some test dialog. Isn't it nice?"];
 	var pageIndex = 0;
 	var isWaiting = false;
 	var pageVex = [];
@@ -82,6 +86,16 @@ class Main extends luxe.Game {
 	var pullDistY:Float = 0;
 	var minPullDist = 128;
 	var maxPullDist = 200;
+
+	//choice prototype
+	var isChoiceMode = false;
+	var choiceA = "Choice A";
+	var choiceB = "Choice B";
+	var dialogA = ["You've chosen Choice A! How nice of you.", "Ok, goodbye ya'll."];
+	var dialogB = ["Choice B, huh? What do you think that says about you?", "Bye now!"];
+	var choiceAViz : Visual;
+	var choiceBViz : Visual;
+	var pullDistX : Float = 0;
 
 	override function ready() {
 		textBoxWidth = charWidth * charactersPerLine;
@@ -133,7 +147,10 @@ class Main extends luxe.Game {
 	}
 
 	override function update(dt:Float) {
-		if (isWaiting) {
+		if (isChoiceMode) {
+			//todo
+		}
+		else if (isWaiting) {
 			//draw next arrow
 			var arrowBottom = new Vector(textBoxX + (textBoxWidth/2), textBoxY + textBoxHeight + charHeight + pullDistY);
 			Luxe.draw.line({
@@ -150,7 +167,10 @@ class Main extends luxe.Game {
 	} //update
 
 	override function onmousedown(e:MouseEvent) {
-		if (isWaiting) {
+		if (isChoiceMode) {
+			pullDistX = 0;
+		}
+		else if (isWaiting) {
 			pullDistY = 0;
 		}
 		else {
@@ -159,23 +179,139 @@ class Main extends luxe.Game {
 	}
 
 	override function onmousemove(e:MouseEvent) {
-		if (isWaiting && Luxe.input.mousedown(1)) {
-			pullDistY += e.yrel;
-			pullDistY = Math.max(0, pullDistY);
+		if (Luxe.input.mousedown(1)) {	
+			if (isChoiceMode) {
+				pullDistX += e.xrel;
+				choiceAViz.pos.x += e.xrel;
+				choiceBViz.pos.x += e.xrel;
+			}
+			else if (isWaiting) {
+				pullDistY += e.yrel;
+				pullDistY = Math.max(0, pullDistY);
 
-			if (pullDistY > maxPullDist) {
-				pullDistY = 0;
-				doNextPage();
+				if (pullDistY > maxPullDist) {
+					pullDistY = 0;
+					doNextPage();
+				}
 			}
 		}
 	}
 
 	override function onmouseup(e:MouseEvent) {
-		if (isWaiting) {
+		if (isChoiceMode) {
+			onChoiceMouseUp();
+		}
+		else if (isWaiting) {
 			if (pullDistY > minPullDist) {
 				doNextPage();
 			}
 			pullDistY = 0;
+		}
+	}
+
+	//todo rename
+	function onChoiceMouseUp() {
+		if (pullDistX > 100) {
+			Actuate.tween(choiceBViz.pos, 1, {x:Luxe.screen.w * 2});
+			Actuate.tween(choiceAViz.pos, 1, {x:Luxe.screen.mid.x - (charWidth*4)})
+				.onComplete(function() {
+						//todo wrap in function
+						choiceAViz.destroy();
+						choiceBViz.destroy();
+						isChoiceMode = false;
+						pullDistX = 0;
+
+						pages = dialogA;
+						pageIndex = 0;
+						isWaiting = false;
+						doNextPage();
+					});
+		}
+		else if (pullDistX < -100) {
+			Actuate.tween(choiceAViz.pos, 1, {x:-1 * Luxe.screen.w * 2});
+			Actuate.tween(choiceBViz.pos, 1, {x:Luxe.screen.mid.x + (charWidth*4)})
+				.onComplete(function() {
+						choiceAViz.destroy();
+						choiceBViz.destroy();
+						isChoiceMode = false;
+						pullDistX = 0;
+
+						pages = dialogB;
+						pageIndex = 0;
+						isWaiting = false;
+						doNextPage();
+					});
+		}
+		else {
+			Actuate.tween(choiceAViz.pos, 0.5, {x:charWidth*2});
+			Actuate.tween(choiceBViz.pos, 0.5, {x:Luxe.screen.w-(charWidth*2)});
+		}
+	}
+
+	function startChoiceMode() {
+		isChoiceMode = true;
+
+		//choice A arrow
+		var choiceAGeomArrow = new Geometry({
+						primitive_type: PrimitiveType.line_strip,
+						batcher: Luxe.renderer.batcher
+					});
+		choiceAGeomArrow.vertices.push(new Vertex(new Vector(0,charHeight/2)));
+		choiceAGeomArrow.vertices.push(new Vertex(new Vector(charWidth,0)));
+		choiceAGeomArrow.vertices.push(new Vertex(new Vector(0,-charHeight/2)));
+
+		choiceAViz = new Visual({
+				pos: new Vector(charWidth*2,Luxe.screen.mid.y),
+				geometry: choiceAGeomArrow
+			});
+
+		//choice A text
+		for (i in 0 ... choiceA.length) {
+			var ch = choiceA.charAt(i);
+			if (font.exists( ch )) {
+				var v = new Vex( font.get(ch) );
+				//scale character
+				v.scale.x = charWidthScale;
+				v.scale.y = charHeightScale;
+				//position character
+				v.pos.x = (i+1.7) * charWidth;
+				v.pos.y = 0;
+				//parent
+				v.parent = choiceAViz;
+			}
+		}
+
+		//choice B arrow
+		var choiceBGeomArrow = new Geometry({
+						primitive_type: PrimitiveType.line_strip,
+						batcher: Luxe.renderer.batcher
+					});
+		choiceBGeomArrow.vertices.push(new Vertex(new Vector(0,charHeight/2)));
+		choiceBGeomArrow.vertices.push(new Vertex(new Vector(-charWidth,0)));
+		choiceBGeomArrow.vertices.push(new Vertex(new Vector(0,-charHeight/2)));
+
+		choiceBViz = new Visual({
+				pos: new Vector(Luxe.screen.w - (charWidth*2),Luxe.screen.mid.y),
+				geometry: choiceBGeomArrow
+			});
+
+		//choice B text
+		var reverseArr = choiceB.split(''); 
+		reverseArr.reverse(); 
+		var choiceBReverse = reverseArr.join('');
+		for (i in 0 ... choiceBReverse.length) {
+			var ch = choiceBReverse.charAt(i);
+			if (font.exists( ch )) {
+				var v = new Vex( font.get(ch) );
+				//scale character
+				v.scale.x = charWidthScale;
+				v.scale.y = charHeightScale;
+				//position character
+				v.pos.x = -1 * (i+1.7) * charWidth;
+				v.pos.y = 0;
+				//parent
+				v.parent = choiceBViz;
+			}
 		}
 	}
 
@@ -187,6 +323,10 @@ class Main extends luxe.Game {
 					isWaiting = true;
 					pageIndex++;
 				});
+		}
+		else {
+			//hack to start choice mode
+			startChoiceMode();
 		}
 	}
 
