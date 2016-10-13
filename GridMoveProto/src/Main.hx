@@ -14,6 +14,7 @@ class Main extends luxe.Game {
 	var playerGridY = 2;
 	var playerOffX = 0.0;
 	var playerOffY = 0.0;
+	var isPlayerVisible = true;
 
 	var swipeX = 0.0;
 	var swipeY = 0.0;
@@ -152,16 +153,30 @@ class Main extends luxe.Game {
 					})
 				.onComplete(function() {
 						//slide in
-						playerGridX = gridW - 1;
+						isPlayerVisible = false;
+						playerGridX = gridW;
+
 						roomOffX = -screen.w;
 						tOff.x = -screen.w;
+						
 						Actuate.tween(tOff, roomSlideTime, {x:0})
 							.onUpdate(function() {
 									roomOffX = tOff.x;
 								})
 							.onComplete(function() {
 									roomOffX = 0;
-									isSliding = false;
+									
+									isPlayerVisible = true;
+									tOff.x = 0;
+									Actuate.tween(tOff, slideTime, {x:-squareSize})
+										.onUpdate(function() { playerOffX = tOff.x; })
+										.onComplete(function() {
+
+												playerGridX--;
+												playerOffX = 0;
+												isSliding = false;
+
+											});
 								});
 					});
 		}
@@ -178,7 +193,9 @@ class Main extends luxe.Game {
 					})
 				.onComplete(function() {
 						//slide in
-						playerGridX = 0;
+						isPlayerVisible = false;
+						playerGridX = -1;
+
 						roomOffX = screen.w;
 						tOff.x = screen.w;
 						Actuate.tween(tOff, roomSlideTime, {x:0})
@@ -187,7 +204,18 @@ class Main extends luxe.Game {
 								})
 							.onComplete(function() {
 									roomOffX = 0;
-									isSliding = false;
+									
+									isPlayerVisible = true;
+									tOff.x = 0;
+									Actuate.tween(tOff, slideTime, {x:squareSize})
+										.onUpdate(function() { playerOffX = tOff.x; })
+										.onComplete(function() {
+
+												playerGridX++;
+												playerOffX = 0;
+												isSliding = false;
+
+											});
 								});
 					});
 		}
@@ -204,7 +232,9 @@ class Main extends luxe.Game {
 					})
 				.onComplete(function() {
 						//slide in
-						playerGridY = gridH - 1;
+						isPlayerVisible = false;
+						playerGridY = gridH;
+
 						roomOffY = -screen.h;
 						tOff.y = -screen.h;
 						Actuate.tween(tOff, roomSlideTime, {y:0})
@@ -213,7 +243,18 @@ class Main extends luxe.Game {
 								})
 							.onComplete(function() {
 									roomOffY = 0;
-									isSliding = false;
+									
+									isPlayerVisible = true;
+									tOff.y = 0;
+									Actuate.tween(tOff, slideTime, {y:-squareSize})
+										.onUpdate(function() { playerOffY = tOff.y; })
+										.onComplete(function() {
+
+												playerGridY--;
+												playerOffY = 0;
+												isSliding = false;
+
+											});
 								});
 					});
 		}
@@ -230,7 +271,9 @@ class Main extends luxe.Game {
 					})
 				.onComplete(function() {
 						//slide in
-						playerGridY = 0;
+						isPlayerVisible = false;
+						playerGridY = -1;
+
 						roomOffY = screen.h;
 						tOff.y = screen.h;
 						Actuate.tween(tOff, roomSlideTime, {y:0})
@@ -239,7 +282,18 @@ class Main extends luxe.Game {
 								})
 							.onComplete(function() {
 									roomOffY = 0;
-									isSliding = false;
+									
+									isPlayerVisible = true;
+									tOff.y = 0;
+									Actuate.tween(tOff, slideTime, {y:squareSize})
+										.onUpdate(function() { playerOffY = tOff.y; })
+										.onComplete(function() {
+
+												playerGridY++;
+												playerOffY = 0;
+												isSliding = false;
+
+											});
 								});
 					});
 		}
@@ -265,13 +319,15 @@ class Main extends luxe.Game {
 			playerOffX = swipeX;
 			playerOffY = swipeY;
 		}
-		Luxe.draw.box({
-				x: topCorner.x + (playerGridX*squareSize) + playerOffX,
-				y: topCorner.y + (playerGridY*squareSize) + playerOffY,
-				w: squareSize,
-				h: squareSize,
-				immediate: true
-			});
+		if (isPlayerVisible) {
+			Luxe.draw.box({
+					x: topCorner.x + (playerGridX*squareSize) + playerOffX,
+					y: topCorner.y + (playerGridY*squareSize) + playerOffY,
+					w: squareSize,
+					h: squareSize,
+					immediate: true
+				});
+		}
 
 	} //update
 
