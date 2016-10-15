@@ -100,8 +100,8 @@ class Main extends luxe.Game {
 	override function ready() {
 		textBoxWidth = charWidth * charactersPerLine;
 		textBoxHeight = charHeight * linesPerPage;
-		textBoxX = (Luxe.screen.w/2) - (textBoxWidth/2);
-		textBoxY = (Luxe.screen.h/2) - (textBoxHeight/2);
+		textBoxX = 100; //(Luxe.screen.w/2) - (textBoxWidth/2);
+		textBoxY = 200; //(Luxe.screen.h/2) - (textBoxHeight/2);
 
 		charWidthScale = charWidth / defaultCharBox.width;
 		charHeightScale = charHeight / defaultCharBox.height;
