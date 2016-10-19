@@ -15,7 +15,10 @@ import vexlib.Animation;
 class Vex extends Visual {
 	public var properties : VexPropertyInterface;
 
-	override public function new( json : VexJsonFormat ) {
+	//hack
+	var onLoad : Dynamic;
+
+	override public function new( json : VexJsonFormat, ?onLoad:Dynamic ) {
 		super({no_geometry:true});
 
 		// create children first, so that properties
@@ -29,6 +32,9 @@ class Vex extends Visual {
 
 		properties = new VexPropertyInterface(this);
 		properties.deserialize(json);
+
+		//hack
+		if (onLoad != null) this.onLoad = onLoad;
 
 		if (properties.type == "ref") {
 			loadRef( properties.src );
@@ -106,6 +112,8 @@ class Vex extends Visual {
 				trace("ref loaded!");
 				var json = jsonRes.asset.json;
 				deserializeRef(json);
+
+				if (onLoad != null) onLoad(this);
 			});
 		}
 	}

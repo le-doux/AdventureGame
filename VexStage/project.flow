@@ -1,0 +1,28 @@
+{
+
+  project : {
+    name : 'stage',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'stage',
+      package : 'org.luxeengine.stage'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        poly2trihx : '*',
+        vexlib : '*',
+        linc_dialogs : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

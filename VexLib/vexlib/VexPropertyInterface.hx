@@ -178,6 +178,7 @@ class VexPropertyInterface {
 	}
 
 	function set_path(prop:Property) : Property {
+		trace(prop);
 		path = prop;
 		if (visual != null) {
 			if (type == "poly") {
@@ -213,6 +214,8 @@ class VexPropertyInterface {
 
 					i += 3;
 				}
+
+				trace( visual.geometry.vertices );
 			}
 			else if (type == "line") { //best name? other options: stroke, outline
 				/* MESH LINES */

@@ -1,0 +1,7 @@
+{
+	"type" : "palette",
+	"id" : "test",
+	"colors" : [
+		"#99ccff", "#ffe6cc", "#331a00", "#ffffe6", "#3d3d5c", "#fff", "#fff", "#fff"
+	]
+}
