@@ -2,6 +2,8 @@
 import luxe.Input;
 import luxe.Vector;
 import luxe.resource.Resource.JSONResource;
+import phoenix.Batcher;
+import luxe.Camera;
 
 import vexlib.Vex;
 import vexlib.VexPropertyInterface;
@@ -33,13 +35,26 @@ Q
 
 class Main extends luxe.Game {
 
+	/* STAGE DATA */
 	var stageStart = new Vector(0,0);
 	var stageEnd = new Vector(600,100);
-
 	var scenery : Vex;
+
+	/* BATCHERS */
+	var uiScreenBatcher : Batcher; // UI displayed at screen coords
+	//var uiSceneBatcher : Batcher; // UI displayed in scene coords
+
+
+	var isPanning = false;
+	var selectedStageHandle : Vector = null;
+	var selectedVex : Vex = null;
+
 
 	override function ready() {
 		Luxe.camera.pos.subtract( Luxe.screen.mid );
+
+		var uiCam = new Camera({name:"uiCam"});
+		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
 
 		//load default palettes - hacky nonsense
 		var load = Luxe.resources.load_json('assets/testpal.vex');
@@ -58,7 +73,8 @@ class Main extends luxe.Game {
 			//also - always goes to 0,0
 			var pathSplit = path.split("/assets/"); 
 			var srcString = "assets/" + pathSplit[1];
-			var v = new Vex({ type:"ref", pos:"0,0", origin:"0,0", src:srcString},
+			var cursorWorldPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
+			selectedVex = new Vex({ type:"ref", pos:cursorWorldPos, src:srcString},
 								function(v) {
 										trace(v.boundsWorld());
 									} 
@@ -76,19 +92,98 @@ class Main extends luxe.Game {
 	} //onkeyup
 
 	override function update(dt:Float) {
+
+		//draw level line
 		Luxe.draw.line({
 				p0: stageStart,
 				p1: stageEnd,
 				immediate: true
 			});
+		//draw level line handles
+		var startScreenPos = Luxe.camera.world_point_to_screen( stageStart );
+		var endScreenPos = Luxe.camera.world_point_to_screen( stageEnd );
+		Luxe.draw.ring({
+				x:startScreenPos.x, y:startScreenPos.y,
+				r:10,
+				batcher:uiScreenBatcher,
+				immediate:true
+			});
+		Luxe.draw.ring({
+				x:endScreenPos.x, y:endScreenPos.y,
+				r:10,
+				batcher:uiScreenBatcher,
+				immediate:true
+			});
+
+		//move selected vex w/ cursor
+		if (selectedVex != null) {
+			var cursorWorldPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
+			selectedVex.pos = cursorWorldPos;
+		}
 	} //update
 
-	override function onmousedown( e:MouseEvent ) {}
+	override function onmousedown( e:MouseEvent ) {
+		/* pannning */
+		if (e.button == luxe.Input.MouseButton.right) {
+			isPanning = true;
+			return;
+		}
 
-	override function onmousemove( e:MouseEvent ) {}
+		if (selectedVex != null) {
+			var cursorWorldPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
+			selectedVex.properties.pos = cursorWorldPos;
+			selectedVex = null;
+			return;
+		}
 
-	override function onmouseup( e:MouseEvent ) {}
+		var startScreenPos = Luxe.camera.world_point_to_screen( stageStart );
+		var endScreenPos = Luxe.camera.world_point_to_screen( stageEnd );
+		if ( Vector.Subtract( startScreenPos, e.pos ).length < 10 ) {
+			selectedStageHandle = stageStart;
+		}
+		else if ( Vector.Subtract( endScreenPos, e.pos ).length < 10 ) {
+			selectedStageHandle = stageEnd;
+		}
+		else {
+			selectedStageHandle = null;
+		}
+		
 
+	}
+
+	override function onmousemove( e:MouseEvent ) {
+		/* panning */
+		if (isPanning) {
+			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
+			Luxe.camera.pos.y -= e.yrel / Luxe.camera.zoom;
+			return;
+		}
+
+		if (selectedStageHandle != null) {
+			var shiftDown = ( Luxe.input.keydown( Key.lshift) || Luxe.input.keydown( Key.rshift) );
+			selectedStageHandle.x += e.xrel / Luxe.camera.zoom;
+			if (!shiftDown) //hold shift to only move in x coords
+				selectedStageHandle.y += e.yrel / Luxe.camera.zoom;
+		}
+
+	}
+
+	override function onmouseup( e:MouseEvent ) {
+		/* panning */
+		if (isPanning) {
+			isPanning = false;
+			return;
+		}
+
+		if (selectedStageHandle != null) {
+			selectedStageHandle = null;
+		}
+	}
+
+	override function onmousewheel(e:MouseEvent) {
+		/* ZOOMING */
+		Luxe.camera.zoom += e.yrel * 0.03 * Luxe.camera.zoom;
+	}
 
 } //Main
 
