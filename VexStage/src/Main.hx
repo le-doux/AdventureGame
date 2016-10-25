@@ -9,7 +9,10 @@ import luxe.Color;
 import vexlib.Vex;
 import vexlib.VexPropertyInterface;
 import vexlib.Palette;
+import vexlib.Stage;
 
+import sys.io.File;
+import haxe.Json;
 import dialogs.Dialogs;
 
 /* 
@@ -18,13 +21,13 @@ TODO vex level editor v0
 	X "stamp" vex objects
 	X select dialog objects
 	X description component (registers self w/ scene)
-	- stage object
-		- put in shared lib
-	- save / load stage
+	X stage object
+		X put in shared lib
+	X save / load stage
 	? set entrances / exits / other "interest points"
 	- replace placingVex bool with separate insertingVex vex
 	- bouncy arrows
-	- arrows whose size are zoom independent
+	X arrows whose size are zoom independent
 
 
 Types of interactive "interest points"
@@ -43,12 +46,11 @@ Q
 class Main extends luxe.Game {
 
 	public static var Instance : Main;
-	public var stage : Stage = new Stage();
+	public var stage : Stage;
 
 	/* STAGE DATA */
 	var stageStart = new Vector(0,0);
 	var stageEnd = new Vector(600,100);
-	var scenery : Vex;
 
 	/* BATCHERS */
 	var uiScreenBatcher : Batcher; // UI displayed at screen coords
@@ -64,17 +66,15 @@ class Main extends luxe.Game {
 	override function ready() {
 		Instance = this;
 
-		scenery = new Vex({
-				type: "group",
-				origin: "0,0",
-				pos: "0,0"
-			});
+		stage = new Stage();
+		stage.path = [stageStart,stageEnd];
 
 		Luxe.camera.pos.subtract( Luxe.screen.mid );
 
 		var uiCam = new Camera({name:"uiCam"});
 		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
 		uiSceneBatcher = Luxe.renderer.create_batcher({name:"uiSceneBatcher", layer:5, camera:Luxe.camera.view});
+		Description.uiBatcher = uiScreenBatcher;
 
 		//load default palettes - hacky nonsense
 		var load = Luxe.resources.load_json('assets/testpal.vex');
@@ -106,8 +106,39 @@ class Main extends luxe.Game {
 		/* ADD DESCRIPTION */
 		if (e.keycode == Key.key_d && e.mod.meta) {
 			if (selectedVex != null) {
-				selectedVex.add(new Description({name:"description",text:"Default text description"}));
+				//selectedVex.add(new Description({name:"description",text:"Default text description"}));
+				selectedVex.properties.AddComponent({type:"Description",name:"description",text:"Default text description"});
 			}
+		}
+
+		/* SAVE */
+		if (e.keycode == Key.key_s && e.mod.meta) {
+			//get path & open file
+			var path = Dialogs.save("Save dialog");
+			var output = File.write(path);
+
+			//get data & write it
+			var saveJson = stage.serialize();
+			var saveStr = Json.stringify(saveJson, null, "	");
+			output.writeString(saveStr);
+
+			//close file
+			output.close();
+		}
+
+		/* OPEN */
+		if (e.keycode == Key.key_o && e.mod.meta) {
+			//load file
+			var path = Dialogs.open("Open dialog");
+			var fileStr = File.getContent(path);
+			var json = Json.parse(fileStr);
+
+			stage = new Stage(json); //todo do I need to clean up after the old stage?
+
+			//hack assumes the stage path always only has two elements (true for now)
+			var path : Array<Vector> = stage.path;
+			stageStart = path[0];
+			stageEnd = path[1];
 		}
 	}
 
@@ -166,7 +197,7 @@ class Main extends luxe.Game {
 		if (selectedVex != null && placingVex) {
 			var cursorWorldPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
 			selectedVex.properties.pos = cursorWorldPos;
-			selectedVex.parent = scenery;
+			selectedVex.parent = stage.scenery;
 			selectedVex = null;
 			placingVex = false;
 			return;
@@ -189,7 +220,7 @@ class Main extends luxe.Game {
 
 		/* select vex */
 		var cursorWorldPos = Luxe.camera.screen_point_to_world( Luxe.screen.cursor.pos );
-		selectedVex = scenery.getChildWithPointInside(cursorWorldPos);
+		selectedVex = stage.scenery.getChildWithPointInside(cursorWorldPos);
 
 	}
 
@@ -218,6 +249,7 @@ class Main extends luxe.Game {
 		}
 
 		if (selectedStageHandle != null) {
+			stage.path = [stageStart,stageEnd]; //update stage object
 			selectedStageHandle = null;
 		}
 	}
@@ -277,6 +309,7 @@ class Description extends luxe.Component {
 	public var text : String;
 	public var vex : Vex;
 	public var isEditorMode = true; //obviously not true in the future
+	public static var uiBatcher : Batcher; //hacky
 
 	override public function new(?options:DescriptionOptions) {
 		super(options);
@@ -291,53 +324,26 @@ class Description extends luxe.Component {
 	override public function update(dt:Float) {
 		if (isEditorMode) {
 			//draw pull tab
-			//trace(vex);
 			var bounds = vex.boundsWorld();
-			//trace(bounds);
 			var topY = bounds[0].y;
 			var midX = bounds[0].x + ((bounds[1].x - bounds[0].x)/2);
 
+			var anchorPoint = new Vector(midX,topY);
+			anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
+			anchorPoint.y -= 30;
+
 			Luxe.draw.line({
-					p0: new Vector(midX, topY-60),
-					p1: new Vector(midX-30, topY-60-30),
-					immediate: true
+					p0: anchorPoint,
+					p1: anchorPoint.clone().add(new Vector(-30,-30)),
+					immediate: true,
+					batcher: uiBatcher
 				});
 			Luxe.draw.line({
-					p0: new Vector(midX, topY-60),
-					p1: new Vector(midX+30, topY-60-30),
-					immediate: true
+					p0: anchorPoint,
+					p1: anchorPoint.clone().add(new Vector(30,-30)),
+					immediate: true,
+					batcher: uiBatcher
 				});
 		}
 	}
-}
-
-
-/* STAGE */
-typedef ExitFormat = {
-	public var pos : Property;
-	public var destination : Property;
-}
-
-typedef StageFormat = {
-	@:optional public var type : Property;
-	@:optional public var id : Property;
-	@:optional public var path : Property;
-	@:optional public var exits : Array<ExitFormat>;
-	@:optional public var background : Property;
-	@:optional public var scenery : VexJsonFormat;
-	//todo sceneryRef (rename?)
-}
-
-class Stage {
-
-	public function new() {
-
-	}
-
-	public function registerDescription( d : Description ) {
-		//TODO make this a real and better thing
-		//TODO actually can't the description handle all this logic? maybe not?
-		trace("description registered!");
-	}
-
 }

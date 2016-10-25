@@ -374,6 +374,17 @@ class VexPropertyInterface {
 
 		return components;
 	}
+
+	//is this really the best way to do this?
+	public function AddComponent(options:Dynamic) {
+		var rc = Type.resolveClass(options.type);
+		var ci = Type.createInstance( rc, [options] );
+		visual.add( ci );
+		if (components == null) {
+			components = [];
+		}
+		components.push(options);
+	}
 }
 
 abstract Property(String) from String to String {

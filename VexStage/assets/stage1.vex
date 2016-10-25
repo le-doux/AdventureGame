@@ -1,0 +1,30 @@
+{
+	"type": "stage",
+	"scenery": {
+		"origin": "0,0",
+		"pos": "0,0",
+		"type": "group",
+		"children": [
+			{
+				"src": "assets/shroom.vex",
+				"pos": "258.035451628775,26.2408933859771",
+				"components": [
+					{
+						"type": "Description",
+						"text": "Default text description",
+						"name": "description"
+					}
+				],
+				"type": "ref",
+				"id": "shroom"
+			},
+			{
+				"src": "assets/shroom.vex",
+				"pos": "660.9236952239,-70.5612486004163",
+				"type": "ref",
+				"id": "shroom"
+			}
+		]
+	},
+	"path": "-292.866060297031,201.897231150435 992.790950542318,-62.2908717809576"
+}
