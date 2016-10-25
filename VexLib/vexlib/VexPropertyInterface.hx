@@ -496,6 +496,7 @@ abstract Property(String) from String to String {
 		}
 
 		var r = ~/[\(\)]/;
+		trace(this);
 		var colorArguments = r.split(this);
 		var formatStr = colorArguments[0];
 

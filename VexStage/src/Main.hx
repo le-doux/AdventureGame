@@ -17,6 +17,7 @@ import dialogs.Dialogs;
 
 /* 
 TODO vex level editor v0
+	X load stage in VexPlay
 	X path
 	X "stamp" vex objects
 	X select dialog objects

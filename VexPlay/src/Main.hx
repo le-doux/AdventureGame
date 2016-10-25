@@ -14,8 +14,17 @@ import phoenix.Batcher;
 import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
+import vexlib.Stage;
 
 /*
+	TODO
+	- dialog boxes
+	- pull tabs
+	- helper size boxes in level editor
+	- scale in level editor
+	- move path code into stage class
+	X background color in stage class
+
 
 	TODO
 	X re-implement ability for sudden stop
@@ -50,6 +59,10 @@ import vexlib.VexPropertyInterface;
 class Settings {
 	public static var IDEAL_SCREEN_SIZE_W : Float = 800;
 	public static var IDEAL_SCREEN_SIZE_H : Float = 450;
+	/*
+	public static var IDEAL_SCREEN_SIZE_W : Float = 1600;
+	public static var IDEAL_SCREEN_SIZE_H : Float = 900;
+	*/
 
 	public static function IdealScreenSize() : Vector {
 		return new Vector(IDEAL_SCREEN_SIZE_W, IDEAL_SCREEN_SIZE_H);
@@ -87,13 +100,15 @@ class Settings {
 
 class Main extends luxe.Game {
 	/* PALETTE */
-	public var paletteSrc = "assets/testpal2.vex";
+	//public var paletteSrc = "assets/testpal2.vex";
+	public var paletteSrc = "assets/testpal.vex";
 
 	/* PLAYER */
 	public var playerSrc = "assets/girl.vex";
 	public var player : Vex;
 	public var playerProps = {
-		stagePos : 300.0,
+		//stagePos : 300.0,
+		stagePos : 150.0,
 		velocity : new Vector(0,0),
 		blocked : {
 			left : false,
@@ -113,9 +128,16 @@ class Main extends luxe.Game {
 	var maxScrollSpeed = Settings.IDEAL_SCREEN_SIZE_W * 2.0;
 
 	/* STAGE */
+	//old stage
+	/*
 	public var stageSrc = "assets/playgroundstage.vex";
 	public var set : Vex;
 	public var path : Array<Vector>;
+	*/
+	//new stage
+	public var stageSrc = "assets/stage2.vex";
+	public var stage : Stage;
+	public var uiScreenBatcher : Batcher;
 
 	/* CAMERA */
 	var cameraProps = {
@@ -297,6 +319,7 @@ class Main extends luxe.Game {
 		});
 
 		/* STAGE */
+		/*
 		var loadStage = Luxe.resources.load_json( stageSrc );
 		loadStage.then(function(jsonRes : JSONResource) {
 			var json : StageFormat = jsonRes.asset.json;
@@ -311,7 +334,7 @@ class Main extends luxe.Game {
 				set = new Vex(json);
 				//set.depth = 0; //TODO this IS broken...
 
-				/* PARALLAX */ //yo this is pretty hacky and doesn't handle children
+				// PARALLAX //yo this is pretty hacky and doesn't handle children
 				var bg1 = set.find("bg1")[0];
 				Luxe.renderer.batcher.remove(bg1.geometry);
 				bg1_batch.add(bg1.geometry);
@@ -320,12 +343,27 @@ class Main extends luxe.Game {
 				Luxe.renderer.batcher.remove(bg2.geometry);
 				bg2_batch.add(bg2.geometry);
 
-				/*
-				var fg2 = set.find("fg2")[0];
-				Luxe.renderer.batcher.remove(fg2.geometry);
-				fg2_batch.add(fg2.geometry);
-				*/
+				
+				//var fg2 = set.find("fg2")[0];
+				//Luxe.renderer.batcher.remove(fg2.geometry);
+				//fg2_batch.add(fg2.geometry);
+				
 			});
+		});
+		*/
+
+		/* UI BATCHER */
+		var uiCam = new Camera({name:"uiCam"});
+		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
+		Description.uiBatcher = uiScreenBatcher;
+
+		/* NEW STAGE */
+		var loadStage = Luxe.resources.load_json( stageSrc );
+		loadStage.then(function(jsonRes : JSONResource) {
+			var json : StageFormat = jsonRes.asset.json;
+			stage = new Stage(json);
+			Luxe.renderer.clear_color = stage.background; //Palette.Colors[0]; //hack
+			Description.uiBatcher = uiScreenBatcher;
 		});
 	}
 
@@ -404,7 +442,8 @@ class Main extends luxe.Game {
 
 	override function update(dt:Float) {
 
-		if (player != null && path != null) { //eventually need a smarter way to handle this
+		//if (player != null && path != null) { //eventually need a smarter way to handle this
+		if (player != null && stage != null) {
 		
 			/* PULL UP & DOWN */
 			if ( joystick.yAxisHeld() ) {
@@ -527,13 +566,11 @@ class Main extends luxe.Game {
 			playerProps.stagePos += playerProps.velocity.x * dt;
 
 			//keep player in bounds
-			playerProps.blocked.left = (playerProps.stagePos <= 0);
-			playerProps.blocked.right = (playerProps.stagePos >= pathLength(path));
+			playerProps.blocked.left = stage.edgeCollisionLeft( playerProps.stagePos );
+			playerProps.blocked.right = stage.edgeCollisionRight( playerProps.stagePos );
 			//update world pos
-			playerProps.stagePos = Maths.clamp(playerProps.stagePos, 0, pathLength(path));
-			player.pos = worldPosFromPathPos(path, playerProps.stagePos);
-			//temp hack
-			player.pos.y += 25; //keep feet in ground until I have a path editor for levels
+			playerProps.stagePos = stage.clampToStage( playerProps.stagePos );
+			player.pos = stage.worldPos( playerProps.stagePos );
 
 			//blocked stop animation
 			var curBlocked = playerProps.blocked.left || playerProps.blocked.right;
@@ -655,64 +692,6 @@ class Main extends luxe.Game {
 		return (playerProps.blocked.left && playerProps.velocity.x <= 0) || (playerProps.blocked.right && playerProps.velocity.x >= 0);
 	}
 
-	/* CAMERA */
-	/* crazy old terrain stuff */
-	public function worldPosFromPathPos(path:Array<Vector>, pos : Float) : Vector {
-		var segIndex = closestIndexToLeft(path, pos);
-
-		//capture edge cases
-		if (segIndex < 0) {
-			return new Vector(path[0].x, path[0].y);
-		}
-		if (segIndex >= path.length-1) {
-			return new Vector(path[path.length-1].x, path[path.length-1].y);
-		}
-
-		var leftoverDist = (pos - pathLengthToPoint(path, segIndex));
-		var leftoverDistPercent = leftoverDist / xDistToNextPoint(path, segIndex);
-		var seg0 = path[segIndex];
-		var seg1 = path[segIndex+1];
-		var segDelt = Vector.Subtract(seg1, seg0);
-		var segDeltPercent = Vector.Multiply(segDelt, leftoverDistPercent);
-
-		var worldPos = Vector.Add(seg0, segDeltPercent);
-
-		//hack
-		worldPos.add(new Vector(-0.746,-1262.069)); //hack specific to playground (need to adjust for space)
-
-		return worldPos;
-	}
-
-	function pathLength(path:Array<Vector>) {
-		return pathLengthToPoint(path, path.length-1);
-	}
-
-	function pathLengthToPoint(path : Array<Vector>, i : Int) : Float {
-		var startX = path[0].x;
-		return (path[i].x - startX);
-	}
-
-	function xDistToNextPoint(path:Array<Vector>, i : Int) : Float {
-		return Math.abs(path[i].x - path[i+1].x);
-	}
-
-	//needs a better name
-	//also: inefficient as fuck
-	public function closestIndexToLeft(path:Array<Vector>, x : Float) : Int {
-		var startX = path[0].x; //feels pretty hacky
-		var closestIndex = 0;
-		for (i in 1 ... path.length) {
-			var dist = x - (path[i].x - startX);
-			var prevDist = x - (path[closestIndex].x - startX);
-			if ( dist > 0 && dist < prevDist ) {
-				closestIndex = i;
-			}
-		}
-		return closestIndex;
-	}
-	//////
-
-
 	/* DUST PARTICLE */
 	/*
 	function spawnDustParticles(count, pos, minSpeed, maxSpeed, minAngle, maxAngle, minRotSpd, maxRotSpd, minScale, maxScale, minScaleSpd, maxScaleSpd, minLife, maxLife) {
@@ -752,6 +731,7 @@ class Main extends luxe.Game {
 }
 
 /* STAGE */
+/*
 typedef StageFormat = {
 	@:optional public var type : Property;
 	@:optional public var id : Property;
@@ -759,6 +739,7 @@ typedef StageFormat = {
 	@:optional public var background : Property;
 	@:optional public var path : Property;
 }
+*/
 
 /* RESPONSIVE GROUND */
 //TODO what about horizontal responsiveness?
@@ -810,6 +791,56 @@ class ResponsiveGround extends luxe.Component {
 		}
 	}
 
+}
+
+//todo move into its own file
+/* DESCRIPTION */
+typedef DescriptionOptions = {
+	> luxe.options.ComponentOptions,
+	@:optional public var text : String; 
+}
+
+class Description extends luxe.Component {
+	public var text : String;
+	public var vex : Vex;
+	public var isEditorMode = true; //obviously not true in the future
+	public static var uiBatcher : Batcher; //hacky
+
+	override public function new(?options:DescriptionOptions) {
+		super(options);
+		if (options.text != null) text = options.text;
+		//Main.Instance.stage.registerDescription(this); //TODO this is probably a terrible way to to do this
+	}
+
+	override public function init() {
+		vex = cast(this.entity);
+	}
+
+	override public function update(dt:Float) {
+		if (isEditorMode) {
+			//draw pull tab
+			var bounds = vex.boundsWorld();
+			var topY = bounds[0].y;
+			var midX = bounds[0].x + ((bounds[1].x - bounds[0].x)/2);
+
+			var anchorPoint = new Vector(midX,topY);
+			anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
+			anchorPoint.y -= 30;
+
+			Luxe.draw.line({
+					p0: anchorPoint,
+					p1: anchorPoint.clone().add(new Vector(-30,-30)),
+					immediate: true,
+					batcher: uiBatcher
+				});
+			Luxe.draw.line({
+					p0: anchorPoint,
+					p1: anchorPoint.clone().add(new Vector(30,-30)),
+					immediate: true,
+					batcher: uiBatcher
+				});
+		}
+	}
 }
 
 /* DUST PARTICLE 
