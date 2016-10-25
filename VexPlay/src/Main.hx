@@ -19,11 +19,12 @@ import vexlib.Stage;
 /*
 	TODO
 	- dialog boxes
-	- pull tabs
+	X pull tabs
 	- helper size boxes in level editor
 	- scale in level editor
-	- move path code into stage class
+	X move path code into stage class
 	X background color in stage class
+	- move description code out of main
 
 
 	TODO
@@ -158,7 +159,7 @@ class Main extends luxe.Game {
 	/* PULL UP DOWN */
 	// TODO spend more time tuning this feature
 	var pullVelocity = 0.0;
-	var pullDelta = 0.0;
+	public static var pullDelta = 0.0; //todo should not be public or static
 	var pullMaxDistance = Settings.IDEAL_SCREEN_SIZE_H / 3;
 	var pullZoomDelta = 0.10; // is this even having an impact?
 	var pullFrictionConstant = 30.0;
@@ -364,6 +365,7 @@ class Main extends luxe.Game {
 			stage = new Stage(json);
 			Luxe.renderer.clear_color = stage.background; //Palette.Colors[0]; //hack
 			Description.uiBatcher = uiScreenBatcher;
+			Description.player = player;
 		});
 	}
 
@@ -425,6 +427,7 @@ class Main extends luxe.Game {
 
 		trace("PULL COMPLETE");
 
+		/*
 		if (pullDeltaMax / pullMaxDistance > 0.5) {
 			//boilerplate to stop animation
 			player.stopAnimation();
@@ -436,6 +439,7 @@ class Main extends luxe.Game {
 			player.playAnimation("hello", 1.5);
 
 		}
+		*/
 
 		pullDeltaMax = 0;
 	}
@@ -648,7 +652,8 @@ class Main extends luxe.Game {
 			//var camCenterYDist = camCenterYGoal - curCamCenterY;
 			//curCamCenterY += camCenterYDist * 0.8 * dt; //float towards correct y pos [this didn't work how I wanted]
 			curCamCenterY = camCenterYGoal;
-			Luxe.camera.center.y = curCamCenterY + pullDelta; // * 0.5); //what's the 0.5 for? I forgot
+			//Luxe.camera.center.y = curCamCenterY + pullDelta; // * 0.5); //what's the 0.5 for? I forgot
+			Luxe.camera.center.y = curCamCenterY;
 
 			//zoom stuff
 			if (!joystick.isDown() && Math.abs(playerProps.velocity.x) <= 0) {
@@ -803,8 +808,10 @@ typedef DescriptionOptions = {
 class Description extends luxe.Component {
 	public var text : String;
 	public var vex : Vex;
-	public var isEditorMode = true; //obviously not true in the future
+	public var isEditorMode = false; //obviously not true in the future
+
 	public static var uiBatcher : Batcher; //hacky
+	public static var player : Vex; //also hacky
 
 	override public function new(?options:DescriptionOptions) {
 		super(options);
@@ -818,28 +825,48 @@ class Description extends luxe.Component {
 
 	override public function update(dt:Float) {
 		if (isEditorMode) {
-			//draw pull tab
-			var bounds = vex.boundsWorld();
-			var topY = bounds[0].y;
-			var midX = bounds[0].x + ((bounds[1].x - bounds[0].x)/2);
-
-			var anchorPoint = new Vector(midX,topY);
-			anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
-			anchorPoint.y -= 30;
-
-			Luxe.draw.line({
-					p0: anchorPoint,
-					p1: anchorPoint.clone().add(new Vector(-30,-30)),
-					immediate: true,
-					batcher: uiBatcher
-				});
-			Luxe.draw.line({
-					p0: anchorPoint,
-					p1: anchorPoint.clone().add(new Vector(30,-30)),
-					immediate: true,
-					batcher: uiBatcher
-				});
+			drawArrow();
 		}
+		else {
+			if (isArrowVisible()) { 
+				drawArrow();
+				if (Math.abs( Main.pullDelta ) > 60) {
+					trace("pull!");
+					trace(text);
+				}
+			}
+		}
+	}
+
+	function isArrowVisible() {
+		return ( Math.abs(player.pos.x - vex.pos.x) < 300 ); //todo should reall be "is it on screen?"
+	}
+
+	function drawArrow() {
+		//draw pull tab
+		var bounds = vex.boundsWorld();
+		var topY = bounds[0].y;
+		var midX = bounds[0].x + ((bounds[1].x - bounds[0].x)/2);
+
+		var anchorPoint = new Vector(midX,topY);
+		anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
+		anchorPoint.y -= 30;
+		if (!isEditorMode) {
+			anchorPoint.y += Math.abs( Main.pullDelta );
+		}
+
+		Luxe.draw.line({
+				p0: anchorPoint,
+				p1: anchorPoint.clone().add(new Vector(-30,-30)),
+				immediate: true,
+				batcher: uiBatcher
+			});
+		Luxe.draw.line({
+				p0: anchorPoint,
+				p1: anchorPoint.clone().add(new Vector(30,-30)),
+				immediate: true,
+				batcher: uiBatcher
+			});
 	}
 }
 

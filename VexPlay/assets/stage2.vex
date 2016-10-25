@@ -22,13 +22,6 @@
 			{
 				"src": "assets/shroom.vex",
 				"pos": "660.9236952239,-70.5612486004163",
-				"components": [
-					{
-						"type": "Description",
-						"text": "Default text description",
-						"name": "description"
-					}
-				],
 				"type": "ref",
 				"id": "shroom"
 			}
