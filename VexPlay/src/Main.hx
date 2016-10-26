@@ -15,16 +15,19 @@ import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 import vexlib.Stage;
+import vexlib.Font;
 
 /*
 	TODO
 	- dialog boxes
 	X pull tabs
-	- helper size boxes in level editor
+	X helper size boxes in level editor
 	- scale in level editor
 	X move path code into stage class
 	X background color in stage class
 	- move description code out of main
+	X figure out world-space to UI-space transformation
+		X ideal-screen-space to screen-space
 
 
 	TODO
@@ -97,6 +100,15 @@ class Settings {
 		var ratio = StandardScreenRatio();
 		return new Vector(p.x * ratio.x, p.y * ratio.y);
 	}
+
+}
+
+//split this into multiple objects eventually
+class Globals {
+	public static var uiCam : Camera;
+	public static function world_point_to_ui_point(p:Vector) {
+		return uiCam.screen_point_to_world( Luxe.camera.world_point_to_screen( p ) );
+	}
 }
 
 class Main extends luxe.Game {
@@ -129,16 +141,8 @@ class Main extends luxe.Game {
 	var maxScrollSpeed = Settings.IDEAL_SCREEN_SIZE_W * 2.0;
 
 	/* STAGE */
-	//old stage
-	/*
-	public var stageSrc = "assets/playgroundstage.vex";
-	public var set : Vex;
-	public var path : Array<Vector>;
-	*/
-	//new stage
 	public var stageSrc = "assets/stage2.vex";
 	public var stage : Stage;
-	public var uiScreenBatcher : Batcher;
 
 	/* CAMERA */
 	var cameraProps = {
@@ -155,6 +159,9 @@ class Main extends luxe.Game {
 	var curCamCenterY = 0.0;
 	var idleZoom = 1.0;
 	var idleZoomTimeCounter = 0.0;
+
+	public var uiCam : Camera;
+	public var uiScreenBatcher : Batcher;
 
 	/* PULL UP DOWN */
 	// TODO spend more time tuning this feature
@@ -184,6 +191,37 @@ class Main extends luxe.Game {
 	var fg2_batch : Batcher;
 	var fg2_cam : Camera;
 	var fg2_parallax = 1.5;
+
+
+	/* DIALOG & FONT */
+	var fontSrc = "assets/sysfont.vex";
+	var font : Font;
+	//settings
+	var charWidth = 25;
+	var charHeight = 50;
+	var charactersPerLine = 24;
+	var linesPerPage = 2;
+	var charTypeSpeed = 0.1;
+	var charDrawSpeed = 0.3;
+	//constants
+	var defaultCharBox = { //the arbitrariness bothers me
+		width: 300,
+		height: 550,
+		baseline: 400
+	};
+	//derived values
+	var charWidthScale : Float;
+	var charHeightScale : Float;
+	var textBoxWidth : Float;
+	var textBoxHeight : Float;
+	var textBoxX : Float;
+	var textBoxY : Float;
+	var textBoxPadX = 30;
+	var textBoxPadY = 20;
+	//geometry
+	var descriptionVex = [];
+	var descriptionBox = null;
+	var curDialogStr = "";
 
 	override function ready() {
 
@@ -354,9 +392,12 @@ class Main extends luxe.Game {
 		*/
 
 		/* UI BATCHER */
-		var uiCam = new Camera({name:"uiCam"});
+		uiCam = new Camera({name:"uiCam"});
+		uiCam.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
+		uiCam.size_mode = luxe.Camera.SizeMode.fit;
 		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
 		Description.uiBatcher = uiScreenBatcher;
+		Globals.uiCam = uiCam; //hacky af
 
 		/* NEW STAGE */
 		var loadStage = Luxe.resources.load_json( stageSrc );
@@ -367,6 +408,55 @@ class Main extends luxe.Game {
 			Description.uiBatcher = uiScreenBatcher;
 			Description.player = player;
 		});
+
+		/* DESCRIPTION */
+		Luxe.events.listen("description", start_description);
+
+		/* DIALOG BOX*/
+		//load the system font (aka the default font I made)
+		var loadFont = Luxe.resources.load_json( fontSrc );
+		loadFont.then(function(jsonRes : JSONResource) {
+			var json = jsonRes.asset.json;
+			font = new Font(json);
+			trace("font loaded! " + font.id);
+			//isWaiting = true;
+		});
+		textBoxWidth = (charWidth * charactersPerLine) + (textBoxPadX*2);
+		textBoxHeight = (charHeight * linesPerPage) + (textBoxPadY*2);
+		textBoxX = (Settings.IDEAL_SCREEN_SIZE_W - textBoxWidth)/2; // = 70
+		textBoxY = 20;
+		charWidthScale = charWidth / defaultCharBox.width;
+		charHeightScale = charHeight / defaultCharBox.height;
+		trace(textBoxWidth);
+		trace("&&&&&&&&&&&");
+	}
+
+	/* DESCRIPTION */
+	var isDescriptionMode = false;
+	function start_description(d:Description) {
+		isDescriptionMode = true;
+
+		/*
+		descriptionBox = Luxe.draw.box({
+				x:50, y:20,
+				w:700, h:100,
+				color: new Color(0,0,0),
+				batcher: uiBatcher
+			});
+		*/
+
+		descriptionBox = Luxe.draw.box({
+				x:textBoxX, y:textBoxY,
+				w:textBoxWidth, h:textBoxHeight,
+				color: new Color(0,0,0),
+				batcher: uiScreenBatcher,
+				depth: -100 //force it to the back
+			});
+
+		descriptionVex = [];
+		curDialogStr = d.text;
+
+		writeText( curDialogStr );
 	}
 
 	function on_joystick_pressed( axis:Vector ) {
@@ -547,27 +637,31 @@ class Main extends luxe.Game {
 			var prevBlocked = playerProps.blocked.left || playerProps.blocked.right;
 
 			//connect input to player
-			if ( joystick.isDown() ) {
-				playerProps.velocity.x = Maths.clamp(joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
-			}
-			else if ( Math.abs(playerProps.velocity.x) > 0 ) {
-				//coasting
-				testCoastingTimer += dt;
-				coastingFriction += coastingFrictionForce * dt;
-				playerProps.velocity.x -= coastingFriction * dt; 
+			if (!isDescriptionMode) { //todo this doesn't really stop everything --- need a state machine
 
-				var hasVelocitySignSwitched = (playerProps.velocity.x < 0) != (coastingFrictionForce < 0);
-				if ( hasVelocitySignSwitched ) {
-					playerProps.velocity.x = 0;
-					coastingFrictionForce = 0; //stop coasting
-					coastingFriction = 0;
-					coastingFrictionAcceleration = 0; //not currently being used TODO remove?
-					trace("COASTING TOTAL TIME " + testCoastingTimer);
-					testCoastingTimer = 0;
+				if ( joystick.isDown() ) {
+					playerProps.velocity.x = Maths.clamp(joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
 				}
+				else if ( Math.abs(playerProps.velocity.x) > 0 ) {
+					//coasting
+					testCoastingTimer += dt;
+					coastingFriction += coastingFrictionForce * dt;
+					playerProps.velocity.x -= coastingFriction * dt; 
+
+					var hasVelocitySignSwitched = (playerProps.velocity.x < 0) != (coastingFrictionForce < 0);
+					if ( hasVelocitySignSwitched ) {
+						playerProps.velocity.x = 0;
+						coastingFrictionForce = 0; //stop coasting
+						coastingFriction = 0;
+						coastingFrictionAcceleration = 0; //not currently being used TODO remove?
+						trace("COASTING TOTAL TIME " + testCoastingTimer);
+						testCoastingTimer = 0;
+					}
+
+				}
+				playerProps.stagePos += playerProps.velocity.x * dt;
 
 			}
-			playerProps.stagePos += playerProps.velocity.x * dt;
 
 			//keep player in bounds
 			playerProps.blocked.left = stage.edgeCollisionLeft( playerProps.stagePos );
@@ -733,6 +827,141 @@ class Main extends luxe.Game {
 		}
 	}
 	*/
+
+	//todo move into its own class or some shit
+	/* DIALOG */
+	//todo use clearDescription and make it more complete
+	function clearDescription() {
+		for (v in descriptionVex) {
+			cast(v,Vex).destroy(true);
+		}
+		descriptionVex = [];
+	}
+
+	function writeText(text:String, ?onComplete:Dynamic) {
+		//var count = 0;
+		var typeTimer : snow.api.Timer = null;
+
+		var textLines = preprocessText(text);
+		var row = 0;
+		var col = 0;
+
+		var typeNext = function() {
+
+			//calculate row & column position of character
+			if (row > linesPerPage) trace("OH NO too many characters on this page");
+
+			//create vex representation of character
+			//var nextChar = text.charAt(count);
+			var nextChar = textLines[row].charAt(col);
+			var tweenNextChar = null;
+			if (font.exists(nextChar)) { //skip undefined characters
+				var json = font.get(nextChar);
+				json.batcher = uiScreenBatcher; //hacky way to force characters to draw on the ui layer
+				var v = new Vex(json); //TODO define font.getVex
+				//scale character
+				v.scale.x = charWidthScale;
+				v.scale.y = charHeightScale;
+				//position character
+				v.pos.x = textBoxX + textBoxPadX + (col * charWidth) + (charWidth/2);
+				v.pos.y = textBoxY + textBoxPadY + (row * charHeight) + (charHeight/2);
+
+				//start character animation
+				tweenNextChar = animateStrokes(v, charDrawSpeed);
+
+				descriptionVex.push(v); //keep track of all the vex objects used to create this description (TODO maybe use vex instead of a list?)		
+			}
+
+			//increment col and look for end of page
+			col++;
+			if (col >= textLines[row].length) {
+				//go to next row
+				col = 0;
+				row++;
+
+				if (row >= textLines.length) {
+					//page is finished!
+					typeTimer.stop();
+
+					if (onComplete != null) {
+						if (tweenNextChar != null) {
+							//if there's a character drawing, wait until it finishes to launch oncomplete
+							tweenNextChar.onComplete(function() {
+									onComplete();
+								});
+						}
+						else {
+							//or just do it now (will this ever happen?)
+							onComplete();
+						}
+					}
+				}
+			}
+		};
+
+		typeTimer = Luxe.timer.schedule(charTypeSpeed, typeNext, true);
+	}
+
+	function preprocessText(text:String) : Array<String> {
+		//splits page into lines and does word wrap
+		var textLines = [];
+		textLines.push(""); //newline
+		var lineIndex = 0;
+		for (word in text.split(" ")) {
+			trace(word);
+			//word
+			if (textLines[lineIndex].length + word.length > charactersPerLine) {
+				textLines.push(""); //newline
+				lineIndex++;
+			}
+			textLines[lineIndex] += word;
+
+			//space after word
+			if (textLines[lineIndex].length + 1 > charactersPerLine) {
+				textLines.push(""); //newline
+				lineIndex++;
+			}
+			else {
+				//add space
+				textLines[lineIndex] += " ";
+			}
+		}
+		return textLines;
+	}
+
+	//this is hacky as heck but it's just a test really
+	function animateStrokes(v:Vex, time:Float) {
+		var strokes : Array<Array<Vector>> = v.properties.path.toMultiPath();
+
+		var pointCounter = {
+			count : 0
+		};
+		var totalLength = 0;
+		for (s in strokes) {
+			totalLength += s.length;
+		}
+
+		return Actuate.tween(pointCounter, time, {count:totalLength-1}).ease(luxe.tween.easing.Quad.easeIn)
+			.onUpdate(function(){
+				var curCount = pointCounter.count;
+				var curStrokes = [];
+				var curStrokeIndex = 0;
+				while (strokes[curStrokeIndex].length < curCount) {
+					var s = strokes[curStrokeIndex];
+					curCount -= s.length;
+					curStrokes.push(s);
+					curStrokeIndex++;
+				}
+				if (curCount > 0 && curStrokeIndex < strokes.length) {
+					curStrokes.push([]);
+					for (i in 0 ... curCount) {
+						curStrokes[curStrokeIndex].push( strokes[curStrokeIndex][i] );
+					}
+				}
+				v.properties.path = curStrokes;
+			});
+	}
+
 }
 
 /* STAGE */
@@ -813,6 +1042,8 @@ class Description extends luxe.Component {
 	public static var uiBatcher : Batcher; //hacky
 	public static var player : Vex; //also hacky
 
+	var isDescribing = false;
+
 	override public function new(?options:DescriptionOptions) {
 		super(options);
 		if (options.text != null) text = options.text;
@@ -831,15 +1062,27 @@ class Description extends luxe.Component {
 			if (isArrowVisible()) { 
 				drawArrow();
 				if (Math.abs( Main.pullDelta ) > 60) {
-					trace("pull!");
-					trace(text);
+					Luxe.events.fire("description", this);
+					startDescription();
 				}
 			}
 		}
 	}
 
+	function startDescription() {
+		isDescribing = true;
+		/*
+		Luxe.draw.box({
+				x:50, y:20,
+				w:700, h:100,
+				color: new Color(0,0,0),
+				batcher: uiBatcher
+			});
+			*/
+	}
+
 	function isArrowVisible() {
-		return ( Math.abs(player.pos.x - vex.pos.x) < 300 ); //todo should reall be "is it on screen?"
+		return !isDescribing && ( Math.abs(player.pos.x - vex.pos.x) < 300 ); //todo should reall be "is it on screen?"
 	}
 
 	function drawArrow() {
@@ -849,7 +1092,8 @@ class Description extends luxe.Component {
 		var midX = bounds[0].x + ((bounds[1].x - bounds[0].x)/2);
 
 		var anchorPoint = new Vector(midX,topY);
-		anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
+		//anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
+		anchorPoint = Globals.world_point_to_ui_point( anchorPoint );
 		anchorPoint.y -= 30;
 		if (!isEditorMode) {
 			anchorPoint.y += Math.abs( Main.pullDelta );

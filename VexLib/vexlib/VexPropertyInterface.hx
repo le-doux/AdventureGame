@@ -24,6 +24,9 @@ typedef VexJsonFormat = { //TODO rename?
 	@:optional public var children 	: Array<VexJsonFormat>;
 
 	@:optional public var components : Array<ComponentJsonFormat>;
+
+	//render time options (todo is this the right place for this? I might need to rethink the whole set up I have)
+	@:optional public var batcher : Batcher;
 }
 
 typedef ComponentJsonFormat = { //TODO rename?
@@ -47,6 +50,7 @@ class VexPropertyInterface {
 	public var components (default, set) : Null<Array<ComponentJsonFormat>>;
 
 	var visual : Visual;
+	var batch : Batcher; //hack
 
 	public function new(v:Visual) {
 		visual = v;
@@ -72,6 +76,9 @@ class VexPropertyInterface {
 	}
 
 	public function deserialize(json:VexJsonFormat) {
+		
+		batch = json.batcher; //hack
+
 		if (json.type != null) 		type = json.type;
 		if (json.id != null) 		id = json.id;
 		if (json.pos != null) 		pos = json.pos;
@@ -85,6 +92,7 @@ class VexPropertyInterface {
 		if (json.src != null) 		src = json.src;
 
 		if (json.components != null) components = json.components;
+
 	}
 
 	public function deserializeRef(json:VexJsonFormat) {
@@ -182,9 +190,11 @@ class VexPropertyInterface {
 		path = prop;
 		if (visual != null) {
 			if (type == "poly") {
+				trace(batch.name);
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.triangles,
-						batcher: Luxe.renderer.batcher
+						//batcher: Luxe.renderer.batcher
+						batcher: batch
 					});
 
 				var p2tpath = [];
@@ -228,7 +238,8 @@ class VexPropertyInterface {
 				//old approach
 				visual.geometry = new Geometry({
 					primitive_type: PrimitiveType.lines,
-					batcher: Luxe.renderer.batcher
+					//batcher: Luxe.renderer.batcher
+					batcher: batch
 				});
 				
 				

@@ -12,6 +12,8 @@ import luxe.collision.shapes.Circle in CollisionCircle;
 import vexlib.VexPropertyInterface;
 import vexlib.Animation;
 
+import phoenix.Batcher;
+
 class Vex extends Visual {
 	public var properties : VexPropertyInterface;
 
@@ -20,11 +22,14 @@ class Vex extends Visual {
 
 	override public function new( json : VexJsonFormat, ?onLoad:Dynamic ) {
 		super({no_geometry:true});
+		if (json.batcher == null) json.batcher = Luxe.renderer.batcher;
+		trace(json.batcher.name);
 
 		// create children first, so that properties
 		// we set in the parent (like depth) can trickle down to them
 		if (json.children != null) {
 			for (c in json.children) {
+				if (json.batcher != null) c.batcher = json.batcher;
 				var child = new Vex(c);
 				child.parent = this;
 			}

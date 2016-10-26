@@ -29,6 +29,8 @@ TODO vex level editor v0
 	- replace placingVex bool with separate insertingVex vex
 	- bouncy arrows
 	X arrows whose size are zoom independent
+	X show ideal screen size
+		- snap to "floor"
 
 
 Types of interactive "interest points"
@@ -62,6 +64,9 @@ class Main extends luxe.Game {
 	var selectedStageHandle : Vector = null;
 	var selectedVex : Vex = null;
 	var placingVex = false;
+
+
+	var drawIdealScreenSpace = true;
 
 
 	override function ready() {
@@ -184,6 +189,18 @@ class Main extends luxe.Game {
 		//draw border of selected vex
 		if (selectedVex != null && !placingVex) {
 			renderSelectionBounds();
+		}
+
+		//todo draw ideal screen space
+		if (drawIdealScreenSpace) {
+			var screenMidWorldPos = Luxe.camera.screen_point_to_world( Luxe.screen.mid );
+			Luxe.draw.rectangle({
+					x:screenMidWorldPos.x-400,
+					y:screenMidWorldPos.y-225,
+					w:800,
+					h:450,
+					immediate:true
+				});
 		}
 	} //update
 

@@ -13,7 +13,7 @@
 					{
 						"type": "Description",
 						"name": "description",
-						"text": "Default text description"
+						"text": "Hello, world! Looks like this actually works."
 					}
 				],
 				"type": "ref",

@@ -55,8 +55,6 @@ class Main extends luxe.Game {
 	var linesPerPage = 4;
 	var charTypeSpeed = 0.1;
 	var charDrawSpeed = 0.3;
-	//var charTypeSpeed = 0.3;
-	//var charDrawSpeed = 0.5;
 
 	//constants
 	var defaultCharBox = { //the arbitrariness bothers me
