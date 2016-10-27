@@ -13,7 +13,7 @@
 					{
 						"type": "Description",
 						"name": "description",
-						"text": "Hello, world! Looks like this actually works."
+						"text": "Hello, world! Looks like this actually works. And some more text."
 					}
 				],
 				"type": "ref",

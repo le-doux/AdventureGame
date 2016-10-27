@@ -23,7 +23,7 @@ class Vex extends Visual {
 	override public function new( json : VexJsonFormat, ?onLoad:Dynamic ) {
 		super({no_geometry:true});
 		if (json.batcher == null) json.batcher = Luxe.renderer.batcher;
-		trace(json.batcher.name);
+		//trace(json.batcher.name);
 
 		// create children first, so that properties
 		// we set in the parent (like depth) can trickle down to them
@@ -45,7 +45,7 @@ class Vex extends Visual {
 			loadRef( properties.src );
 		}
 
-		trace(properties.id);
+		//trace(properties.id);
 	}
 
 	public function resetToBasePose() {
@@ -94,27 +94,27 @@ class Vex extends Visual {
 	//TODO clean up this async nonsense -- get advice from snowkit peeps?
 	function loadRef(src:String) {
 		if ( Luxe.resources.has(src) ) {
-			trace("has ref!");
+			//trace("has ref!");
 			var jsonRes = Luxe.resources.json(src);
 			if (jsonRes.state == luxe.Resources.ResourceState.loaded) {
-				trace("load from store");
+				//trace("load from store");
 				var json = jsonRes.asset.json;
 				deserializeRef(json);
 			}
 			else {
 				//TODO does this event handler stick around?
 				Luxe.resources.on(luxe.Resources.ResourceEvent.loaded, function(r:Resource) {
-						trace("load on event");
+						//trace("load on event");
 						var json = Luxe.resources.json(r.id).asset.json;
 						deserializeRef(json);
 					});
 			}
 		}
 		else {
-			trace("load ref!");
+			//trace("load ref!");
 			var load = Luxe.resources.load_json(src);
 			load.then(function(jsonRes : JSONResource) {
-				trace("ref loaded!");
+				//trace("ref loaded!");
 				var json = jsonRes.asset.json;
 				deserializeRef(json);
 
@@ -288,14 +288,14 @@ class Vex extends Visual {
 	public var curTween : luxe.tween.actuators.GenericActuator.IGenericActuator; //don't need both?
 
 	public function traceAnimationNames() {
-		trace("ANIMATION KEYS");
+		//trace("ANIMATION KEYS");
 		for (k in animations.keys()) {
-			trace(k);
+			//trace(k);
 		}
 	}
 	public function addAnimation(json:AnimationFormat, ?name:String) : Animation {
 		if (name == null) {
-			trace(json.id);
+			//trace(json.id);
 			if (json.id != null) {
 				name = json.id;
 			}
@@ -303,7 +303,7 @@ class Vex extends Visual {
 				name = "default";
 			}
 		}
-		trace(name);
+		//trace(name);
 		var anim = new Animation(json, this);
 		animations.set(name, anim);
 		return anim;
@@ -343,7 +343,7 @@ class Vex extends Visual {
 			});
 			Actuate.pause(nextAnimation);
 			curTween.onComplete(function() {
-					trace("play queued!");
+					//trace("play queued!");
 
 					//likely this should be removed later
 					var oldFacingScaleX = scale.x;

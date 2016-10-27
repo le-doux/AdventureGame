@@ -19,7 +19,7 @@ import vexlib.Font;
 
 /*
 	TODO
-	- dialog boxes
+	X dialog boxes
 	X pull tabs
 	X helper size boxes in level editor
 	- scale in level editor
@@ -28,6 +28,8 @@ import vexlib.Font;
 	- move description code out of main
 	X figure out world-space to UI-space transformation
 		X ideal-screen-space to screen-space
+	- bouncy arrows
+	- stop immediate interaction with on-screen objects after leaving a dialog box
 
 
 	TODO
@@ -108,6 +110,9 @@ class Globals {
 	public static var uiCam : Camera;
 	public static function world_point_to_ui_point(p:Vector) {
 		return uiCam.screen_point_to_world( Luxe.camera.world_point_to_screen( p ) );
+	}
+	public static function screen_point_to_ui_point(p:Vector) {
+		return uiCam.screen_point_to_world( p );
 	}
 }
 
@@ -220,8 +225,16 @@ class Main extends luxe.Game {
 	var textBoxPadY = 20;
 	//geometry
 	var descriptionVex = [];
-	var descriptionBox = null;
+	var descriptionBox : Geometry = null;
+	//cur dialog state
 	var curDialogStr = "";
+	var isWaitingToContinueCurDialog = false;
+	var curDialogRow = 0;
+	var curDialogMaxRow = 0;
+	var curDescription : Description = null;
+	var dialogArrowBounce = {
+		y:0
+	};
 
 	override function ready() {
 
@@ -444,6 +457,7 @@ class Main extends luxe.Game {
 				batcher: uiBatcher
 			});
 		*/
+		curDescription = d;
 
 		descriptionBox = Luxe.draw.box({
 				x:textBoxX, y:textBoxY,
@@ -455,8 +469,45 @@ class Main extends luxe.Game {
 
 		descriptionVex = [];
 		curDialogStr = d.text;
+		curDialogRow = 0;
+		isWaitingToContinueCurDialog = false;
 
-		writeText( curDialogStr );
+		writeText( curDialogStr ).onComplete = function(row,maxRow) {
+			curDialogRow = row;
+			curDialogMaxRow = maxRow;
+			isWaitingToContinueCurDialog = true;
+
+			//bouncy arrow
+			dialogArrowBounce.y = 0;
+			Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).delay(0.3).repeat();
+		};
+	}
+
+	function nextDialogPage() {
+		Actuate.stop(dialogArrowBounce); //stop bouncy arrow
+
+		isWaitingToContinueCurDialog = false;
+		clearDescription();
+		if (curDialogRow >= curDialogMaxRow) {
+			uiScreenBatcher.remove(descriptionBox); //awkward way to destroy description box
+			isDescriptionMode = false; //todo settle on "description" or "dialog"
+			curDescription.isDescribing = false; //todo need a better name for this variable (encapsulate in method?)
+			curDescription = null;
+			pullDelta = 0;
+		}
+		else {
+			//next page of dialog
+			writeText( curDialogStr, curDialogRow ).onComplete = function(row,maxRow) {
+				curDialogRow = row;
+				curDialogMaxRow = maxRow;
+				isWaitingToContinueCurDialog = true;
+				
+				//bouncy arrow
+				dialogArrowBounce.y = 0;
+				Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).delay(0.3).repeat();
+			};
+		}
+		
 	}
 
 	function on_joystick_pressed( axis:Vector ) {
@@ -538,6 +589,42 @@ class Main extends luxe.Game {
 
 		//if (player != null && path != null) { //eventually need a smarter way to handle this
 		if (player != null && stage != null) {
+
+			/* DESCRIPTION MODE */
+			//todo make a real state
+			if (isDescriptionMode) {
+
+				if (isWaitingToContinueCurDialog) {
+					//draw next arrow
+					var pull = Math.abs( Main.pullDelta );
+					var anchorPoint = Globals.screen_point_to_ui_point( Luxe.screen.mid );
+					if (pull > 0) {
+						anchorPoint.y += pull;
+					}
+					else {
+						anchorPoint.y += dialogArrowBounce.y;
+					}
+					Luxe.draw.line({
+							p0: anchorPoint,
+							p1: anchorPoint.clone().add( new Vector(-30,-30) ),
+							immediate: true,
+							batcher: uiScreenBatcher
+						});
+					Luxe.draw.line({
+							p0: anchorPoint,
+							p1: anchorPoint.clone().add( new Vector(30,-30) ),
+							immediate: true,
+							batcher: uiScreenBatcher
+						});
+
+					if (pull >= 60) {
+						nextDialogPage();
+					}
+				}
+
+				//stop player from moving during dialog mode (hacky)
+				playerProps.velocity.x = 0;
+			}
 		
 			/* PULL UP & DOWN */
 			if ( joystick.yAxisHeld() ) {
@@ -637,31 +724,30 @@ class Main extends luxe.Game {
 			var prevBlocked = playerProps.blocked.left || playerProps.blocked.right;
 
 			//connect input to player
-			if (!isDescriptionMode) { //todo this doesn't really stop everything --- need a state machine
+			if (isDescriptionMode) {
+				playerProps.velocity.x = 0; //hacky
+			}
+			else if ( joystick.isDown() ) {
+				playerProps.velocity.x = Maths.clamp(joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
+			}
+			else if ( Math.abs(playerProps.velocity.x) > 0 ) {
+				//coasting
+				testCoastingTimer += dt;
+				coastingFriction += coastingFrictionForce * dt;
+				playerProps.velocity.x -= coastingFriction * dt; 
 
-				if ( joystick.isDown() ) {
-					playerProps.velocity.x = Maths.clamp(joystick.axis.x * Settings.IDEAL_SCREEN_SIZE_W, -maxScrollSpeed, maxScrollSpeed);
+				var hasVelocitySignSwitched = (playerProps.velocity.x < 0) != (coastingFrictionForce < 0);
+				if ( hasVelocitySignSwitched ) {
+					playerProps.velocity.x = 0;
+					coastingFrictionForce = 0; //stop coasting
+					coastingFriction = 0;
+					coastingFrictionAcceleration = 0; //not currently being used TODO remove?
+					trace("COASTING TOTAL TIME " + testCoastingTimer);
+					testCoastingTimer = 0;
 				}
-				else if ( Math.abs(playerProps.velocity.x) > 0 ) {
-					//coasting
-					testCoastingTimer += dt;
-					coastingFriction += coastingFrictionForce * dt;
-					playerProps.velocity.x -= coastingFriction * dt; 
-
-					var hasVelocitySignSwitched = (playerProps.velocity.x < 0) != (coastingFrictionForce < 0);
-					if ( hasVelocitySignSwitched ) {
-						playerProps.velocity.x = 0;
-						coastingFrictionForce = 0; //stop coasting
-						coastingFriction = 0;
-						coastingFrictionAcceleration = 0; //not currently being used TODO remove?
-						trace("COASTING TOTAL TIME " + testCoastingTimer);
-						testCoastingTimer = 0;
-					}
-
-				}
-				playerProps.stagePos += playerProps.velocity.x * dt;
 
 			}
+			playerProps.stagePos += playerProps.velocity.x * dt;
 
 			//keep player in bounds
 			playerProps.blocked.left = stage.edgeCollisionLeft( playerProps.stagePos );
@@ -838,22 +924,48 @@ class Main extends luxe.Game {
 		descriptionVex = [];
 	}
 
-	function writeText(text:String, ?onComplete:Dynamic) {
+	/*
+	typedef DialogReturn = {
+		public var onComplete : Dynamic<Int -> Void>
+	}
+	*/
+
+	function writeText(text:String, ?row:Int) {
 		//var count = 0;
 		var typeTimer : snow.api.Timer = null;
 
 		var textLines = preprocessText(text);
-		var row = 0;
+		//var row = 0;
+		if (row == null) row = 0;
+		var startingRow = row;
+		var maxRow = textLines.length;
 		var col = 0;
+
+		var returnObj = {
+			onComplete : null
+		};
+
+		trace("WRITE TEXT");
+		trace(startingRow);
+		trace(maxRow);
 
 		var typeNext = function() {
 
+			var localRow = (row-startingRow); //row count local to this page todo needs better name
+
 			//calculate row & column position of character
-			if (row > linesPerPage) trace("OH NO too many characters on this page");
+			if (localRow >= linesPerPage) {
+				//page is finished!
+				trace("page is DONE");
+				typeTimer.stop();
+				if (returnObj.onComplete != null) returnObj.onComplete(row,maxRow);
+				return;
+			}
 
 			//create vex representation of character
 			//var nextChar = text.charAt(count);
 			var nextChar = textLines[row].charAt(col);
+			trace(nextChar);
 			var tweenNextChar = null;
 			if (font.exists(nextChar)) { //skip undefined characters
 				var json = font.get(nextChar);
@@ -864,7 +976,7 @@ class Main extends luxe.Game {
 				v.scale.y = charHeightScale;
 				//position character
 				v.pos.x = textBoxX + textBoxPadX + (col * charWidth) + (charWidth/2);
-				v.pos.y = textBoxY + textBoxPadY + (row * charHeight) + (charHeight/2);
+				v.pos.y = textBoxY + textBoxPadY + (localRow * charHeight) + (charHeight/2);
 
 				//start character animation
 				tweenNextChar = animateStrokes(v, charDrawSpeed);
@@ -880,19 +992,23 @@ class Main extends luxe.Game {
 				row++;
 
 				if (row >= textLines.length) {
-					//page is finished!
+					//dialog is finished!
 					typeTimer.stop();
 
-					if (onComplete != null) {
+					if (returnObj.onComplete != null) {
 						if (tweenNextChar != null) {
 							//if there's a character drawing, wait until it finishes to launch oncomplete
 							tweenNextChar.onComplete(function() {
-									onComplete();
+									//onComplete();
+									trace("B");
+									returnObj.onComplete(row,maxRow);
 								});
 						}
 						else {
 							//or just do it now (will this ever happen?)
-							onComplete();
+							//onComplete();
+							trace("C");
+							returnObj.onComplete(row,maxRow);
 						}
 					}
 				}
@@ -900,6 +1016,8 @@ class Main extends luxe.Game {
 		};
 
 		typeTimer = Luxe.timer.schedule(charTypeSpeed, typeNext, true);
+
+		return returnObj;
 	}
 
 	function preprocessText(text:String) : Array<String> {
@@ -1042,7 +1160,7 @@ class Description extends luxe.Component {
 	public static var uiBatcher : Batcher; //hacky
 	public static var player : Vex; //also hacky
 
-	var isDescribing = false;
+	public var isDescribing = false;
 
 	override public function new(?options:DescriptionOptions) {
 		super(options);

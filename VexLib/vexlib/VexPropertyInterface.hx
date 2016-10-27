@@ -186,11 +186,11 @@ class VexPropertyInterface {
 	}
 
 	function set_path(prop:Property) : Property {
-		trace(prop);
+		//trace(prop);
 		path = prop;
 		if (visual != null) {
 			if (type == "poly") {
-				trace(batch.name);
+				//trace(batch.name);
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.triangles,
 						//batcher: Luxe.renderer.batcher
@@ -225,7 +225,7 @@ class VexPropertyInterface {
 					i += 3;
 				}
 
-				trace( visual.geometry.vertices );
+				//trace( visual.geometry.vertices );
 			}
 			else if (type == "line") { //best name? other options: stroke, outline
 				/* MESH LINES */
@@ -374,11 +374,11 @@ class VexPropertyInterface {
 		components = componentData;
 
 		for (c in components) {
-			trace("!!!!!!");
-			trace(Type.resolveClass("AnotherTestComp"));
-			trace(c);
+			//trace("!!!!!!");
+			//trace(Type.resolveClass("AnotherTestComp"));
+			//trace(c);
 			var rc = Type.resolveClass(c.type);
-			trace(rc);
+			//trace(rc);
 			var ci = Type.createInstance( rc, [c] );
 			visual.add( ci );
 		}
@@ -494,20 +494,20 @@ abstract Property(String) from String to String {
 			else {
 				//you're fucked
 			}
-			trace("HEXXXX!!!");
-			trace(hexStr);
+			//trace("HEXXXX!!!");
+			//trace(hexStr);
 			var hexInt = Std.parseInt( hexStr );
 			var r = ( (hexInt >> 16) & 0xff ) / 255;
 			var g = ( (hexInt >>  8) & 0xff ) / 255;
 			var b = ( (hexInt >>  0) & 0xff ) / 255;
-			trace(r);
-			trace(g);
-			trace(b);
+			//trace(r);
+			//trace(g);
+			//trace(b);
 			return new Color(r,g,b);
 		}
 
 		var r = ~/[\(\)]/;
-		trace(this);
+		//trace(this);
 		var colorArguments = r.split(this);
 		var formatStr = colorArguments[0];
 
