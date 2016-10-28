@@ -28,8 +28,9 @@ import vexlib.Font;
 	- move description code out of main
 	X figure out world-space to UI-space transformation
 		X ideal-screen-space to screen-space
-	- bouncy arrows
+	X bouncy arrows
 	- stop immediate interaction with on-screen objects after leaving a dialog box
+	- make transition between bouncy-arrow and player-swiped-arrow smoother
 
 
 	TODO
@@ -479,7 +480,8 @@ class Main extends luxe.Game {
 
 			//bouncy arrow
 			dialogArrowBounce.y = 0;
-			Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).delay(0.3).repeat();
+			//Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).delay(0.3).repeat();
+			Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 		};
 	}
 
@@ -504,7 +506,8 @@ class Main extends luxe.Game {
 				
 				//bouncy arrow
 				dialogArrowBounce.y = 0;
-				Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).delay(0.3).repeat();
+				//Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).delay(0.3).repeat();
+				Actuate.tween(dialogArrowBounce,1,{y:30}).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 			};
 		}
 		
@@ -598,7 +601,7 @@ class Main extends luxe.Game {
 					//draw next arrow
 					var pull = Math.abs( Main.pullDelta );
 					var anchorPoint = Globals.screen_point_to_ui_point( Luxe.screen.mid );
-					if (pull > 0) {
+					if ( Luxe.input.mousedown(1) || pull > 0 ) { //joystick.yAxisHeld() ) { //need a generic joystick.inputHeld()
 						anchorPoint.y += pull;
 					}
 					else {
@@ -1162,6 +1165,11 @@ class Description extends luxe.Component {
 
 	public var isDescribing = false;
 
+	var bouncyArrow = {
+		y: 0
+	};
+	var wasVisible = false;
+
 	override public function new(?options:DescriptionOptions) {
 		super(options);
 		if (options.text != null) text = options.text;
@@ -1177,13 +1185,31 @@ class Description extends luxe.Component {
 			drawArrow();
 		}
 		else {
-			if (isArrowVisible()) { 
+			var isVisible = isArrowVisible();
+
+			//hacky state-change events
+			if (isVisible && !wasVisible) {
+				//start bouncy arrow
+				bouncyArrow.y = -20;
+				Actuate.tween(bouncyArrow, 1, {y:0}).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
+			}
+			else if (!isVisible && wasVisible) {
+				//stop bouncy arrow
+				Actuate.stop(bouncyArrow);
+				bouncyArrow.y = 0;
+			}
+
+
+			if (isVisible) {
+				//draw arrow
 				drawArrow();
 				if (Math.abs( Main.pullDelta ) > 60) {
 					Luxe.events.fire("description", this);
 					startDescription();
 				}
 			}
+
+			wasVisible = isVisible;
 		}
 	}
 
@@ -1214,7 +1240,12 @@ class Description extends luxe.Component {
 		anchorPoint = Globals.world_point_to_ui_point( anchorPoint );
 		anchorPoint.y -= 30;
 		if (!isEditorMode) {
-			anchorPoint.y += Math.abs( Main.pullDelta );
+			if (Luxe.input.mousedown(1) || Math.abs( Main.pullDelta ) > 0 ) { //todo replace w/ something in joystick class
+				anchorPoint.y += Math.abs( Main.pullDelta );
+			}
+			else {
+				anchorPoint.y += bouncyArrow.y;
+			}
 		}
 
 		Luxe.draw.line({
