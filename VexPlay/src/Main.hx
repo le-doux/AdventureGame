@@ -18,20 +18,63 @@ import vexlib.Stage;
 import vexlib.Font;
 
 /*
+	//TODO by a new iphone charging cord (I guess I do have one in the car)
+
+	What next?
+	- options:
+		- graphics glitches
+		- responsive-ness of touch controls
+		- improving usability of tools
+		* make a tiny game
+			- requires: exits, ?dialog, ?choices
+			- need a script too
+		* test on phone
+		- big refactor of code-base
+		- exits
+
 	TODO
 	X dialog boxes
 	X pull tabs
 	X helper size boxes in level editor
 	- scale in level editor
+	- parallax in level editor
+	- drawing in level editor
+	- clipboard support in editors
+	- pull out a bunch of generic editor code into the lib
 	X move path code into stage class
 	X background color in stage class
 	- move description code out of main
+		- this is a harder problem than it looks
 	X figure out world-space to UI-space transformation
 		X ideal-screen-space to screen-space
 	X bouncy arrows
 	- stop immediate interaction with on-screen objects after leaving a dialog box
 	- make transition between bouncy-arrow and player-swiped-arrow smoother
-
+	- try everything on mobile
+	- maybe think about: pull camera up when entering dialog box mode
+		- think about: what's a good way to handle targeted camera positions and character positions in dialog mode
+	- exits
+		- are exits components?
+		- are they attached to vex? or the scene?
+		- what about left/right edge exits?
+		- do we distinguish between up exits and down exits? (don't currently with dialog)
+		- in general, how do we handle attached-to-level vs attached-to-vex and what is the relationship between the two modes?
+			- need: generic pull-tab class, overall pull-tab handler in the game
+				- tabs have an ?orientation, and position, and ?priority
+				- only one can be drawn at a time (the game is responsible for doint that)
+				- on pull, various things can be activated
+					- components seem like a good way to specify this
+					- what is a good way to have components all pile on the same pulltab?
+					- need a callback function blah blah
+				- this way, whatever editor/viewer it is can decide how / how-not to render the pull tabs (level editor vs level player)
+	- readabilty of next arrows
+	- trigger animations and other things on dialog / pull tab pull (generic pull tab thing?)
+		- animation registration component
+	- reconsider text update speed
+	- camera that tracks interactables in the scene?
+	- what's the actual framerate on the text?
+	- movement still feels unresponsive, especially on tablet
+	- lots of flickering going when animations are triggered
 
 	TODO
 	X re-implement ability for sudden stop
