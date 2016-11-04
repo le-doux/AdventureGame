@@ -41,6 +41,7 @@ import vexlib.Font;
 		- skeletons?
 		- make grouping better?
 	- bring in bezier curve & "noodle" limb experiments
+	- JSON pretty-printing for vex
 
 	TODO
 	X dialog boxes

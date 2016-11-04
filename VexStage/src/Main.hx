@@ -281,10 +281,8 @@ class Main extends luxe.Game {
 	}
 
 	override function onmousewheel(e:MouseEvent) {
-		trace("scroll");
-		trace(e.y_rel);
 		/* ZOOMING */
-		Luxe.camera.zoom += e.y_rel * 0.03 * Luxe.camera.zoom;
+		Luxe.camera.zoom += e.y * 0.03 * Luxe.camera.zoom;
 	}
 
 	function renderSelectionBounds() {
