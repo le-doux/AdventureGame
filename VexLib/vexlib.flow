@@ -1,0 +1,17 @@
+{
+
+  project : {
+    name : 'vexlib',
+    version : '1.0.0',
+    author : 'Adam Le Doux',
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        poly2trihx : '*'
+      }
+    }
+
+  }
+
+}

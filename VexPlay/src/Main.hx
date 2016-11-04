@@ -18,7 +18,15 @@ import vexlib.Stage;
 import vexlib.Font;
 
 /*
-	//TODO by a new iphone charging cord (I guess I do have one in the car)
+	Next set of priorities
+	- make a game with the tools I have
+		- release it?
+	- refactor the existing code base (functionalize it)
+	- catalog todos and reorganize them
+	- improve my editing tools based on my experience making tiny game
+
+
+	//TODO buy a new iphone charging cord (I guess I do have one in the car)
 
 	What next?
 	- options:
