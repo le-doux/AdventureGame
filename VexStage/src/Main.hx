@@ -27,7 +27,7 @@ TODO vex level editor v0
 	X save / load stage
 	? set entrances / exits / other "interest points"
 	- replace placingVex bool with separate insertingVex vex
-	- bouncy arrows
+	X bouncy arrows
 	X arrows whose size are zoom independent
 	X show ideal screen size
 		- snap to "floor"
@@ -81,6 +81,7 @@ class Main extends luxe.Game {
 		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
 		uiSceneBatcher = Luxe.renderer.create_batcher({name:"uiSceneBatcher", layer:5, camera:Luxe.camera.view});
 		Description.uiBatcher = uiScreenBatcher;
+		Exit.uiBatcher = uiScreenBatcher;
 
 		//load default palettes - hacky nonsense
 		var load = Luxe.resources.load_json('assets/testpal.vex');
@@ -114,6 +115,13 @@ class Main extends luxe.Game {
 			if (selectedVex != null) {
 				//selectedVex.add(new Description({name:"description",text:"Default text description"}));
 				selectedVex.properties.AddComponent({type:"Description",name:"description",text:"Default text description"});
+			}
+		}
+
+		/* ADD EXIT */
+		if (e.keycode == Key.key_e && e.mod.meta) {
+			if (selectedVex != null) {
+				selectedVex.properties.AddComponent({type:"Exit",name:"exit",description:"assets/newstagetest.vex"});
 			}
 		}
 
@@ -245,16 +253,16 @@ class Main extends luxe.Game {
 	override function onmousemove( e:MouseEvent ) {
 		/* panning */
 		if (isPanning) {
-			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
-			Luxe.camera.pos.y -= e.yrel / Luxe.camera.zoom;
+			Luxe.camera.pos.x -= e.x_rel / Luxe.camera.zoom;
+			Luxe.camera.pos.y -= e.y_rel / Luxe.camera.zoom;
 			return;
 		}
 
 		if (selectedStageHandle != null) {
 			var shiftDown = ( Luxe.input.keydown( Key.lshift) || Luxe.input.keydown( Key.rshift) );
-			selectedStageHandle.x += e.xrel / Luxe.camera.zoom;
+			selectedStageHandle.x += e.x_rel / Luxe.camera.zoom;
 			if (!shiftDown) //hold shift to only move in x coords
-				selectedStageHandle.y += e.yrel / Luxe.camera.zoom;
+				selectedStageHandle.y += e.y_rel / Luxe.camera.zoom;
 		}
 
 	}
@@ -273,8 +281,10 @@ class Main extends luxe.Game {
 	}
 
 	override function onmousewheel(e:MouseEvent) {
+		trace("scroll");
+		trace(e.y_rel);
 		/* ZOOMING */
-		Luxe.camera.zoom += e.yrel * 0.03 * Luxe.camera.zoom;
+		Luxe.camera.zoom += e.y_rel * 0.03 * Luxe.camera.zoom;
 	}
 
 	function renderSelectionBounds() {
@@ -333,6 +343,54 @@ class Description extends luxe.Component {
 		super(options);
 		if (options.text != null) text = options.text;
 		Main.Instance.stage.registerDescription(this); //TODO this is probably a terrible way to to do this
+	}
+
+	override public function init() {
+		vex = cast(this.entity);
+	}
+
+	override public function update(dt:Float) {
+		if (isEditorMode) {
+			//draw pull tab
+			var bounds = vex.boundsWorld();
+			var topY = bounds[0].y;
+			var midX = bounds[0].x + ((bounds[1].x - bounds[0].x)/2);
+
+			var anchorPoint = new Vector(midX,topY);
+			anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
+			anchorPoint.y -= 30;
+
+			Luxe.draw.line({
+					p0: anchorPoint,
+					p1: anchorPoint.clone().add(new Vector(-30,-30)),
+					immediate: true,
+					batcher: uiBatcher
+				});
+			Luxe.draw.line({
+					p0: anchorPoint,
+					p1: anchorPoint.clone().add(new Vector(30,-30)),
+					immediate: true,
+					batcher: uiBatcher
+				});
+		}
+	}
+}
+
+/* EXIT */ //TODO different version from VexPlay, which is really bad...
+typedef ExitOptions = {
+	> luxe.options.ComponentOptions,
+	@:optional public var destination : String; 
+}
+
+class Exit extends luxe.Component {
+	public var destination : String;
+	public var vex : Vex;
+	public var isEditorMode = true;
+	public static var uiBatcher : Batcher; //hacky
+
+	override public function new(?options:ExitOptions) {
+		super(options);
+		if (options.destination != null) destination = options.destination;
 	}
 
 	override public function init() {

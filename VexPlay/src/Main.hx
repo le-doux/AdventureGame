@@ -28,9 +28,19 @@ import vexlib.Font;
 		* make a tiny game
 			- requires: exits, ?dialog, ?choices
 			- need a script too
-		* test on phone
+		X test on phone
 		- big refactor of code-base
-		- exits
+		X exits
+		 X in play mode
+		 X in editor
+
+	THINGS I WANT
+	- phone app for vector editing (dropbox hookup?)
+	- copy/pasting with real clipboard
+	- reduce reliance on grouping
+		- skeletons?
+		- make grouping better?
+	- bring in bezier curve & "noodle" limb experiments
 
 	TODO
 	X dialog boxes
@@ -412,6 +422,25 @@ class Main extends luxe.Game {
 				player.addAnimation(json);
 			});
 
+
+			//todo this is here because Description and Exit will throw a fit if it's not
+			//I need a better non-nested way to do this? a second "ready" function?
+			Description.player = player;
+			Exit.player = player;
+
+			//this nesting is bullshit --- isn't there some kind of package thing in luxe?
+			/* NEW STAGE */
+			trace(stageSrc);
+			var loadStage = Luxe.resources.load_json( stageSrc );
+			loadStage.then(function(jsonRes : JSONResource) {
+				trace("%%%%%%%%%%%%%%%%%%");
+				trace("stage loaded!");
+				var json : StageFormat = jsonRes.asset.json;
+				stage = new Stage(json);
+				Luxe.renderer.clear_color = stage.background; //Palette.Colors[0]; //hack
+				trace("stage loaded!");
+			});
+
 		});
 
 		/* STAGE */
@@ -453,21 +482,14 @@ class Main extends luxe.Game {
 		uiCam.size = new Vector(Settings.IDEAL_SCREEN_SIZE_W, Settings.IDEAL_SCREEN_SIZE_H);
 		uiCam.size_mode = luxe.Camera.SizeMode.fit;
 		uiScreenBatcher = Luxe.renderer.create_batcher({name:"uiScreenBatcher", layer:10, camera:uiCam.view});
-		Description.uiBatcher = uiScreenBatcher;
+		Description.uiBatcher = uiScreenBatcher; //hacky
+		Exit.uiBatcher = uiScreenBatcher; //hacky
 		Globals.uiCam = uiCam; //hacky af
-
-		/* NEW STAGE */
-		var loadStage = Luxe.resources.load_json( stageSrc );
-		loadStage.then(function(jsonRes : JSONResource) {
-			var json : StageFormat = jsonRes.asset.json;
-			stage = new Stage(json);
-			Luxe.renderer.clear_color = stage.background; //Palette.Colors[0]; //hack
-			Description.uiBatcher = uiScreenBatcher;
-			Description.player = player;
-		});
 
 		/* DESCRIPTION */
 		Luxe.events.listen("description", start_description);
+		/* EXIT */
+		Luxe.events.listen("exit", switch_stage);
 
 		/* DIALOG BOX*/
 		//load the system font (aka the default font I made)
@@ -486,6 +508,21 @@ class Main extends luxe.Game {
 		charHeightScale = charHeight / defaultCharBox.height;
 		trace(textBoxWidth);
 		trace("&&&&&&&&&&&");
+	}
+
+	/* EXIT */
+	function switch_stage(e:Exit) {
+		//destroy current stage
+		stage.scenery.destroy();
+		stage = null; //need to do anything else with this object? it's no an entity so I guess not
+
+		//load next stage
+		var loadStage = Luxe.resources.load_json( e.destination );
+		loadStage.then(function(jsonRes : JSONResource) {
+			var json : StageFormat = jsonRes.asset.json;
+			stage = new Stage(json);
+			Luxe.renderer.clear_color = stage.background;
+		});
 	}
 
 	/* DESCRIPTION */
@@ -1305,6 +1342,106 @@ class Description extends luxe.Component {
 			});
 	}
 }
+
+
+/* EXIT */
+typedef ExitOptions = {
+	> luxe.options.ComponentOptions,
+	@:optional public var destination : String; 
+}
+
+class Exit extends luxe.Component {
+	public var destination : String;
+	public var vex : Vex;
+	public var isEditorMode = false;
+
+	public static var uiBatcher : Batcher; //hacky
+	public static var player : Vex; //also hacky
+
+	var bouncyArrow = {
+		y: 0
+	};
+	var wasVisible = false;
+
+	override public function new(?options:ExitOptions) {
+		super(options);
+		if (options.destination != null) destination = options.destination;
+	}
+
+	override public function init() {
+		vex = cast(this.entity);
+	}
+
+	override public function update(dt:Float) {
+		if (isEditorMode) {
+			drawArrow();
+		}
+		else {
+			var isVisible = isArrowVisible();
+
+			//hacky state-change events
+			if (isVisible && !wasVisible) {
+				//start bouncy arrow
+				bouncyArrow.y = -20;
+				Actuate.tween(bouncyArrow, 1, {y:0}).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
+			}
+			else if (!isVisible && wasVisible) {
+				//stop bouncy arrow
+				Actuate.stop(bouncyArrow);
+				bouncyArrow.y = 0;
+			}
+
+
+			if (isVisible) {
+				//draw arrow
+				drawArrow();
+				if (Math.abs( Main.pullDelta ) > 60) {
+					Luxe.events.fire("exit", this);
+				}
+			}
+
+			wasVisible = isVisible;
+		}
+	}
+
+	function isArrowVisible() {
+		return ( Math.abs(player.pos.x - vex.pos.x) < 300 );
+	}
+
+	function drawArrow() {
+		//draw pull tab
+		var bounds = vex.boundsWorld();
+		var topY = bounds[0].y;
+		var midX = bounds[0].x + ((bounds[1].x - bounds[0].x)/2);
+
+		var anchorPoint = new Vector(midX,topY);
+		//anchorPoint = Luxe.camera.world_point_to_screen( anchorPoint );
+		anchorPoint = Globals.world_point_to_ui_point( anchorPoint );
+		anchorPoint.y -= 30;
+		if (!isEditorMode) {
+			if (Luxe.input.mousedown(1) || Math.abs( Main.pullDelta ) > 0 ) { //todo replace w/ something in joystick class
+				anchorPoint.y += Math.abs( Main.pullDelta );
+			}
+			else {
+				anchorPoint.y += bouncyArrow.y;
+			}
+		}
+
+		Luxe.draw.line({
+				p0: anchorPoint,
+				p1: anchorPoint.clone().add(new Vector(-30,-30)),
+				immediate: true,
+				batcher: uiBatcher
+			});
+		Luxe.draw.line({
+				p0: anchorPoint,
+				p1: anchorPoint.clone().add(new Vector(30,-30)),
+				immediate: true,
+				batcher: uiBatcher
+			});
+	}
+}
+
 
 /* DUST PARTICLE 
 	- spin

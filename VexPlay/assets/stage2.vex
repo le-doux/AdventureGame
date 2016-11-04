@@ -24,6 +24,19 @@
 				"pos": "660.9236952239,-70.5612486004163",
 				"type": "ref",
 				"id": "shroom"
+			},
+			{
+				"type": "poly",
+				"path": "30,0 0,30 -30,0 0,-30",
+				"pos": "-200,100",
+				"color": "pal(7)",
+				"components": [
+					{
+						"type": "Exit",
+						"name": "exit",
+						"destination": "assets/newstagetest.vex"
+					}
+				]
 			}
 		]
 	},
