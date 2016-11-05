@@ -190,6 +190,9 @@ class VexPropertyInterface {
 		path = prop;
 		if (visual != null) {
 			if (type == "poly") {
+
+				//TODO replace VexTools
+
 				//trace(batch.name);
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.triangles,
@@ -207,6 +210,8 @@ class VexPropertyInterface {
 				p2t.addPolyline( p2tpath );
 				p2t.performTriangulationOnce();
 				var results = p2t.getVerticesAndTriangles();
+
+				//TODO replace VexTools
 
 				var i = 0;
 				while (i < results.triangles.length) {
@@ -265,7 +270,7 @@ class VexPropertyInterface {
 
 		var pathAsVectors : Array<Vector> = line;
 
-		
+		//TODO replace VexTools
 		//old approach
 		for (i in 1 ... pathAsVectors.length) {
 			visual.geometry.add(new Vertex(pathAsVectors[i-1]));
@@ -373,6 +378,7 @@ class VexPropertyInterface {
 	function set_components(componentData:Array<ComponentJsonFormat>) : Array<ComponentJsonFormat> {
 		components = componentData;
 
+		//TODO replace VexTools
 		for (c in components) {
 			//trace("!!!!!!");
 			//trace(Type.resolveClass("AnotherTestComp"));
@@ -388,6 +394,7 @@ class VexPropertyInterface {
 
 	//is this really the best way to do this?
 	public function AddComponent(options:Dynamic) {
+		//TODO replace VexTools
 		var rc = Type.resolveClass(options.type);
 		var ci = Type.createInstance( rc, [options] );
 		visual.add( ci );
@@ -405,11 +412,13 @@ abstract Property(String) from String to String {
 
 	@:from
 	static public function fromVector(v:Vector) {
+		//TODO replace VexTools
 		return new Property(v.x + "," + v.y);
 	}
 
 	@:to
 	public function toVector() : Vector {
+		//TODO replace VexTools
 		var coords = this.split(",");
 		var x = Std.parseFloat(coords[0]);
 		var y = Std.parseFloat(coords[1]);
@@ -418,6 +427,7 @@ abstract Property(String) from String to String {
 
 	@:from
 	static public function fromPath(path:Array<Vector>) {
+		//TODO replace VexTools
 		var pathStr = "";
 		for (i in 0 ... path.length) {
 			var p = path[i];
@@ -518,7 +528,7 @@ abstract Property(String) from String to String {
 		}
 		/* RGB COLOR */
 		else if (formatStr == "rgb") { 
-			var rgbArr = colorArguments[0].split(",");
+			var rgbArr = colorArguments[1].split(",");
 			var r = Std.parseFloat( rgbArr[0] );
 			var g = Std.parseFloat( rgbArr[1] );
 			var b = Std.parseFloat( rgbArr[2] );
@@ -531,7 +541,7 @@ abstract Property(String) from String to String {
 		}
 		/* HSL COLOR */
 		else if (formatStr == "hsl") {
-			var hslArr = colorArguments[0].split(",");
+			var hslArr = colorArguments[1].split(",");
 			var h = Std.parseFloat( hslArr[0] );
 			var s = Std.parseFloat( hslArr[1] );
 			var l = Std.parseFloat( hslArr[2] );
