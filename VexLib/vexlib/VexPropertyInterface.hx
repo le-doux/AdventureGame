@@ -186,207 +186,39 @@ class VexPropertyInterface {
 	}
 
 	function set_path(prop:Property) : Property {
-		//trace(prop);
 		path = prop;
 		if (visual != null) {
 			if (type == "poly") {
 
-				//TODO replace VexTools
-
-				//trace(batch.name);
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.triangles,
-						//batcher: Luxe.renderer.batcher
 						batcher: batch
 					});
 
-				var p2tpath = [];
-				var pathAsVectors : Array<Vector> = path;
-				for (v in pathAsVectors) {
-					p2tpath.push( new org.poly2tri.Point(v.x, v.y) );
-				}
+				var mesh = VexTools.pathToMesh( path );
 
-				var p2t = new org.poly2tri.VisiblePolygon();
-				p2t.addPolyline( p2tpath );
-				p2t.performTriangulationOnce();
-				var results = p2t.getVerticesAndTriangles();
+				visual.geometry = VexTools.addTrianglesToGeometry( visual.geometry, mesh );
 
-				//TODO replace VexTools
-
-				var i = 0;
-				while (i < results.triangles.length) {
-					for (j in i ... (i+3)) {
-						var vIndex = results.triangles[j] * 3;
-
-						var x = results.vertices[vIndex + 0];
-						var y = results.vertices[vIndex + 1];
-						var z = results.vertices[vIndex + 2];
-
-						var vertex = new Vertex(new Vector(x, y, z));
-
-						visual.geometry.add(vertex); 
-					}
-
-					i += 3;
-				}
-
-				//trace( visual.geometry.vertices );
 			}
 			else if (type == "line") { //best name? other options: stroke, outline
-				/* MESH LINES */
-				//multipath version
-				var lines : Array<Array<Vector>> = path;
 
-				//just make the damn geometry, it can be empty for all I care
-
-				
-				//old approach
 				visual.geometry = new Geometry({
 					primitive_type: PrimitiveType.lines,
-					//batcher: Luxe.renderer.batcher
 					batcher: batch
 				});
-				
-				
-				//new approach
-				/*
-				visual.geometry = new Geometry({
-					primitive_type: PrimitiveType.triangles,
-					batcher: Luxe.renderer.batcher
-				});
-				*/
-				
 
-				for (l in lines) {
-					add_line_geometry(l);
-				}
+				visual.geometry = VexTools.addMultilineToGeometry( visual.geometry, path );
+				
 			}
 		}
 		return path;
 	}
 
-	//todo improve width at joints
-	function add_line_geometry(line:Array<Vector>) {
-
-		var pathAsVectors : Array<Vector> = line;
-
-		//TODO replace VexTools
-		//old approach
-		for (i in 1 ... pathAsVectors.length) {
-			visual.geometry.add(new Vertex(pathAsVectors[i-1]));
-			visual.geometry.add(new Vertex(pathAsVectors[i-0]));
-		}
-		
-
-		//new approach
-		// MESH LINES //
-		/*
-		var linewidth = 1.0;
-		if (weight == "regular") linewidth = 2.0; //better way to control this?
-		if (weight == "thick") linewidth = 4.0;
-		*/
-		
-		/*
-		var linewidth = weight;
-
-		if (pathAsVectors.length >= 2) {
-			var left0 : Vector = null;
-			var right0 : Vector = null;
-			var left1 : Vector = null;
-			var right1 : Vector = null;
-
-			for (i in 2 ... pathAsVectors.length) {
-				var p0 = pathAsVectors[i-2];
-				var p1 = pathAsVectors[i-1];
-				var p2 = pathAsVectors[i-0];
-
-				var p0_to_p1 = Vector.Subtract(p1, p0);
-				var p1_to_p2 = Vector.Subtract(p2, p1);
-				var unitForward = Vector.Add( p0_to_p1.normalized, p1_to_p2.normalized ).normalized;
-				var radiansForward = unitForward.angle2D;
-				var degreesForward = Maths.degrees(radiansForward);
-				var degreesRight = degreesForward + 90;
-				var radiansRight = Maths.radians(degreesRight);
-				var unitRight = (new Vector(1,0));
-				unitRight.angle2D = radiansRight;
-				var rightward = Vector.Multiply(unitRight, linewidth);
-				var leftward = Vector.Multiply(rightward, -1);
-
-				//todo
-				if (i-2 == 0) {
-					// FIRST QUAD //
-					var unitForward0 = p0_to_p1.normalized;
-					var radiansForward0 = unitForward0.angle2D;
-					var degreesForward0 = Maths.degrees(radiansForward0);
-					var degreesRight0 = degreesForward0 + 90;
-					var radiansRight0 = Maths.radians(degreesRight0);
-					var unitRight0 = (new Vector(1,0));
-					unitRight0.angle2D = radiansRight0;
-					var rightward0 = Vector.Multiply(unitRight0, linewidth);
-					var leftward0 = Vector.Multiply(rightward0, -1);
-
-					left0 = Vector.Add(p0, leftward0);
-					right0 = Vector.Add(p0, rightward0);
-				}
-				else {
-					// MIDDLE QUADS //
-					left0 = left1;
-					right0 = right1;
-				}
-
-				left1 = Vector.Add(p1, leftward);
-				right1 = Vector.Add(p1, rightward);
-
-				//line segment quad
-				visual.geometry.add(new Vertex(left0)); //left triangle
-				visual.geometry.add(new Vertex(right0));
-				visual.geometry.add(new Vertex(left1));
-				visual.geometry.add(new Vertex(right0)); //right triangle
-				visual.geometry.add(new Vertex(left1));
-				visual.geometry.add(new Vertex(right1));
-
-				if (i == pathAsVectors.length-1) {
-					// LAST QUAD //
-					var unitForward2 = p1_to_p2.normalized;
-					var radiansForward2 = unitForward2.angle2D;
-					var degreesForward2 = Maths.degrees(radiansForward2);
-					var degreesRight2 = degreesForward2 + 90;
-					var radiansRight2 = Maths.radians(degreesRight2);
-					var unitRight2 = (new Vector(1,0));
-					unitRight2.angle2D = radiansRight2;
-					var rightward2 = Vector.Multiply(unitRight2, linewidth);
-					var leftward2 = Vector.Multiply(rightward2, -1);
-
-					var left2 = Vector.Add(p2, leftward2);
-					var right2 = Vector.Add(p2, rightward2);
-
-					//line segment quad
-					visual.geometry.add(new Vertex(left1)); //left triangle
-					visual.geometry.add(new Vertex(right1));
-					visual.geometry.add(new Vertex(left2));
-					visual.geometry.add(new Vertex(right1)); //right triangle
-					visual.geometry.add(new Vertex(left2));
-					visual.geometry.add(new Vertex(right2));
-				}
-
-			}
-		}
-		*/
-
-	}
-
 	function set_components(componentData:Array<ComponentJsonFormat>) : Array<ComponentJsonFormat> {
 		components = componentData;
 
-		//TODO replace VexTools
 		for (c in components) {
-			//trace("!!!!!!");
-			//trace(Type.resolveClass("AnotherTestComp"));
-			//trace(c);
-			var rc = Type.resolveClass(c.type);
-			//trace(rc);
-			var ci = Type.createInstance( rc, [c] );
-			visual.add( ci );
+			visual.add( VexTools.jsonToComponent(c) );
 		}
 
 		return components;
@@ -394,13 +226,12 @@ class VexPropertyInterface {
 
 	//is this really the best way to do this?
 	public function AddComponent(options:Dynamic) {
-		//TODO replace VexTools
-		var rc = Type.resolveClass(options.type);
-		var ci = Type.createInstance( rc, [options] );
-		visual.add( ci );
+		visual.add( VexTools.jsonToComponent(options) );
+
 		if (components == null) {
 			components = [];
 		}
+		
 		components.push(options);
 	}
 }
@@ -412,150 +243,42 @@ abstract Property(String) from String to String {
 
 	@:from
 	static public function fromVector(v:Vector) {
-		//TODO replace VexTools
-		return new Property(v.x + "," + v.y);
+		return new Property( VexTools.vectorToString(v) );
 	}
 
 	@:to
 	public function toVector() : Vector {
-		//TODO replace VexTools
-		var coords = this.split(",");
-		var x = Std.parseFloat(coords[0]);
-		var y = Std.parseFloat(coords[1]);
-		return new Vector(x,y);
+		return VexTools.stringToVector( this );
 	}
 
 	@:from
 	static public function fromPath(path:Array<Vector>) {
-		//TODO replace VexTools
-		var pathStr = "";
-		for (i in 0 ... path.length) {
-			var p = path[i];
-			var pointProp : Property = p;
-			pathStr += pointProp;
-			if (i < path.length - 1) {
-				pathStr += " ";
-			}
-		}
-		return new Property(pathStr);
+		return new Property( VexTools.pathToString(path) );
 	}
 
 	@:to
 	public function toPath() : Array<Vector> {
-		if (this.indexOf("Z") != -1) { //if it has a Z, it's really a multipath
-			//hacky solution for now
-			return toMultiPath()[0];
-		}
-
-		var path : Array<Vector> = [];
-		var points = this.split(" ");
-		for (p in points) {
-			var pointProp : Property = p;
-			path.push(pointProp);
-		}
-		return path;
+		return VexTools.stringToPath( this );
 	}
 
 	@:from
 	static public function fromMultiPath(multipath:Array<Array<Vector>>) {
-		var multiPathStr = "";
-		for (p in multipath) {
-			var prop : Property = p;
-			multiPathStr += prop;
-			multiPathStr += " Z ";
-		}
-		return new Property(multiPathStr);
+		return new Property( VexTools.multipathToString(multipath) );
 	}
 
 	@:to
 	public function toMultiPath() : Array<Array<Vector>> {
-		var multipath : Array<Array<Vector>> = [];
-		var paths = this.split("Z"); //todo is this a good path end marker?
-		for (p in paths) {
-			p = StringTools.trim(p);
-			var prop : Property = p;
-			multipath.push( prop.toPath() );
-		}
-		return multipath;
+		return VexTools.stringToMultipath( this );
 	}
 
-	/*
 	@:from
-	static public function fromColor(c:Color) {}
-	*/
+	static public function fromColor(c:Color) {
+		return new Property( VexTools.colorToString(c) );
+	}
 
 	@:to
 	public function toColor() : Color {
-
-		/* HEX COLOR */
-		if (this.charAt(0) == "#") {
-			var hexStr = "0x";
-			var hexCharSubStr = this.substring(1); //hack off the #
-			if (hexCharSubStr.length == 3) {
-				//double the compressed hex code (e.g. #fa0 -> #ffaa00)
-				hexStr += hexCharSubStr.charAt(0) + hexCharSubStr.charAt(0) + 
-							hexCharSubStr.charAt(1) + hexCharSubStr.charAt(1) +
-							hexCharSubStr.charAt(2) + hexCharSubStr.charAt(2);
-			}
-			else if (hexCharSubStr.length == 6) {
-				//uncompressed hex code
-				hexStr += hexCharSubStr;
-			}
-			else {
-				//you're fucked
-			}
-			//trace("HEXXXX!!!");
-			//trace(hexStr);
-			var hexInt = Std.parseInt( hexStr );
-			var r = ( (hexInt >> 16) & 0xff ) / 255;
-			var g = ( (hexInt >>  8) & 0xff ) / 255;
-			var b = ( (hexInt >>  0) & 0xff ) / 255;
-			//trace(r);
-			//trace(g);
-			//trace(b);
-			return new Color(r,g,b);
-		}
-
-		var r = ~/[\(\)]/;
-		//trace(this);
-		var colorArguments = r.split(this);
-		var formatStr = colorArguments[0];
-
-		/* PALETTE COLOR */
-		if (formatStr == "pal") {
-			var paletteIndex = Std.parseInt(colorArguments[1]);
-			return Palette.Colors[paletteIndex];
-		}
-		/* RGB COLOR */
-		else if (formatStr == "rgb") { 
-			var rgbArr = colorArguments[1].split(",");
-			var r = Std.parseFloat( rgbArr[0] );
-			var g = Std.parseFloat( rgbArr[1] );
-			var b = Std.parseFloat( rgbArr[2] );
-			var color = new Color(r/255, g/255, b/255);
-			if (rgbArr.length > 3) {
-				var a = Std.parseFloat(rgbArr[3]);
-				color.a = a;
-			}
-			return color;
-		}
-		/* HSL COLOR */
-		else if (formatStr == "hsl") {
-			var hslArr = colorArguments[1].split(",");
-			var h = Std.parseFloat( hslArr[0] );
-			var s = Std.parseFloat( hslArr[1] );
-			var l = Std.parseFloat( hslArr[2] );
-			var color = new ColorHSL(h/255, s/255, l/255);
-			if (hslArr.length > 3) {
-				var a = Std.parseFloat(hslArr[3]);
-				color.a = a;
-			}
-			return color;
-		}
-
-		/* DEFAULT COLOR */
-		return new Color(0,0,0);
-
+		return VexTools.stringToColor( this );
 	}
 
 	@:from

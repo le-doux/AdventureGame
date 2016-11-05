@@ -2,6 +2,7 @@ package vexlib;
 
 import luxe.Vector;
 import luxe.Color;
+import luxe.utils.Maths;
 import phoenix.geometry.Vertex;
 import phoenix.geometry.Geometry;
 
@@ -14,7 +15,7 @@ class VexTools {
 	/*
 		Wraps poly2tri library polygon-to-mesh algorithm
 	*/
-	public static function pathToMesh( path:Array<Vector> ) {
+	public static function pathToMesh( path:Array<Vector> ) : {triangles:Array<Int>,vertices:Array<Float>} {
 		//convert luxe vectors into poly2try points
 		var p2tpath = [];
 		for (v in path) {
@@ -34,7 +35,7 @@ class VexTools {
 	/*
 		Adds mesh data to a geometry object and returns it
 	*/
-	public static function addTrianglesToGeometry( geometry:Geometry, mesh ) : Geometry {
+	public static function addTrianglesToGeometry( geometry:Geometry, mesh:{triangles:Array<Int>,vertices:Array<Float>} ) : Geometry {
 		var i = 0;
 		while (i < mesh.triangles.length) {
 			for (j in i ... (i+3)) {
@@ -62,7 +63,14 @@ class VexTools {
 			geometry.add(new Vertex(line[i-1]));
 			geometry.add(new Vertex(line[i-0]));
 		}
-		return geometry
+		return geometry;
+	}
+
+	public static function addMultilineToGeometry( geometry:Geometry, multiline:Array<Array<Vector>> ) : Geometry {
+		for (line in multiline) {
+			geometry = addLineToGeometry(geometry, line);
+		}
+		return geometry;
 	}
 
 	//TODO not currently using this; should I remove it?
@@ -94,7 +102,7 @@ class VexTools {
 				var radiansRight = Maths.radians(degreesRight);
 				var unitRight = (new Vector(1,0));
 				unitRight.angle2D = radiansRight;
-				var rightward = Vector.Multiply(unitRight, weight);
+				var rightward = Vector.Multiply(unitRight, width);
 				var leftward = Vector.Multiply(rightward, -1);
 
 				//todo
@@ -107,7 +115,7 @@ class VexTools {
 					var radiansRight0 = Maths.radians(degreesRight0);
 					var unitRight0 = (new Vector(1,0));
 					unitRight0.angle2D = radiansRight0;
-					var rightward0 = Vector.Multiply(unitRight0, weight);
+					var rightward0 = Vector.Multiply(unitRight0, width);
 					var leftward0 = Vector.Multiply(rightward0, -1);
 
 					left0 = Vector.Add(p0, leftward0);
@@ -123,12 +131,12 @@ class VexTools {
 				right1 = Vector.Add(p1, rightward);
 
 				//line segment quad
-				quad.vertices.add( left0 ); //left triangle
-				quad.vertices.add( right0 );
-				quad.vertices.add( left1 );
-				quad.vertices.add( right0 ); //right triangle
-				quad.vertices.add( left1 );
-				quad.vertices.add( right1 );
+				quad.vertices.push( left0 ); //left triangle
+				quad.vertices.push( right0 );
+				quad.vertices.push( left1 );
+				quad.vertices.push( right0 ); //right triangle
+				quad.vertices.push( left1 );
+				quad.vertices.push( right1 );
 
 				if (i == line.length-1) {
 					// LAST QUAD //
@@ -139,19 +147,19 @@ class VexTools {
 					var radiansRight2 = Maths.radians(degreesRight2);
 					var unitRight2 = (new Vector(1,0));
 					unitRight2.angle2D = radiansRight2;
-					var rightward2 = Vector.Multiply(unitRight2, weight);
+					var rightward2 = Vector.Multiply(unitRight2, width);
 					var leftward2 = Vector.Multiply(rightward2, -1);
 
 					var left2 = Vector.Add(p2, leftward2);
 					var right2 = Vector.Add(p2, rightward2);
 
 					//line segment quad
-					quad.vertices.add( left1 ); //left triangle
-					quad.vertices.add( right1 );
-					quad.vertices.add( left2 );
-					quad.vertices.add( right1 ); //right triangle
-					quad.vertices.add( left2 );
-					quad.vertices.add( right2 );
+					quad.vertices.push( left1 ); //left triangle
+					quad.vertices.push( right1 );
+					quad.vertices.push( left2 );
+					quad.vertices.push( right1 ); //right triangle
+					quad.vertices.push( left2 );
+					quad.vertices.push( right2 );
 				}
 
 			}
@@ -162,8 +170,8 @@ class VexTools {
 
 	//TODO can be used for other classes; rename?
 	public static function jsonToComponent(json:Dynamic) {
-		var resolvedClass = Type.resolveClass( json.type );
-		var componentInstance = Type.createInstance( resolveClass, [json] );
+		var classType = Type.resolveClass( json.type );
+		var componentInstance = Type.createInstance( classType, [json] );
 		return componentInstance;
 	}
 
@@ -312,6 +320,11 @@ class VexTools {
 
 		/* DEFAULT COLOR */
 		return new Color(1,0,1); //magenta
+	}
+
+	//TODO make compatible with palette colors too (override a toString method?)
+	public static function colorToString(color:Color) : String {
+		return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
 	}
 
 }
