@@ -20,8 +20,19 @@ import vexlib.Font;
 /*
 	Next set of priorities
 	- make a game with the tools I have
+		- ideas
+		- script?
+		- make
 		- release it?
 	- refactor the existing code base (functionalize it)
+		- extract functions from
+			x VexPropertyInterface
+			~ Vex
+			- drawing app
+			- game
+			- stage creation app
+			- other apps?
+		- rename: Vex, VexPropertyInterface, others?
 	- catalog todos and reorganize them
 	- improve my editing tools based on my experience making tiny game
 

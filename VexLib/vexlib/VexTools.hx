@@ -327,4 +327,32 @@ class VexTools {
 		return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
 	}
 
+	public static function findBoundingBox(path:Array<Vector>) : Array<Vector> {
+		if (path.length > 0) {
+			var xMin = path[0].x;
+			var xMax = path[0].x;
+			var yMin = path[0].y;
+			var yMax = path[0].y;
+			for (p in path) {
+				if (p.x < xMin) xMin = p.x;
+				if (p.x > xMax) xMax = p.x;
+				if (p.y < yMin) yMin = p.y;
+				if (p.y > yMax) yMax = p.y;
+			}
+
+			var x = xMin;
+			var y = yMin;
+			var w = xMax - xMin;
+			var h = yMax - yMin;
+			var vertices:Array<Vector> = [];
+			vertices.push( new Vector(x,y) );
+			vertices.push( new Vector(x+w,y) );
+			vertices.push( new Vector(x+w,y+h) );
+			vertices.push( new Vector(x,y+h) );
+
+			return vertices;
+		}
+		return [new Vector(0,0), new Vector(0,0), new Vector(0,0), new Vector(0,0)]; //degenerate case
+	}
+
 }

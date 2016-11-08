@@ -227,16 +227,6 @@ class Vex extends Visual {
 		return worldPath;
 	}
 
-	//weird place to put this helper function
-	function rectangleToPath(rect:Rectangle) : Array<Vector> {
-		var path = [];
-		path.push( new Vector(rect.x,			rect.y) );
-		path.push( new Vector(rect.x + rect.w,	rect.y) );
-		path.push( new Vector(rect.x + rect.w,	rect.y + rect.h) );
-		path.push( new Vector(rect.x, 			rect.y + rect.h) );
-		return path;
-	}
-
 	public function boundsLocal() : Array<Vector> {
 		var path : Array<Vector> = [];
 		if (properties.type == "poly" || properties.type == "line") {
@@ -247,31 +237,7 @@ class Vex extends Visual {
 				path = path.concat( c.boundsParentSpace() );
 			}
 		}
-		if (path.length > 0) {
-			var xMin = path[0].x;
-			var xMax = path[0].x;
-			var yMin = path[0].y;
-			var yMax = path[0].y;
-			for (p in path) {
-				if (p.x < xMin) xMin = p.x;
-				if (p.x > xMax) xMax = p.x;
-				if (p.y < yMin) yMin = p.y;
-				if (p.y > yMax) yMax = p.y;
-			}
-
-			var x = xMin;
-			var y = yMin;
-			var w = xMax - xMin;
-			var h = yMax - yMin;
-			var vertices:Array<Vector> = [];
-			vertices.push( new Vector(x,y) );
-			vertices.push( new Vector(x+w,y) );
-			vertices.push( new Vector(x+w,y+h) );
-			vertices.push( new Vector(x,y+h) );
-
-			return vertices;
-		}
-		return [new Vector(0,0), new Vector(0,0), new Vector(0,0), new Vector(0,0)]; //error
+		return VexTools.findBoundingBox(path);
 	}
 
 	public function boundsWorld() : Array<Vector> {
@@ -290,7 +256,7 @@ class Vex extends Visual {
 	public function traceAnimationNames() {
 		//trace("ANIMATION KEYS");
 		for (k in animations.keys()) {
-			//trace(k);
+			trace(k);
 		}
 	}
 	public function addAnimation(json:AnimationFormat, ?name:String) : Animation {
