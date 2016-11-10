@@ -134,60 +134,18 @@ class Vex extends Visual {
 	}
 
 	public function find(searchStr:String) : Array<Vex> {
-		var results = [];
-		/* FIND BY ID */
-		if (properties.id == searchStr) {
-			results.push(this);
-		}
-		for (c in getVexChildren()) {
-			results = results.concat( c.find(searchStr) );
-		}
-		return results;
+		return VexTools.findVexById( this, searchStr );
 	}
 
 	public function getVexChildren() : Array<Vex> {
-		var vexChildren = [];
-		if (children != null && children.length > 0) {
-			for (c in children) {
-				if (Std.is(c, Vex)) {
-					vexChildren.push( cast(c,Vex) );
-				}
-			}
-		}
-		vexChildren.sort(
-			function(a,b) {
-				if (a.depth > b.depth) return -1;
-				if (a.depth < b.depth) return 1;
-				return 0;
-			});
-		return vexChildren;
+		return VexTools.getVexChildren( this );
 	}
 
-	//TODO move these into a transform helper
-	public function toLocalSpace(p:Vector) : Vector {
-		return p.clone().applyProjection( transform.world.matrix.inverse() );
-	}
-
-	//TODO move these into a transform helper
-	public function toWorldSpace(p:Vector) : Vector {
-		return p.clone().applyProjection( transform.world.matrix );
-	}
-
-	//what should this actually be called?
-	public function toWorldSpace2(p:Vector) : Vector {
-		var pWorld = p.clone();
-		if (parent != null) pWorld = cast(parent, Vex).toWorldSpace(pWorld);
-		return pWorld;
-	}
-
-	public function toParentSpace(p:Vector) : Vector {
-		return p.clone().applyProjection( transform.local.matrix );
-	}
-
+	//TODO move to VexTools
 	//TODO fix origin move again
 	//TODO fix child select
 	public function isPointInside(pt:Vector) : Bool {
-		var ptLocal = toLocalSpace(pt);
+		var ptLocal = VexTools.vectorToLocalSpace( transform, pt );
 		var b = boundsLocal();
 		var topLeft = b[0];
 		var bottomRight = b[2];
@@ -205,27 +163,11 @@ class Vex extends Visual {
 	}
 
 	public function getPathInWorldSpace() : Array<Vector> {
-		return pathToWorldSpace(properties.path);
+		return VexTools.pathToWorldSpace( transform, properties.path );
 	}
 
 	/* Am I recreating the static extension? Shoudl I move it in here? */
 	// Hooray this works!
-	function pathToWorldSpace(pathArray:Array<Vector>) : Array<Vector> {
-		var worldPath = [];
-		for (p in pathArray) {
-			//worldPath.push( p.clone().applyProjection( transform.local.matrix ) );
-			worldPath.push( toWorldSpace(p) );
-		}
-		return worldPath;
-	}
-
-	function pathToParentSpace(pathArray:Array<Vector>) : Array<Vector> {
-		var worldPath = [];
-		for (p in pathArray) {
-			worldPath.push( toParentSpace(p) );
-		}
-		return worldPath;
-	}
 
 	public function boundsLocal() : Array<Vector> {
 		var path : Array<Vector> = [];
@@ -241,11 +183,11 @@ class Vex extends Visual {
 	}
 
 	public function boundsWorld() : Array<Vector> {
-		return pathToWorldSpace( boundsLocal() );
+		return VexTools.pathToWorldSpace( transform, boundsLocal() );
 	}
 
 	public function boundsParentSpace() : Array<Vector> {
-		return pathToParentSpace( boundsLocal() );
+		return VexTools.pathToParentSpace( transform, boundsLocal() );
 	}
 
 	//public var animation : Animation;

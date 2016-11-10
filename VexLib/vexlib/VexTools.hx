@@ -1,6 +1,7 @@
 package vexlib;
 
 import luxe.Vector;
+import luxe.Transform;
 import luxe.Color;
 import luxe.utils.Maths;
 import phoenix.geometry.Vertex;
@@ -354,5 +355,68 @@ class VexTools {
 		}
 		return [new Vector(0,0), new Vector(0,0), new Vector(0,0), new Vector(0,0)]; //degenerate case
 	}
+
+	public static function getVexChildren(parent:Vex) : Array<Vex> {
+		var vexChildren = [];
+		//find children that are of type Vex
+		if (parent.children != null && parent.children.length > 0) {
+			for (c in parent.children) {
+				if (Std.is(c, Vex)) {
+					vexChildren.push( cast(c,Vex) );
+				}
+			}
+		}
+		//sort by depth
+		vexChildren.sort(
+			function(a,b) {
+				if (a.depth > b.depth) return -1;
+				if (a.depth < b.depth) return 1;
+				return 0;
+			});
+		return vexChildren;
+	}
+
+	public static function findVexById(root:Vex, id:String) : Array<Vex> {
+		var results = [];
+		if (root.properties.id == id) {
+			results.push( root );
+		}
+		for (c in getVexChildren(root)) {
+			results = results.concat( findVexById(c,id) );
+		}
+		return results;
+	}
+
+	//TODO do these belong in a dedicated vector or transform extension?
+	public static function vectorToLocalSpace(t:Transform, p:Vector) : Vector {
+		return p.clone().applyProjection( t.world.matrix.inverse() );
+	}
+
+	public static function vectorToWorldSpace(t:Transform, p:Vector) : Vector {
+		return p.clone().applyProjection( t.world.matrix );
+	}
+
+	public static function vectorToParentSpace(t:Transform, p:Vector) : Vector {
+		return p.clone().applyProjection( t.local.matrix );
+	}
+
+
+	public static function pathToWorldSpace(t:Transform, pathArray:Array<Vector>) : Array<Vector> {
+		var worldPath = [];
+		for (p in pathArray) {
+			worldPath.push( vectorToWorldSpace(t,p) );
+		}
+		return worldPath;
+	}
+
+	public static function pathToParentSpace(t:Transform, pathArray:Array<Vector>) : Array<Vector> {
+		var worldPath = [];
+		for (p in pathArray) {
+			worldPath.push( vectorToParentSpace(t,p) );
+		}
+		return worldPath;
+	}
+
+	//TODO Vex.isPointInside 
 
 }

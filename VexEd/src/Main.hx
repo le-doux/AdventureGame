@@ -17,6 +17,7 @@ import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 import vexlib.Animation;
+import vexlib.VexTools;
 
 import Command;
 
@@ -367,8 +368,8 @@ class Main extends luxe.Game {
 	override function onmousemove(e:MouseEvent) {
 		/* PANNING */
 		if (isPanning) {
-			Luxe.camera.pos.x -= e.xrel / Luxe.camera.zoom;
-			Luxe.camera.pos.y -= e.yrel / Luxe.camera.zoom;
+			Luxe.camera.pos.x -= e.x_rel / Luxe.camera.zoom;
+			Luxe.camera.pos.y -= e.y_rel / Luxe.camera.zoom;
 			return;
 		}
 
@@ -395,7 +396,7 @@ class Main extends luxe.Game {
 
 	override function onmousewheel(e:MouseEvent) {
 		/* ZOOMING */
-		Luxe.camera.zoom += e.yrel * 0.03 * Luxe.camera.zoom;
+		Luxe.camera.zoom += e.y * 0.03 * Luxe.camera.zoom;
 	}
 
 	override function update(dt:Float) {
@@ -691,7 +692,7 @@ class Main extends luxe.Game {
 		if (e.keycode == Key.key_u && e.mod.meta) {
 			if ( selected != null && (selected.properties.type == "group" || selected.properties.type == "ref") ) {
 				for (v in selected.getVexChildren()) {
-					var newPos = selected.toParentSpace( v.pos );
+					var newPos = VexTools.vectorToParentSpace( selected.transform, v.pos );
 					var newScale = v.scale.multiply( selected.scale );
 					var newRot = v.rotation_z + selected.rotation_z;
 
@@ -743,10 +744,10 @@ class Main extends luxe.Game {
 			/* SET ORIGIN */
 			if (selected != null) {
 				var newOriginWorldSpace = p.clone();
-				var newOriginLocalSpace = selected.toLocalSpace( newOriginWorldSpace );
+				var newOriginLocalSpace = VexTools.vectorToLocalSpace( selected.transform, newOriginWorldSpace );
 
 				var prevOriginLocalSpace : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
-				var prevOriginWorldSpace = selected.toWorldSpace( prevOriginLocalSpace );
+				var prevOriginWorldSpace = VexTools.vectorToWorldSpace( selected.transform, prevOriginLocalSpace );
 
 				var displacement = Vector.Subtract( newOriginWorldSpace, prevOriginWorldSpace );
 
@@ -794,8 +795,8 @@ class Main extends luxe.Game {
 				for (sel in multiSelection) {
 					//TODO live edit the Vex pos, then ON RELEASE update the property
 					var pos = sel.pos.clone(); //this is starting to feel roundabout...
-					pos.x += e.xrel / Luxe.camera.zoom;
-					pos.y += e.yrel / Luxe.camera.zoom;
+					pos.x += e.x_rel / Luxe.camera.zoom;
+					pos.y += e.y_rel / Luxe.camera.zoom;
 					sel.properties.pos = pos;
 
 					trace(sel.transform.local.matrix);
@@ -956,8 +957,8 @@ class Main extends luxe.Game {
 		else if (Luxe.input.mousedown(luxe.MouseButton.left)) {
 			if (multiSelection.length > 0) {
 				for (sel in multiSelection) {
-					sel.pos.x += e.xrel / Luxe.camera.zoom;
-					sel.pos.y += e.yrel / Luxe.camera.zoom;
+					sel.pos.x += e.x_rel / Luxe.camera.zoom;
+					sel.pos.y += e.y_rel / Luxe.camera.zoom;
 					isTranslatingSelection = true;
 				}
 			}
@@ -1221,8 +1222,10 @@ class Main extends luxe.Game {
 					});
 			}
 
+			/* draw position */
 			if (s.properties.pos != null) {
-				var p = s.toWorldSpace2(s.properties.pos);
+				var p : Vector = s.properties.pos;
+				if (s.parent != null) p = VexTools.vectorToWorldSpace( s.parent.transform, p );
 				Luxe.draw.ring({
 						x: p.x, y: p.y,
 						r: 8,
