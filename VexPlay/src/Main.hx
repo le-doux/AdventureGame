@@ -27,12 +27,21 @@ import vexlib.Font;
 	- refactor the existing code base (functionalize it)
 		- extract functions from
 			x VexPropertyInterface
-			~ Vex
+			X Vex
 			- drawing app
-			- game
 			- stage creation app
-			- other apps?
-		- rename: Vex, VexPropertyInterface, others?
+			- game
+			- other apps? other classes?
+		- rename: Vex, VexPropertyInterface, vexlib others?
+			- "*Format" -> "*Properties"
+		- rethink animation format (skeletons? pins?)
+		- globals for Game, Editor
+		- editor as collection of modes/states that act on root Vex
+		- remove some dependencies from non-vexlib projects
+		- centralized source for multiple cameras, batchers, setting them up
+		- simplify or remove "commands" from editor (re-do undo stack)
+		- parse, serialize in VexTools
+		- move more Vex logic into VexPropertyInterface (keep Vex as simple as possible)
 	- catalog todos and reorganize them
 	- improve my editing tools based on my experience making tiny game
 

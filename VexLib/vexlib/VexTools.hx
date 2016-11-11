@@ -12,6 +12,9 @@ import phoenix.geometry.Geometry;
 */
 
 class VexTools {
+
+	//TODO serializeVex, parseVex, serializeVPI, parseVPI
+	//TODO rename all blankToBlank in form serialize*, parse*
 	
 	/*
 		Wraps poly2tri library polygon-to-mesh algorithm

@@ -1,7 +1,4 @@
 
-import sys.io.File;
-import haxe.Json;
-
 import luxe.Input;
 import luxe.Visual;
 import luxe.Vector;
@@ -9,7 +6,6 @@ import luxe.Color;
 import luxe.Camera;
 import luxe.resource.Resource.JSONResource;
 import phoenix.Batcher;
-import dialogs.Dialogs;
 import luxe.utils.Maths;
 import phoenix.geometry.Geometry;
 
@@ -18,18 +14,16 @@ import vexlib.Palette;
 import vexlib.VexPropertyInterface;
 import vexlib.Animation;
 import vexlib.VexTools;
+import vexlib.EditingTools;
 
 import Command;
 
 /*
-	TODO
-	- remove poly2trihx dependency from everything except vexlib
-
 
 	TODO NEXT WEEK
 	- dialog only vignette
 		X script
-		- new dialog builder tool
+		X new dialog builder tool
 		- order: 1. write script, 2. brainstorm dialog needs, 3. create dialog tool, 4. make game, 5. release !?!?
 
 	BUGS
@@ -229,10 +223,7 @@ class Main extends luxe.Game {
 
 		//load a different palette
 		if (e.keycode == Key.key_p && e.mod.lalt) {
-			//load file
-			var path = Dialogs.open("Open dialog");
-			var fileStr = File.getContent(path);
-			var json = Json.parse(fileStr);
+			var json = EditingTools.openJson();
 			Palette.Load(json);
 			Palette.Swap(json.id, 1);
 		}
@@ -243,47 +234,24 @@ class Main extends luxe.Game {
 		//open
 		if (e.keycode == Key.key_o && e.mod.meta ) {
 
-			//load file
-			var path = Dialogs.open("Open dialog");
-			var fileStr = File.getContent(path);
-			var json = Json.parse(fileStr);
-
 			//destroy current image
 			root.destroy();
 
 			//load new image
-			root = new Vex(json);
+			root = EditingTools.openVex();
 
 		}
 
 		//save
 		if (e.keycode == Key.key_s && e.mod.meta ) {
-			//get path & open file
-			var path = Dialogs.save("Save dialog");
-			var output = File.write(path);
-
-			//get data & write it
-			var saveJson = root.serialize();
-			var saveStr = Json.stringify(saveJson, null, "	");
-			output.writeString(saveStr);
-
-			//close file
-			output.close();
+			EditingTools.saveVex(root);
 		}
 
 		//import ref
 		if (e.keycode == Key.key_r && e.mod.meta) {
-			var path = Dialogs.open("Import dialog");
-			//hacky method - assumes everything lives in assets folder
-			//also - always goes to 0,0
-			var pathSplit = path.split("/assets/"); 
-			var srcString = "assets/" + pathSplit[1];
-			var cmd = new DrawVexCommand(root,
-					{
-						type: "ref",
-						src: srcString
-					});
-			selected = cmd.vex;
+			var vex = EditingTools.importVexReference();
+			vex.parent = root;
+			selected = vex;
 		}
 
 		//edit id
@@ -295,23 +263,17 @@ class Main extends luxe.Game {
 		}
 
 		//copy paste
-		//TODO use real clipboard
 		if (e.keycode == Key.key_c && e.mod.meta) {
 			if (selected != null) {
-				clipboard = Json.stringify( selected.serialize() );
+				EditingTools.copyVex( selected );
 			}
 			else {
-				clipboard = Json.stringify( root.serialize() ); //not sure this is a great idea actually
+				EditingTools.copyVex( root );
 			}
 		}
 		if (e.keycode == Key.key_v && e.mod.meta) {
-			if (clipboard != null) {
-				var json = Json.parse( clipboard );
-				var cmd = new DrawVexCommand(root,json);
-				selected = cmd.vex;
-				selected.pos.add(new Vector(10,10));
-				selected.properties.pos = selected.pos; //there has GOT to be a better way TODO can I override this?
-			}
+			var vex = EditingTools.pasteVex();
+			vex.parent = root;	
 		}
 
 		//undo redo
@@ -367,9 +329,15 @@ class Main extends luxe.Game {
 
 	override function onmousemove(e:MouseEvent) {
 		/* PANNING */
+		/*
 		if (isPanning) {
 			Luxe.camera.pos.x -= e.x_rel / Luxe.camera.zoom;
 			Luxe.camera.pos.y -= e.y_rel / Luxe.camera.zoom;
+			return;
+		}
+		*/
+		//todo editingtools
+		if ( EditingTools.panCameraWhileRightMouseDown( Luxe.camera, e ) ) {
 			return;
 		}
 
@@ -396,7 +364,7 @@ class Main extends luxe.Game {
 
 	override function onmousewheel(e:MouseEvent) {
 		/* ZOOMING */
-		Luxe.camera.zoom += e.y * 0.03 * Luxe.camera.zoom;
+		EditingTools.zoomCamera( Luxe.camera, e );
 	}
 
 	override function update(dt:Float) {
@@ -436,39 +404,8 @@ class Main extends luxe.Game {
 		}
 		*/
 
-		//draw origin (pretty hacky rn)
-		var screenEdgeRightWorldPos = new Vector( Luxe.camera.screen_point_to_world( new Vector(Luxe.screen.w,0)).x, 0 );
-		var screenEdgeLeftWorldPos = new Vector( Luxe.camera.screen_point_to_world( new Vector(0,0)).x, 0 );
-		var screenEdgeTopWorldPos = new Vector( 0, Luxe.camera.screen_point_to_world(new Vector(0,0)).y );
-		var screenEdgeBottomWorldPos = new Vector( 0, Luxe.camera.screen_point_to_world(new Vector(0,Luxe.screen.h)).y );
-		Luxe.draw.line({
-			p0: new Vector(0,0),
-			p1: screenEdgeRightWorldPos,
-			color: new Color(1,1,1,0.5),
-			batcher: uiSceneBatcher,
-			immediate: true
-		});
-		Luxe.draw.line({
-			p0: new Vector(0,0),
-			p1: screenEdgeLeftWorldPos,
-			color: new Color(1,1,1,0.5),
-			batcher: uiSceneBatcher,
-			immediate: true
-		});
-		Luxe.draw.line({
-			p0: new Vector(0,0),
-			p1: screenEdgeTopWorldPos,
-			color: new Color(1,1,1,0.5),
-			batcher: uiSceneBatcher,
-			immediate: true
-		});
-		Luxe.draw.line({
-			p0: new Vector(0,0),
-			p1: screenEdgeBottomWorldPos,
-			color: new Color(1,1,1,0.5),
-			batcher: uiSceneBatcher,
-			immediate: true
-		});
+		// DRAW ORIGIN
+		EditingTools.drawWorldOrigin( uiSceneBatcher );
 
 		/*
 		//move around document
@@ -531,6 +468,11 @@ class Main extends luxe.Game {
 		}
 	}
 
+	/*TODO break into useful chunks for EditingTools
+		isPathClosed algorithm
+		createVexFromPath algorithm
+		line vs poly?
+	*/
 	function onmousedown_draw( e:MouseEvent ) {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 
@@ -662,25 +604,7 @@ class Main extends luxe.Game {
 		//group selected elements
 		if (e.keycode == Key.key_g && e.mod.meta) {
 			if (multiSelection.length > 1) {
-				//make group
-				var g = new Vex({
-						type: "group",
-						pos: "0,0"
-					});
-				for (s in multiSelection) {
-					s.parent = g;
-				}
-				
-				//move pos to top left
-				var curPos : Vector  = g.properties.pos;
-				var bounds = g.boundsWorld();
-				var topLeft : Vector = bounds[0]; //bounds.transformedVertices[0]; //hope this works
-				var displacement = Vector.Subtract( topLeft, curPos );
-				for (v in g.getVexChildren()) {
-					var pos : Vector = v.properties.pos;
-					v.properties.pos = pos.subtract(displacement);
-				}
-				g.properties.pos = topLeft;
+				var g = EditingTools.groupVex( multiSelection );
 
 				//add group to scene
 				g.parent = root;
@@ -691,17 +615,9 @@ class Main extends luxe.Game {
 		//ungroup selected group
 		if (e.keycode == Key.key_u && e.mod.meta) {
 			if ( selected != null && (selected.properties.type == "group" || selected.properties.type == "ref") ) {
-				for (v in selected.getVexChildren()) {
-					var newPos = VexTools.vectorToParentSpace( selected.transform, v.pos );
-					var newScale = v.scale.multiply( selected.scale );
-					var newRot = v.rotation_z + selected.rotation_z;
+				EditingTools.ungroupVex( selected );
 
-					v.properties.pos = newPos;
-					v.properties.scale = newScale;
-					v.properties.rot = newRot;
-
-					v.parent = selected.parent;
-				}
+				//remove group from scene
 				selected.destroy(true);
 				selected = null;
 			}
@@ -820,10 +736,7 @@ class Main extends luxe.Game {
 		//TODO overload key_o instead
 		if (e.keycode == Key.key_a && e.mod.meta) {
 			//load file
-			var path = Dialogs.open("Open dialog");
-			var fileStr = File.getContent(path);
-			var json = Json.parse(fileStr);	
-			curAnimation = root.addAnimation(json);
+			curAnimation = root.addAnimation( EditingTools.openJson() );
 		}
 
 		//make new animation
@@ -852,17 +765,8 @@ class Main extends luxe.Game {
 
 			//export animation //TODO overload cmd+s
 			if (e.keycode == Key.key_e && e.mod.meta) {
-				//get path & open file
-				var path = Dialogs.save("Save dialog");
-				var output = File.write(path);
-
-				//get data & write it
-				var saveJson = curAnimation.serialize();
-				var saveStr = Json.stringify(saveJson, null, "	");
-				output.writeString(saveStr);
-
-				//close file
-				output.close();
+				var json = curAnimation.serialize();
+				EditingTools.saveJson( json );
 			}
 
 			//delete current keyframe

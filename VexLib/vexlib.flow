@@ -8,7 +8,9 @@
     build : {
       dependencies : {
         luxe : '*',
-        poly2trihx : '*'
+        poly2trihx : '*',
+        linc_dialogs : '*',
+        linc_clipboard : '*'
       }
     }
 

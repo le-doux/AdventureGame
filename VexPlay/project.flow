@@ -13,7 +13,6 @@
     build : {
       dependencies : {
         luxe : '*',
-        poly2trihx : '*',
         vexlib : '*'
       }
     },

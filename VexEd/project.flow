@@ -13,9 +13,7 @@
     build : {
       dependencies : {
         luxe : '*',
-        poly2trihx : '*',
-        vexlib : '*',
-        linc_dialogs : '*'
+        vexlib : '*'
       }
     },
 
