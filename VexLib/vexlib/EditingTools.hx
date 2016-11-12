@@ -7,10 +7,21 @@ import clipboard.Clipboard;
 
 import luxe.Camera;
 import luxe.Input;
+import luxe.Vector;
+import luxe.Color;
 import phoenix.Batcher;
+
+import vexlib.VexPropertyInterface;
 
 /*
 	Home for static methods used for editing vex drawings, animations, levels, etc.
+*/
+
+/*
+TODO idea for better undo/redo
+- store list/path-thru-tree of unique entity IDs
+- store before / after json
+- store selection information
 */
 
 class EditingTools {
@@ -152,7 +163,80 @@ class EditingTools {
 		});
 	}
 
-	//TODO drawing methods
+	//TODO put this in VexEdit
+	public static function buildPath(path:Array<Vector>, point:Vector, nearDistance:Float, canLeaveOpen:Bool) {
+		// First, check to see: is the path closed?
+		var isPathClosed = false;
+		if (path.length > 0) {
+			// You can leave the path open by touching the end point again
+			// or close it in a loop by touching the start point
+			var isNearStartPoint = Vector.Subtract(point,path[0]).length < nearDistance;
+			var isNearEndPoint = Vector.Subtract(point,path[path.length-1]).length < nearDistance;
+			if (isNearStartPoint && path.length > 2) {
+				path.push(path[0].clone()); // To make a path loop, you need to add the start point to the end
+				isPathClosed = true;
+			}
+			else if (canLeaveOpen && isNearEndPoint && path.length > 1) {
+				isPathClosed = true;
+			}
+		}
+
+		// If the path isn't closed, we need to keep adding points
+		if (!isPathClosed) {
+			path.push( point );
+		}
+
+		return {
+			path: path,
+			isPathClosed: isPathClosed
+		};
+	}
+
+	public static function buildPolyPath(path:Array<Vector>, point:Vector, nearDistance:Float) {
+		return buildPath(path, point, nearDistance, false);
+	}
+
+	public static function buildLinePath(path:Array<Vector>, point:Vector, nearDistance:Float) {
+		return buildPath(path, point, nearDistance, true);
+	}
+
+	/*
+		Takes in vex properties and a world-space path,
+		and sets the position and path of the properties
+		in the local space
+	*/
+	public static function setPathProperties(path:Array<Vector>, isCentered:Bool, ?properties:VexJsonFormat) : VexJsonFormat {
+		//find desired pos
+		var pos = new Vector(0,0);
+		if (isCentered) {
+			pos = VexTools.findCenter(path);
+		}
+		else {
+			pos = VexTools.findTopLeft(path);
+		}
+
+		//move path points to be relative to pos instead of world origin
+		for (p in path) {
+			p.subtract(pos);
+		}
+
+		if (properties == null) properties = {};
+		properties.pos = pos;
+		properties.path = path;
+
+		return properties;
+	}
+
+	/* TODO !!!!
+		createVex(properties, options)
+		- make Vex composable in two steps
+			- first, create the regular Visual with options
+			- second, parse the properties via the VexPropertyInterface
+			- either step is optional
+			- technically, the Vex object should be optional, you can use a VPI with a regular visual, it just takes more work
+				- should probably turn the whole VPI parsing routine into its own method so the objects themselves become optional
+			- pair this with the additional work in VexTools for a really robust setup
+	*/
 
 	public static function groupVex(children:Array<Vex>) : Vex {
 		//make group
@@ -196,4 +280,5 @@ class EditingTools {
 		return children;
 	}
 
+	//
 }

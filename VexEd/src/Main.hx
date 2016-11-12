@@ -533,6 +533,29 @@ class Main extends luxe.Game {
 		}
 	}
 
+	function onmousedown_draw_TODO( e:MouseEvent ) {
+		var p = Luxe.camera.screen_point_to_world(e.pos);
+
+		var pathResults = EditingTools.buildPath( drawingPath, p, 
+													(distToClosePath / Luxe.camera.zoom) /*nearDistance*/, 
+													(currentTool == "line") /*canLeaveOpen*/ );
+		var drawingPath = pathResults.path;
+
+		if (pathResults.isPathClosed) {
+			var vex = new Vex( EditingTools.setPathProperties( drawingPath, false /*isCentered*/, 
+								{
+									type: currentTool,
+									id: "poly" + count,
+									color: "pal(" + curPalIndex + ")",
+									depth: count
+								} ) );
+			vex.parent = root;
+			selected = vex;
+
+			drawingPath = [];
+		}
+	}
+
 	function update_draw( dt:Float ) {
 		//tool
 		Luxe.draw.text({

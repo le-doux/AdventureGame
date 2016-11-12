@@ -331,6 +331,25 @@ class VexTools {
 		return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
 	}
 
+	//TODO is "find" the right verb?
+	public static function findTopLeft(path:Array<Vector>) : Vector {
+		var topLeft = path[0].clone();
+		for (p in path) {
+			if (p.x < topLeft.x) topLeft.x = p.x;
+			if (p.y < topLeft.y) topLeft.y = p.y;
+		}
+		return topLeft;
+	}
+
+	public static function findCenter(path:Array<Vector>) : Vector {
+		var center = new Vector(0,0);
+		for (p in path) {
+			center.add(p);
+		}
+		center.divideScalar( path.length );
+		return center;
+	}
+
 	public static function findBoundingBox(path:Array<Vector>) : Array<Vector> {
 		if (path.length > 0) {
 			var xMin = path[0].x;
