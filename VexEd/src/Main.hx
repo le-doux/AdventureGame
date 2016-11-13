@@ -19,6 +19,15 @@ import vexlib.EditingTools;
 import Command;
 
 /*
+REFACTORING masterplan
+- remove chunks of related input code & put in editing tools
+- turn editing modes into states (in their own files)
+- figure out globals (root of scene, batchers, anything else?)
+- more comprehensive selection model
+- rethink undo/redo entirely
+*/
+
+/*
 
 	TODO NEXT WEEK
 	- dialog only vignette
@@ -99,6 +108,7 @@ import Command;
 	- allow pause()-ing animations
 */
 
+//TODO replace with states that each have a root vex
 enum EditorMode {
 	Draw;
 	Edit;
@@ -309,16 +319,9 @@ class Main extends luxe.Game {
 	override function onmousedown( e:MouseEvent ) {
 
 		/* panning */
-		/*
-		var isAltHeld = Luxe.input.keydown(Key.lalt) || Luxe.input.keydown(Key.ralt);
-		if (isAltHeld) {
-			isPanning = true;
-			return;
-		}
-		*/
 		if (e.button == luxe.Input.MouseButton.right) {
 			isPanning = true;
-			return;
+			return; //TODO remove
 		}
 
 		/* mode specific mouse controls */
@@ -332,14 +335,6 @@ class Main extends luxe.Game {
 
 	override function onmousemove(e:MouseEvent) {
 		/* PANNING */
-		/*
-		if (isPanning) {
-			Luxe.camera.pos.x -= e.x_rel / Luxe.camera.zoom;
-			Luxe.camera.pos.y -= e.y_rel / Luxe.camera.zoom;
-			return;
-		}
-		*/
-		//todo editingtools
 		if ( EditingTools.panCameraWhileRightMouseDown( Luxe.camera, e ) ) {
 			return;
 		}
@@ -355,7 +350,7 @@ class Main extends luxe.Game {
 
 	override function onmouseup(e:MouseEvent) {
 		/* PANNING */
-		isPanning = false;
+		isPanning = false; //TODO remove
 
 		/* mode specific mouse controls */
 		switch(mode) {

@@ -407,6 +407,7 @@ class EditingTools {
 		return selection;
 	}
 
+	//TODO can do without "root", if "root" is replaced with parent
 	public static function select(selection:Null<Vex>, point:Vector, root:Vex) : Null<Vex> {
 		var newSelection : Vex = null;
 		//select inside current selection if possible
