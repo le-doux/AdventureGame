@@ -163,9 +163,9 @@ class EditingTools {
 		});
 	}
 
-	//TODO put this in VexEdit
 	public static function buildPath(path:Array<Vector>, point:Vector, nearDistance:Float, canLeaveOpen:Bool) {
-		// First, check to see: is the path closed?
+		// First, check to see: is the path finished?
+		var isPathFinished = false;
 		var isPathClosed = false;
 		if (path.length > 0) {
 			// You can leave the path open by touching the end point again
@@ -173,21 +173,22 @@ class EditingTools {
 			var isNearStartPoint = Vector.Subtract(point,path[0]).length < nearDistance;
 			var isNearEndPoint = Vector.Subtract(point,path[path.length-1]).length < nearDistance;
 			if (isNearStartPoint && path.length > 2) {
-				path.push(path[0].clone()); // To make a path loop, you need to add the start point to the end
+				isPathFinished = true;
 				isPathClosed = true;
 			}
 			else if (canLeaveOpen && isNearEndPoint && path.length > 1) {
-				isPathClosed = true;
+				isPathFinished = true;
 			}
 		}
 
-		// If the path isn't closed, we need to keep adding points
-		if (!isPathClosed) {
+		// If the path isn't finished, we need to keep adding points
+		if (!isPathFinished) {
 			path.push( point );
 		}
 
 		return {
 			path: path,
+			isPathFinished: isPathFinished,
 			isPathClosed: isPathClosed
 		};
 	}
@@ -227,7 +228,7 @@ class EditingTools {
 		return properties;
 	}
 
-	/* TODO !!!!
+	/* TODO !!!! (do this in VexTools)
 		createVex(properties, options)
 		- make Vex composable in two steps
 			- first, create the regular Visual with options
@@ -237,6 +238,100 @@ class EditingTools {
 				- should probably turn the whole VPI parsing routine into its own method so the objects themselves become optional
 			- pair this with the additional work in VexTools for a really robust setup
 	*/
+
+	//TODO optional batcher
+	public static function drawPath(path:Array<Vector>, color:Color, batcher:Batcher) {
+		if (path.length > 1) {
+			for (i in 1 ... path.length) {
+				Luxe.draw.line({
+						p0: new Vector(path[i-1].x, path[i-1].y),
+						p1: new Vector(path[i].x, path[i].y),
+						color: color,
+						immediate: true,
+						batcher: batcher
+					});
+			}
+		}
+	}
+
+	public static function drawPoints(path:Array<Vector>, ptRadius:Float, batcher:Batcher) {
+		for (i in 0 ... path.length) {
+			var curPointWorldPos = Luxe.camera.world_point_to_screen(path[i]);
+			Luxe.draw.ring({ //draw path points
+					x:curPointWorldPos.x, y:curPointWorldPos.y,
+					r: ptRadius,
+					color: new Color(1,1,1), //TODO color option?
+					immediate: true,
+					batcher: batcher
+				});
+		}
+	}
+
+	public static function drawEndPoints(path:Array<Vector>, ptRadius:Float, type:String, batcher:Batcher) {
+		if (path.length > 0) {
+
+			//start circle
+			var pathStartWorldPos = Luxe.camera.world_point_to_screen(path[0]);
+			Luxe.draw.ring({
+				x: pathStartWorldPos.x,
+				y: pathStartWorldPos.y,
+				r: ptRadius,
+				color: new Color(1,1,1),
+				immediate: true,
+				batcher: batcher
+			});
+
+			if (type == "line" && path.length > 1) {
+				//end circle
+				var pathEndWorldPos = Luxe.camera.world_point_to_screen(path[path.length-1]);
+				Luxe.draw.ring({
+					x: pathEndWorldPos.x,
+					y: pathEndWorldPos.y,
+					r: ptRadius,
+					color: new Color(1,1,1),
+					immediate: true,
+					batcher: batcher
+				});
+			}
+
+		}
+	}
+
+	//TODO don't operate on list?
+	public static function drawVexBounds(vexList:Array<Vex>, batcher:Batcher) {
+		for (vex in vexList) {
+			var boundsColor = new Color(1,1,1);
+			if (vex.properties.type == "group") boundsColor = new Color(1,1,0);
+			if (vex.properties.type == "ref") boundsColor = new Color(0,1,1);
+
+			var boundsVertices = vex.boundsWorld();
+			for (i in 0 ... boundsVertices.length) {
+				var v0 = boundsVertices[ i ];
+				var v1 = boundsVertices[ cast((i+1)%boundsVertices.length) ];
+				Luxe.draw.line({
+						p0: v0, p1: v1,
+						color: boundsColor,
+						batcher: batcher,
+						immediate: true
+					});
+			}
+
+			/* draw position */
+			if (vex.properties.pos != null) {
+				var p : Vector = vex.properties.pos;
+				if (vex.parent != null) p = VexTools.vectorToWorldSpace( vex.parent.transform, p );
+				Luxe.draw.ring({
+						x: p.x, y: p.y,
+						r: 8,
+						immediate: true,
+						color: boundsColor,
+						batcher: batcher //TODO allow separate batcher?
+					});
+			}
+		}
+	}
+
+	//TODO function that combine` all path drawing stuff?
 
 	public static function groupVex(children:Array<Vex>) : Vex {
 		//make group
@@ -280,5 +375,53 @@ class EditingTools {
 		return children;
 	}
 
-	//
+	/* Set origin of vex without moving it */
+	public static function setOrigin(vex:Vex, origin:Vector) : Vex {
+		var newOriginLocalSpace = VexTools.vectorToLocalSpace( vex.transform, origin );
+
+		var prevOriginLocalSpace : Vector = (vex.properties.origin == null) ? new Vector(0,0) : vex.properties.origin;
+		var prevOriginWorldSpace = VexTools.vectorToWorldSpace( vex.transform, prevOriginLocalSpace );
+
+		var displacement = Vector.Subtract( origin, prevOriginWorldSpace );
+
+		vex.properties.origin = newOriginLocalSpace;
+		vex.properties.pos = Vector.Add( vex.properties.pos, displacement );
+
+		return vex;
+	}
+
+	//TODO should "root" be optional? (how?)
+	//TODO test if this works inside groups (I don't think it does)
+	public static function multiselect(selection:Array<Vex>, point:Vector, root:Vex) : Array<Vex> {
+		/* MULTISELECT */
+		var v = root.getChildWithPointInside( point );
+		if (v != null) {
+			var alreadySelected = selection.indexOf(v) != -1;
+			if (!alreadySelected) {
+				selection.push(v);
+			}
+			else {
+				// TODO remove if already selected?
+			}
+		}
+		return selection;
+	}
+
+	public static function select(selection:Null<Vex>, point:Vector, root:Vex) : Null<Vex> {
+		var newSelection : Vex = null;
+		//select inside current selection if possible
+		if (selection != null && selection.properties.type != "ref") newSelection = selection.getChildWithPointInside( point );
+		//if that fails, select from root
+		if (newSelection == null) newSelection = root.getChildWithPointInside( point );
+
+		return newSelection;
+	}
+
+	/*
+	TODO pull out higher-level chunks of editing code
+	- include key input
+	- copy / paste
+	- recolor
+	- etc
+	*/
 }

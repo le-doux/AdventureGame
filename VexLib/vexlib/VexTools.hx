@@ -179,22 +179,22 @@ class VexTools {
 		return componentInstance;
 	}
 
-	public static function vectorToString(v:Vector) : String {
+	public static function serializeVector(v:Vector) : String {
 		return v.x + "," + v.y;
 	}
 
-	public static function stringToVector(str:String) : Vector {
+	public static function parseVector(str:String) : Vector {
 		var coords = str.split(",");
 		var x = Std.parseFloat(coords[0]);
 		var y = Std.parseFloat(coords[1]);
 		return new Vector(x,y);
 	}
 
-	public static function pathToString(path:Array<Vector>) : String {
+	public static function serializePath(path:Array<Vector>) : String {
 		var pathStr = "";
 		for (i in 0 ... path.length) {
 			var p = path[i];
-			pathStr += vectorToString(p);
+			pathStr += serializeVector(p);
 			if (i < path.length - 1) {
 				pathStr += " ";
 			}
@@ -202,38 +202,38 @@ class VexTools {
 		return pathStr;
 	}
 
-	public static function stringToPath(str:String) : Array<Vector> {
+	public static function parsePath(str:String) : Array<Vector> {
 		if (str.indexOf("Z") != -1) { //if it has a Z, it's really a multipath; return the first path
-			return stringToMultipath(str)[0]; //kind of hacky, but works nice as a fallback
+			return parseMultipath(str)[0]; //kind of hacky, but works nice as a fallback
 		}
 
 		var path : Array<Vector> = [];
 		var points = str.split(" ");
 		for (p in points) {
-			path.push( stringToVector(p) );
+			path.push( parseVector(p) );
 		}
 		return path;
 	}
 
-	public static function multipathToString(multipath:Array<Array<Vector>>) : String {
+	public static function serializeMultipath(multipath:Array<Array<Vector>>) : String {
 		var multipathStr = "";
 		for (path in multipath) {
-			multipathStr += pathToString(path);
+			multipathStr += serializePath(path);
 			multipathStr += " Z ";
 		}
 		return multipathStr;
 	}
 
-	public static function stringToMultipath(str:String) : Array<Array<Vector>> {
+	public static function parseMultipath(str:String) : Array<Array<Vector>> {
 		var multipath : Array<Array<Vector>> = [];
 		var paths = str.split("Z");
 		for (p in paths) {
-			multipath.push( stringToPath(p) );
+			multipath.push( parsePath(p) );
 		}
 		return multipath;
 	}
 
-	public static function stringToHexColor(str:String) : Color {
+	public static function parseHexColor(str:String) : Color {
 		//hack off the #
 		if (str.charAt(0) == "#") {
 			str = str.substring(1);
@@ -267,12 +267,12 @@ class VexTools {
 
 	//TODO assumes the palette is initialized
 	//TODO I should create some kind of Color sub-class that is a palette color & handles palette change events & missing palettes
-	public static function stringToPaletteColor(str:String) : Color {
+	public static function parsePaletteColor(str:String) : Color {
 		var paletteIndex = Std.parseInt( str );
 		return Palette.Colors[ paletteIndex ];
 	}
 
-	public static function stringToRgbColor(str:String) : Color {
+	public static function parseRgbColor(str:String) : Color {
 		var rgbArray = str.split(",");
 		var r = Std.parseFloat( rgbArray[0] );
 		var g = Std.parseFloat( rgbArray[1] );
@@ -285,7 +285,7 @@ class VexTools {
 		return color;
 	}
 
-	public static function stringToHslColor(str:String) : Color {
+	public static function parseHslColor(str:String) : Color {
 		var hslArray = str.split(",");
 		var h = Std.parseFloat( hslArray[0] );
 		var s = Std.parseFloat( hslArray[1] );
@@ -298,10 +298,10 @@ class VexTools {
 		return color;
 	}
 
-	public static function stringToColor(str:String) : Color {
+	public static function parseColor(str:String) : Color {
 		/* HEX COLOR */
 		if (str.charAt(0) == "#") {
-			return stringToHexColor( str );
+			return parseHexColor( str );
 		}
 
 		var r = ~/[\(\)]/;
@@ -311,15 +311,15 @@ class VexTools {
 
 		/* PALETTE COLOR */
 		if (formatStr == "pal") {
-			return stringToPaletteColor( colorStr );
+			return parsePaletteColor( colorStr );
 		}
 		/* RGB COLOR */
 		else if (formatStr == "rgb") { 
-			return stringToRgbColor( colorStr );
+			return parseRgbColor( colorStr );
 		}
 		/* HSL COLOR */
 		else if (formatStr == "hsl") {
-			return stringToHslColor( colorStr );
+			return parseHslColor( colorStr );
 		}
 
 		/* DEFAULT COLOR */
@@ -327,7 +327,7 @@ class VexTools {
 	}
 
 	//TODO make compatible with palette colors too (override a toString method?)
-	public static function colorToString(color:Color) : String {
+	public static function serializeColor(color:Color) : String {
 		return "rgb(" + color.r + "," + color.g + "," + color.b + ")";
 	}
 

@@ -243,42 +243,42 @@ abstract Property(String) from String to String {
 
 	@:from
 	static public function fromVector(v:Vector) {
-		return new Property( VexTools.vectorToString(v) );
+		return new Property( VexTools.serializeVector(v) );
 	}
 
 	@:to
 	public function toVector() : Vector {
-		return VexTools.stringToVector( this );
+		return VexTools.parseVector( this );
 	}
 
 	@:from
 	static public function fromPath(path:Array<Vector>) {
-		return new Property( VexTools.pathToString(path) );
+		return new Property( VexTools.serializePath(path) );
 	}
 
 	@:to
 	public function toPath() : Array<Vector> {
-		return VexTools.stringToPath( this );
+		return VexTools.parsePath( this );
 	}
 
 	@:from
 	static public function fromMultiPath(multipath:Array<Array<Vector>>) {
-		return new Property( VexTools.multipathToString(multipath) );
+		return new Property( VexTools.serializeMultipath(multipath) );
 	}
 
 	@:to
 	public function toMultiPath() : Array<Array<Vector>> {
-		return VexTools.stringToMultipath( this );
+		return VexTools.parseMultipath( this );
 	}
 
 	@:from
 	static public function fromColor(c:Color) {
-		return new Property( VexTools.colorToString(c) );
+		return new Property( VexTools.serializeColor(c) );
 	}
 
 	@:to
 	public function toColor() : Color {
-		return VexTools.stringToColor( this );
+		return VexTools.parseColor( this );
 	}
 
 	@:from

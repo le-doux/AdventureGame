@@ -276,9 +276,12 @@ class Main extends luxe.Game {
 			vex.parent = root;	
 		}
 
+		// TODO new version of undo redo
 		//undo redo
+		/*
 		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
 		if (e.keycode == Key.key_y && e.mod.meta) Command.Redo();
+		*/
 
 	}
 
@@ -388,42 +391,8 @@ class Main extends luxe.Game {
 				});
 		}
 
-		//draw sketch
-		/*
-		if (showSketchLayer) {
-			for (l in sketchLines) {
-				for (i in 1 ... l.length) {
-					Luxe.draw.line({
-							p0: l[i-1],
-							p1: l[i],
-							batcher: uiSceneBatcher,
-							immediate:true
-						});
-				}
-			}
-		}
-		*/
-
 		// DRAW ORIGIN
 		EditingTools.drawWorldOrigin( uiSceneBatcher );
-
-		/*
-		//move around document
-		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
-		var panSpeed : Float = 50;
-		if (Luxe.input.keydown(Key.left) && isShiftHeld) {
-			Luxe.camera.pos.x -= panSpeed * dt;
-		}
-		else if (Luxe.input.keydown(Key.right) && isShiftHeld) {
-			Luxe.camera.pos.x += panSpeed * dt;
-		}
-		if (Luxe.input.keydown(Key.up) && isShiftHeld) {
-			Luxe.camera.pos.y -= panSpeed * dt;
-		}
-		else if (Luxe.input.keydown(Key.down) && isShiftHeld) {
-			Luxe.camera.pos.y += panSpeed * dt;
-		}
-		*/
 
 		/* mode specific update functions */
 		switch(mode) {
@@ -441,15 +410,22 @@ class Main extends luxe.Game {
 		//delete selected element
 		if (e.keycode == Key.backspace) {
 			if (multiSelection.length > 0) {
-				new DeleteCommand(multiSelection);
+				//TODO my command suck, so I'm ripping them out for now
+				//new DeleteCommand(multiSelection);
+				for (s in multiSelection) {
+					s.destroy(true);
+				}
 				multiSelection = [];
 			}
 		}
 
 		//change color
 		if (e.keycode == Key.key_f && e.mod.meta) {
-			if (selected != null) {
-				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
+			if (multiSelection.length > 0) {
+				//new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
+				for (s in multiSelection) {
+					s.properties.color = "pal(" + curPalIndex + ")";
+				}
 			}
 		}
 
@@ -468,80 +444,18 @@ class Main extends luxe.Game {
 		}
 	}
 
-	/*TODO break into useful chunks for EditingTools
-		isPathClosed algorithm
-		createVexFromPath algorithm
-		line vs poly?
-	*/
 	function onmousedown_draw( e:MouseEvent ) {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
-
-		//is the path closed?
-		var isPathClosed = false;
-		if (drawingPath.length > 0) {
-			var isCloseToStartPoint = Vector.Subtract(p,drawingPath[0]).length < (distToClosePath / Luxe.camera.zoom);
-			if (currentTool == "poly") {
-				if (drawingPath.length > 2 && isCloseToStartPoint) {
-					isPathClosed = true;
-				}
-			}
-			else if (currentTool == "line") {
-				var isCloseToEndPoint = Vector.Subtract(p,drawingPath[drawingPath.length-1]).length < (distToClosePath / Luxe.camera.zoom);
-				if (drawingPath.length > 2 && isCloseToStartPoint) {
-					drawingPath.push(drawingPath[0].clone());
-					isPathClosed = true;
-				}
-				else if (drawingPath.length > 1 && isCloseToEndPoint) {
-					isPathClosed = true;
-				}
-			}
-		}
-
-		if (isPathClosed) {
-			//find top left point and shift the drawing path to be relative to it
-			var topLeft = drawingPath[0].clone();
-			for (p in drawingPath) {
-				if (p.x < topLeft.x) topLeft.x = p.x;
-				if (p.y < topLeft.y) topLeft.y = p.y;
-			}
-			for (p in drawingPath) {
-				p.subtract(topLeft);
-			}
-
-
-			var cmd = new DrawVexCommand(root, //should parent be a possible attribute?
-				{
-					type: currentTool, //"line", //"poly",
-					weight: (currentTool == "line") ? lineWeights[curLineWeight] : null, //TODO ok this is hacky
-					pos: topLeft,
-					path: drawingPath,
-					id: "poly" + count, //I should get rid of this at some point... not everything needs an id
-					color: "pal(" + curPalIndex + ")",
-					depth: count //is this the best way to determine starting depth? at least it's the easiest
-				});
-
-			selected = cmd.vex;
-
-			//clear drawing path
-			drawingPath = [];
-
-			count++;
-		}
-		else {
-			//add new point
-			drawingPath.push(p);
-		}
-	}
-
-	function onmousedown_draw_TODO( e:MouseEvent ) {
-		var p = Luxe.camera.screen_point_to_world(e.pos);
-
 		var pathResults = EditingTools.buildPath( drawingPath, p, 
 													(distToClosePath / Luxe.camera.zoom) /*nearDistance*/, 
 													(currentTool == "line") /*canLeaveOpen*/ );
-		var drawingPath = pathResults.path;
+		drawingPath = pathResults.path;
 
-		if (pathResults.isPathClosed) {
+		if (pathResults.isPathFinished) {
+			if (currentTool == "line" && pathResults.isPathClosed)
+				drawingPath.push( drawingPath[0].clone() ); //add final point for looped line
+
+			//create and select vex
 			var vex = new Vex( EditingTools.setPathProperties( drawingPath, false /*isCentered*/, 
 								{
 									type: currentTool,
@@ -552,7 +466,9 @@ class Main extends luxe.Game {
 			vex.parent = root;
 			selected = vex;
 
+			//clear drawing path
 			drawingPath = [];
+			count++;
 		}
 	}
 
@@ -612,15 +528,21 @@ class Main extends luxe.Game {
 		//delete selected element
 		if (e.keycode == Key.backspace) {
 			if (multiSelection.length > 0) {
-				new DeleteCommand(multiSelection);
+				//new DeleteCommand(multiSelection);
+				for (s in multiSelection) {
+					s.destroy(true);
+				}
 				multiSelection = [];
 			}
 		}
 
 		//change color
 		if (e.keycode == Key.key_f && e.mod.meta) {
-			if (selected != null) {
-				new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
+			if (multiSelection.length > 0) {
+				//new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
+				for (s in multiSelection) {
+					s.properties.color = "pal(" + curPalIndex + ")";
+				}
 			}
 		}
 
@@ -683,47 +605,14 @@ class Main extends luxe.Game {
 			/* SET ORIGIN */
 			if (selected != null) {
 				var newOriginWorldSpace = p.clone();
-				var newOriginLocalSpace = VexTools.vectorToLocalSpace( selected.transform, newOriginWorldSpace );
-
-				var prevOriginLocalSpace : Vector = (selected.properties.origin == null) ? new Vector(0,0) : selected.properties.origin;
-				var prevOriginWorldSpace = VexTools.vectorToWorldSpace( selected.transform, prevOriginLocalSpace );
-
-				var displacement = Vector.Subtract( newOriginWorldSpace, prevOriginWorldSpace );
-
-				selected.properties.origin = newOriginLocalSpace;
-				selected.properties.pos = Vector.Add( selected.properties.pos, displacement );
+				selected = EditingTools.setOrigin( selected, newOriginWorldSpace );
 			}
 		}
 		else if (isShiftHeld) {
-			/* MULTISELECT */
-			var v = root.getChildWithPointInside(p);
-			if (v != null) {
-				var alreadySelected = multiSelection.indexOf(v) != -1;
-				if (!alreadySelected) {
-					multiSelection.push(v);
-				}
-				else {
-					// TODO remove if already selected?
-				}
-			}
+			multiSelection = EditingTools.multiselect( multiSelection, p, root );
 		}
 		else {
-			/* SELECT */
-			var newSelection : Vex = null;
-			if (selected != null && selected.properties.type != "ref") newSelection = selected.getChildWithPointInside(p);
-			if (newSelection == null) newSelection = root.getChildWithPointInside(p);
-			selected = newSelection;
-			/*
-			if (selected != null) {
-				var newSelection = selected.getChildWithPointInside(p);
-				if (newSelection == null) newSelection = root.getChildWithPointInside(p);
-				selected = newSelection;
-			}
-			else {
-				selected = root.getChildWithPointInside(p);
-			}
-			*/
-			//selected = root.getChildWithPointInside(p);
+			selected = EditingTools.select( selected, p, root );
 		}
 	}
 
@@ -769,14 +658,6 @@ class Main extends luxe.Game {
 
 		//play animation
 		if (e.keycode == Key.key_p && e.mod.meta) {
-			/*
-			root.addAnimation( curAnimation );
-			root.playAnimation( curAnimation.id, 5 )
-				.onComplete(function() {
-						trace("!!!");
-						root.resetToBasePose();
-					});
-			*/
 			root.playAnimation(curAnimation.id, 5)
 					.onComplete(function() {
 							trace("animation complete!");
@@ -1077,91 +958,14 @@ class Main extends luxe.Game {
 
 	function renderDrawingPath() {
 		if (drawingPath.length > 0) {
-
-			//start circle
-			var pathStartWorldPos = Luxe.camera.world_point_to_screen(drawingPath[0]);
-			Luxe.draw.ring({
-				x: pathStartWorldPos.x,
-				y: pathStartWorldPos.y,
-				r: distToClosePath,
-				color: new Color(1,1,1),
-				immediate: true,
-				batcher: uiScreenBatcher
-			});
-
-			if (currentTool == "line" && drawingPath.length > 1) {
-				//end circle
-				var pathEndWorldPos = Luxe.camera.world_point_to_screen(drawingPath[drawingPath.length-1]);
-				Luxe.draw.ring({
-					x: pathEndWorldPos.x,
-					y: pathEndWorldPos.y,
-					r: distToClosePath,
-					color: new Color(1,1,1),
-					immediate: true,
-					batcher: uiScreenBatcher
-				});
-			}
-
-			//draw path
-			if (drawingPath.length > 1) {
-				for (i in 1 ... drawingPath.length) {
-					Luxe.draw.line({
-							p0: new Vector(drawingPath[i-1].x, drawingPath[i-1].y),
-							p1: new Vector(drawingPath[i].x, drawingPath[i].y),
-							color: Palette.Colors[curPalIndex],
-							immediate: true,
-							batcher: uiSceneBatcher
-						});
-
-					var curPointWorldPos = Luxe.camera.world_point_to_screen(drawingPath[i]);
-					Luxe.draw.ring({ //draw path points
-							x:curPointWorldPos.x, y:curPointWorldPos.y,
-							r: 5,
-							color: new Color(1,1,1),
-							immediate: true,
-							batcher: uiScreenBatcher
-						});
-				}
-			}
-
+			EditingTools.drawPath( drawingPath, Palette.Colors[curPalIndex], uiSceneBatcher );
+			EditingTools.drawPoints( drawingPath, 5, uiScreenBatcher );
+			EditingTools.drawEndPoints( drawingPath, distToClosePath, currentTool, uiScreenBatcher );
 		}
 	}
 
 	function renderSelectionBounds() {
-		for (s in multiSelection) {
-			/*
-			var selectedBounds = s.bounds();
-			var boundsVertices = selectedBounds.transformedVertices;
-			*/
-			var boundsColor = new Color(1,1,1);
-			if (s.properties.type == "group") boundsColor = new Color(1,1,0);
-			if (s.properties.type == "ref") boundsColor = new Color(0,1,1);
-
-			var boundsVertices = s.boundsWorld();
-			for (i in 0 ... boundsVertices.length) {
-				var v0 = boundsVertices[ i ];
-				var v1 = boundsVertices[ cast((i+1)%boundsVertices.length) ];
-				Luxe.draw.line({
-						p0: v0, p1: v1,
-						color: boundsColor,
-						batcher: uiSceneBatcher,
-						immediate: true
-					});
-			}
-
-			/* draw position */
-			if (s.properties.pos != null) {
-				var p : Vector = s.properties.pos;
-				if (s.parent != null) p = VexTools.vectorToWorldSpace( s.parent.transform, p );
-				Luxe.draw.ring({
-						x: p.x, y: p.y,
-						r: 8,
-						immediate: true,
-						color: boundsColor,
-						batcher: uiSceneBatcher
-					});
-			}
-		}
+		EditingTools.drawVexBounds( multiSelection, uiSceneBatcher );
 	}
 
 
