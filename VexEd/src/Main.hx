@@ -185,6 +185,7 @@ class Main extends luxe.Game {
 
 	override function onkeydown( e:KeyEvent ) {
 
+		//TODO replace modes with states (alt-key palette)
 		//switch modes
 		var modeCount = 4; //hack
 		if (e.keycode == Key.right && e.mod.lalt) {
@@ -241,21 +242,8 @@ class Main extends luxe.Game {
 			Palette.SwapNext(1);
 		}
 
-		//open
-		if (e.keycode == Key.key_o && e.mod.meta ) {
-
-			//destroy current image
-			root.destroy();
-
-			//load new image
-			root = EditingTools.openVex();
-
-		}
-
-		//save
-		if (e.keycode == Key.key_s && e.mod.meta ) {
-			EditingTools.saveVex(root);
-		}
+		// open/save
+		EditingTools.keydownOpenSaveVex( root, e );
 
 		//import ref
 		if (e.keycode == Key.key_r && e.mod.meta) {
@@ -272,19 +260,8 @@ class Main extends luxe.Game {
 			}
 		}
 
-		//copy paste
-		if (e.keycode == Key.key_c && e.mod.meta) {
-			if (selected != null) {
-				EditingTools.copyVex( selected );
-			}
-			else {
-				EditingTools.copyVex( root );
-			}
-		}
-		if (e.keycode == Key.key_v && e.mod.meta) {
-			var vex = EditingTools.pasteVex();
-			vex.parent = root;	
-		}
+		// copy/paste
+		EditingTools.keydownCopyPasteVex( selected, root, e );
 
 		// TODO new version of undo redo
 		//undo redo
@@ -403,26 +380,10 @@ class Main extends luxe.Game {
 	/* DRAW */
 	function onkeydown_draw( e:KeyEvent ) {
 		//delete selected element
-		if (e.keycode == Key.backspace) {
-			if (multiSelection.length > 0) {
-				//TODO my command suck, so I'm ripping them out for now
-				//new DeleteCommand(multiSelection);
-				for (s in multiSelection) {
-					s.destroy(true);
-				}
-				multiSelection = [];
-			}
-		}
+		EditingTools.keydownDeleteVex( multiSelection, e );
 
 		//change color
-		if (e.keycode == Key.key_f && e.mod.meta) {
-			if (multiSelection.length > 0) {
-				//new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
-				for (s in multiSelection) {
-					s.properties.color = "pal(" + curPalIndex + ")";
-				}
-			}
-		}
+		EditingTools.keydownFillColorVex( multiSelection, "pal(" + curPalIndex + ")", e );
 
 		//change tool
 		if (e.keycode == Key.key_t && e.mod.meta) {
@@ -440,6 +401,7 @@ class Main extends luxe.Game {
 	}
 
 	function onmousedown_draw( e:MouseEvent ) {
+		//TODO package this up one thing?
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 		var pathResults = EditingTools.buildPath( drawingPath, p, 
 													(distToClosePath / Luxe.camera.zoom) /*nearDistance*/, 
@@ -505,91 +467,25 @@ class Main extends luxe.Game {
 	/* EDIT */
 	function onkeydown_edit( e:KeyEvent ) {
 		//z order
-		if (e.keycode == Key.up && e.mod.lshift) {
-			for (sel in multiSelection) { //TODO commandify
-				var depth = sel.depth + 1;
-				sel.properties.depth = depth; //hacky?
-				trace(sel.depth);
-			}
-		}
-		else if (e.keycode == Key.down && e.mod.lshift) {
-			for (sel in multiSelection) {
-				var depth = sel.depth - 1;
-				sel.properties.depth = depth;
-				trace(sel.depth);
-			}
-		}
+		EditingTools.keydownChangeDepthVex( multiSelection, e );
 
 		//delete selected element
-		if (e.keycode == Key.backspace) {
-			if (multiSelection.length > 0) {
-				//new DeleteCommand(multiSelection);
-				for (s in multiSelection) {
-					s.destroy(true);
-				}
-				multiSelection = [];
-			}
-		}
+		EditingTools.keydownDeleteVex( multiSelection, e );
 
 		//change color
-		if (e.keycode == Key.key_f && e.mod.meta) {
-			if (multiSelection.length > 0) {
-				//new ColorCommand(multiSelection, "pal(" + curPalIndex + ")");
-				for (s in multiSelection) {
-					s.properties.color = "pal(" + curPalIndex + ")";
-				}
-			}
-		}
+		EditingTools.keydownFillColorVex( multiSelection, "pal(" + curPalIndex + ")", e );
 
 		//group selected elements
-		if (e.keycode == Key.key_g && e.mod.meta) {
-			if (multiSelection.length > 1) {
-				var g = EditingTools.groupVex( multiSelection );
-
-				//add group to scene
-				g.parent = root;
-				selected = g;
-			}
-		}
+		multiSelection = EditingTools.keydownGroupVex( multiSelection, root, e );
 
 		//ungroup selected group
-		if (e.keycode == Key.key_u && e.mod.meta) {
-			if ( selected != null && (selected.properties.type == "group" || selected.properties.type == "ref") ) {
-				EditingTools.ungroupVex( selected );
-
-				//remove group from scene
-				selected.destroy(true);
-				selected = null;
-			}
-		}
+		selection = EditingTools.keydownUngroupVex( selection, e );
 
 		//rotate selected elements //TODO make command //TODO make rotate handle?
-		if (e.keycode == Key.right && e.mod.meta) {
-			for (sel in multiSelection) {
-				sel.rotation_z += 5;
-				sel.properties.rot = sel.rotation_z; //TODO this makes my properties system look bad...
-			}
-		}
-		if (e.keycode == Key.left && e.mod.meta) {
-			for (sel in multiSelection) {
-				sel.rotation_z -= 5;
-				sel.properties.rot = sel.rotation_z; //this makes my properties system look bad...
-			}
-		}
+		EditingTools.keydownRotateVex( multiSelection, e );
 
 		//scale selected elements //TODO make command //TODO separate x- and y- axes
-		if (e.keycode == Key.up && e.mod.meta) {
-			for (sel in multiSelection) {
-				sel.scale.add(new Vector(0.1,0.1)); //TODO do I need defaults for properties???
-				sel.properties.scale = sel.scale;
-			}
-		}
-		if (e.keycode == Key.down && e.mod.meta) {
-			for (sel in multiSelection) {
-				sel.scale.subtract(new Vector(0.1,0.1));
-				sel.properties.scale = sel.scale;
-			}
-		}
+		EditingTools.keydownScaleVex( multiSelection, e );
 	}
 
 	function onmousedown_edit( e:MouseEvent ) {

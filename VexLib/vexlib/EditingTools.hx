@@ -418,11 +418,158 @@ class EditingTools {
 		return newSelection;
 	}
 
-	/*
-	TODO pull out higher-level chunks of editing code
-	- include key input
-	- copy / paste
-	- recolor
-	- etc
+	// returns true if the event happened (TODO should it return the vex too?)
+	// TODO name keydown vs onkeydown
+	public static function keydownOpenSaveVex(vex:Vex, e:KeyEvent) : Bool {
+		//open
+		if (e.keycode == Key.key_o && e.mod.meta ) {
+			//destroy current image
+			vex.destroy();
+			//load new image
+			vex = EditingTools.openVex();
+
+			return true;
+		}
+
+		//save
+		if (e.keycode == Key.key_s && e.mod.meta ) {
+			EditingTools.saveVex(vex);
+
+			return true;
+		}
+
+		return false;
+	}
+
+	public static function keydownCopyPasteVex(selected:Vex, root:Vex, e:KeyEvent) : Bool {
+		//copy
+		if (e.keycode == Key.key_c && e.mod.meta) {
+			if (selected != null) {
+				EditingTools.copyVex( selected );
+			}
+			else {
+				EditingTools.copyVex( root );
+			}
+			return true;
+		}
+
+		//paste
+		if (e.keycode == Key.key_v && e.mod.meta) {
+			var vex = EditingTools.pasteVex();
+			vex.parent = root;	
+			return true;
+		}
+
+		return false
+	}
+
+	public static function keydownDeleteVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
+		if (e.keycode == Key.backspace && e.mod.meta) {
+			if (multiselection.length > 0) {
+				for (s in multiselection) {
+					s.destroy(true);
+				}
+				multiselection = [];
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public static function keydownFillColorVex(multiselection:Array<Vex>, color:String, e:KeyEvent) : Bool {
+		if (e.keycode == Key.key_f && e.mod.meta) {
+			if (multiselection.length > 0) {
+				for (s in multiselection) {
+					s.properties.color = "pal(" + curPalIndex + ")";
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	// TODO group functions return selection data, which is differnent from everything else... can I make it all match somehow?
+	// Maybe everything can return {selection,results}
+	public static function keydownGroupVex(multiselection:Array<Vex>, root:Vex, e:KeyEvent) : Array<Vex> {
+		//group selected elements
+		if (e.keycode == Key.key_g && e.mod.meta) {
+			if (multiselection.length > 1) {
+				var g = groupVex( multiselection );
+				//add group to scene
+				g.parent = root;
+
+				return [g];
+			}
+		}
+
+		return multiselection;
+
+	}
+
+	public static function keydownUngroupVex(group:Vex, e:KeyEvent) : Vex {
+		//ungroup selected group
+		if (e.keycode == Key.key_u && e.mod.meta) {
+			if ( group != null && (group.properties.type == "group" || group.properties.type == "ref") ) {
+				ungroupVex( group );
+				group.destroy(true);
+				return null;
+			}
+		}
+		return group;
+	}
 	*/
+
+	public static function keydownRotateVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
+		if (e.keycode == Key.right && e.mod.meta) {
+			for (sel in multiselection) {
+				sel.properties.rot = (sel.rotation_z + 5);
+			}
+			return true;
+		}
+		if (e.keycode == Key.left && e.mod.meta) {
+			for (sel in multiselection) {
+				sel.properties.rot = (sel.rotation_z - 5);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public static function keydownScaleVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
+		if (e.keycode == Key.up && e.mod.meta) {
+			for (sel in multiselection) {
+				sel.properties.scale = sel.scale.add( new Vector(0.1,0.1) );
+			}
+			return true;
+		}
+		if (e.keycode == Key.down && e.mod.meta) {
+			for (sel in multiselection) {
+				sel.properties.scale = sel.scale.subtract( new Vector(0.1,0.1) );
+			}
+			return true;
+		}
+		return false;
+	}
+
+	public static function keydownChangeDepthVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
+		if (e.keycode == Key.up && e.mod.lshift) {
+			for (sel in multiSelection) {
+				sel.properties.depth = sel.depth + 1;
+			}
+			return true;
+		}
+		else if (e.keycode == Key.down && e.mod.lshift) {
+			for (sel in multiSelection) {
+				sel.properties.depth = sel.depth - 1;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	//TODO this combo return type is a test for other methods above
+	public static function mousedownSetOriginVex(multiselection:Array<Vex>, e:MouseEvent) {
+		//TODO
+	}
+		
 }
