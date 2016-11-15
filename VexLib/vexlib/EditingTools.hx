@@ -420,7 +420,7 @@ class EditingTools {
 
 	// returns true if the event happened (TODO should it return the vex too?)
 	// TODO name keydown vs onkeydown
-	public static function keydownOpenSaveVex(vex:Vex, e:KeyEvent) : Bool {
+	public static function keydownOpenVex(vex:Vex, e:KeyEvent) {
 		//open
 		if (e.keycode == Key.key_o && e.mod.meta ) {
 			//destroy current image
@@ -428,17 +428,33 @@ class EditingTools {
 			//load new image
 			vex = EditingTools.openVex();
 
-			return true;
+			return {
+				vex: vex,
+				success: true
+			};
 		}
 
+		return {
+			vex: vex,
+			success: false
+		};
+	}
+
+	public static function keydownSaveVex(vex:Vex, e:KeyEvent) {
 		//save
 		if (e.keycode == Key.key_s && e.mod.meta ) {
 			EditingTools.saveVex(vex);
 
-			return true;
+			return {
+				vex: vex,
+				success: true
+			};
 		}
 
-		return false;
+		return {
+			vex: vex,
+			success: false
+		};
 	}
 
 	public static function keydownCopyPasteVex(selected:Vex, root:Vex, e:KeyEvent) : Bool {
@@ -460,7 +476,7 @@ class EditingTools {
 			return true;
 		}
 
-		return false
+		return false;
 	}
 
 	public static function keydownDeleteVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
@@ -470,8 +486,8 @@ class EditingTools {
 					s.destroy(true);
 				}
 				multiselection = [];
+				return true;
 			}
-			return true;
 		}
 		return false;
 	}
@@ -480,7 +496,7 @@ class EditingTools {
 		if (e.keycode == Key.key_f && e.mod.meta) {
 			if (multiselection.length > 0) {
 				for (s in multiselection) {
-					s.properties.color = "pal(" + curPalIndex + ")";
+					s.properties.color = color;
 				}
 			}
 			return true;
@@ -517,7 +533,6 @@ class EditingTools {
 		}
 		return group;
 	}
-	*/
 
 	public static function keydownRotateVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
 		if (e.keycode == Key.right && e.mod.meta) {
@@ -553,13 +568,13 @@ class EditingTools {
 
 	public static function keydownChangeDepthVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
 		if (e.keycode == Key.up && e.mod.lshift) {
-			for (sel in multiSelection) {
+			for (sel in multiselection) {
 				sel.properties.depth = sel.depth + 1;
 			}
 			return true;
 		}
 		else if (e.keycode == Key.down && e.mod.lshift) {
-			for (sel in multiSelection) {
+			for (sel in multiselection) {
 				sel.properties.depth = sel.depth - 1;
 			}
 			return true;
@@ -569,7 +584,74 @@ class EditingTools {
 
 	//TODO this combo return type is a test for other methods above
 	public static function mousedownSetOriginVex(multiselection:Array<Vex>, e:MouseEvent) {
-		//TODO
+		if (Luxe.input.keydown(Key.key_x) && Luxe.input.keydown(Key.lmeta)) {
+			if ( multiselection.length > 0 ) {
+				var selected = multiselection[0];
+				var newOriginWorldSpace = Luxe.camera.screen_point_to_world( e.pos ); //TODO this could break w/ different cam setup
+				selected = setOrigin( selected, newOriginWorldSpace );
+
+				return {
+					selection: [selected],
+					success: true
+				};
+			}
+		}
+
+		return {
+			selection: multiselection,
+			success: false
+		};
+	}
+
+	public static function mousedownChangeSelection(multiselection:Array<Vex>, root:Vex, e:MouseEvent) {
+		var pos = Luxe.camera.screen_point_to_world( e.pos );
+		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
+
+		var newSelection = [];
+		if ( isShiftHeld ) {
+			// multiselection
+			newSelection = multiselect( multiselection, pos, root );
+		}
+		else {
+			// single selection
+			//TODO simplify this?
+
+			var selection = null;
+			if ( multiselection.length > 0 ) selection = multiselection[0];
+
+			selection = select( selection, pos, root );
+
+			if ( selection != null ) newSelection = [selection];
+		}
+
+		return {
+			selection: newSelection,
+			success: true
+		}
+	}
+
+	public static function mousemoveTranslateVex(multiselection:Array<Vex>, e:MouseEvent) {
+		if (Luxe.input.mousedown(luxe.MouseButton.left)) {
+			if (multiselection.length > 0) {
+				for (sel in multiselection) {
+					//TODO live edit the Vex pos, then ON RELEASE update the property
+					var pos = sel.pos.clone(); //this is starting to feel roundabout...
+					pos.x += e.x_rel / Luxe.camera.zoom;
+					pos.y += e.y_rel / Luxe.camera.zoom;
+					sel.properties.pos = pos;
+				}
+
+				return {
+					selection: multiselection,
+					success: true
+				};
+			}
+		}
+
+		return {
+			selection: multiselection,
+			success: false
+		};
 	}
 		
 }

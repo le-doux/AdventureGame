@@ -243,7 +243,12 @@ class Main extends luxe.Game {
 		}
 
 		// open/save
-		EditingTools.keydownOpenSaveVex( root, e );
+		var results = EditingTools.keydownOpenVex( root, e );
+		if (results.success) {
+			root = results.vex;
+			selected = null;
+		}
+		EditingTools.keydownSaveVex( root, e );
 
 		//import ref
 		if (e.keycode == Key.key_r && e.mod.meta) {
@@ -380,7 +385,11 @@ class Main extends luxe.Game {
 	/* DRAW */
 	function onkeydown_draw( e:KeyEvent ) {
 		//delete selected element
-		EditingTools.keydownDeleteVex( multiSelection, e );
+		if ( EditingTools.keydownDeleteVex( multiSelection, e ) ) {
+			trace("delete");
+			multiSelection = [];
+			trace(multiSelection);
+		}
 
 		//change color
 		EditingTools.keydownFillColorVex( multiSelection, "pal(" + curPalIndex + ")", e );
@@ -479,7 +488,7 @@ class Main extends luxe.Game {
 		multiSelection = EditingTools.keydownGroupVex( multiSelection, root, e );
 
 		//ungroup selected group
-		selection = EditingTools.keydownUngroupVex( selection, e );
+		selected = EditingTools.keydownUngroupVex( selected, e );
 
 		//rotate selected elements //TODO make command //TODO make rotate handle?
 		EditingTools.keydownRotateVex( multiSelection, e );
@@ -490,38 +499,19 @@ class Main extends luxe.Game {
 
 	function onmousedown_edit( e:MouseEvent ) {
 		var p = Luxe.camera.screen_point_to_world(e.pos);
-		var isShiftHeld = Luxe.input.keydown(Key.lshift) || Luxe.input.keydown(Key.rshift);
 
-		if (Luxe.input.keydown(Key.key_x) && Luxe.input.keydown(Key.lmeta)) {
-			/* SET ORIGIN */
-			if (selected != null) {
-				var newOriginWorldSpace = p.clone();
-				selected = EditingTools.setOrigin( selected, newOriginWorldSpace );
-			}
+		/* SET ORIGIN */
+		if ( EditingTools.mousedownSetOriginVex( multiSelection, e ).success ) {
+			return;
 		}
-		else if (isShiftHeld) {
-			multiSelection = EditingTools.multiselect( multiSelection, p, root );
-		}
-		else {
-			selected = EditingTools.select( selected, p, root );
-		}
+
+		/* CHANGE SELECTION */
+		multiSelection = EditingTools.mousedownChangeSelection( multiSelection, root, e ).selection;
 	}
 
 	function onmousemove_edit(e:MouseEvent) {
 		/* TRANSLATE SELECTION */
-		if (Luxe.input.mousedown(luxe.MouseButton.left)) {
-			if (multiSelection.length > 0) {
-				for (sel in multiSelection) {
-					//TODO live edit the Vex pos, then ON RELEASE update the property
-					var pos = sel.pos.clone(); //this is starting to feel roundabout...
-					pos.x += e.x_rel / Luxe.camera.zoom;
-					pos.y += e.y_rel / Luxe.camera.zoom;
-					sel.properties.pos = pos;
-
-					trace(sel.transform.local.matrix);
-				}
-			}
-		}
+		EditingTools.mousemoveTranslateVex( multiSelection, e );
 	}
 
 	function update_edit( dt:Float ) {

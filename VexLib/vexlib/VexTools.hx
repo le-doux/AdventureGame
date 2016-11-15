@@ -415,6 +415,9 @@ class VexTools {
 	}
 
 	public static function vectorToWorldSpace(t:Transform, p:Vector) : Vector {
+		trace(t);
+		trace(t.world);
+		trace(t.world.matrix);
 		return p.clone().applyProjection( t.world.matrix );
 	}
 
