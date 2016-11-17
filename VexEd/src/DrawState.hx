@@ -92,4 +92,8 @@ class DrawState extends State {
 		}
 	}
 
+	override function onleave<T>(t:T) {
+		drawingPath = [];
+	}
+
 }

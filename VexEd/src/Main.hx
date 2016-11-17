@@ -24,6 +24,10 @@ import Command;
 REFACTORING masterplan
 X remove chunks of related input code & put in editing tools
 - turn editing modes into states (in their own files)
+	X draw
+	X edit
+	X animate
+	- sketch
 - figure out globals (root of scene, batchers, anything else?)
 - more comprehensive selection model
 - rethink undo/redo entirely
@@ -110,25 +114,18 @@ X remove chunks of related input code & put in editing tools
 	- allow pause()-ing animations
 */
 
-//TODO replace with states that each have a root vex
-enum EditorMode {
-	Draw;
-	Edit;
-	Animate;
-	Sketch;
-}
-
 class Main extends luxe.Game {
 
+	//states
 	var machine : States;
+	var states = ["draw","edit","animate"];
+	var stateIndex = 0;
 
-	var mode : EditorMode = EditorMode.Draw;
-
-	/* STATE FLAGS */
+	//flags
 	var isEditingId = false;
-	var showSketchLayer = true;
 
 	//sketchmode
+	var showSketchLayer = true;
 	var sketchLines : Array<Array<Vector>> = [];
 	var curSketchLine : Array<Vector>;
 	var sketchGeo : Array<Geometry> = [];
@@ -136,34 +133,24 @@ class Main extends luxe.Game {
 	override function ready() {
 		Editor.setup();
 
-		machine = new States({name:"editor_state_machine"});
+		machine = new States( {name:"editor_state_machine"} );
 		machine.add( new DrawState({name:"draw"}) );
+		machine.add( new EditState({name:"edit"}) );
+		machine.add( new AnimateState({name:"animate"}) );
 		machine.set("draw");
 	} //ready
 
 	override function onkeydown( e:KeyEvent ) {
 
-		//TODO replace modes with states (alt-key palette)
 		//switch modes
-		/*
-		var modeCount = 4; //hack
 		if (e.keycode == Key.right && e.mod.lalt) {
-			var modeIndex = mode.getIndex();
-			modeIndex = (modeIndex + 1) % modeCount;
-			switchMode(EditorMode.createByIndex(modeIndex));
+			stateIndex = (stateIndex + 1) % states.length;
+			machine.set( states[stateIndex] );
 		}
 		if (e.keycode == Key.left && e.mod.lalt) {
-			var modeIndex = mode.getIndex();
-			modeIndex = (modeIndex - 1) % modeCount;
-			if (modeIndex < 0) modeIndex = modeCount - 1;
-			switchMode(EditorMode.createByIndex(modeIndex));
-		}
-		*/
-
-		switch (mode) {
-			case Edit: onkeydown_edit(e);
-			case Sketch: onkeydown_sketch(e);
-			case Animate: onkeydown_animate(e);
+			stateIndex = (stateIndex - 1) % states.length;
+			if (stateIndex < 0) stateIndex = states.length - 1;
+			machine.set( states[stateIndex] );
 		}
 
 		//toggle sketch visibility
@@ -183,13 +170,6 @@ class Main extends luxe.Game {
 		if (e.keycode == Key.key_b && e.mod.meta) {
 			Luxe.renderer.clear_color = Palette.Colors[Editor.curPalIndex];
 		}
-
-		/*
-		//for testing: swap palettes
-		if (e.keycode == Key.key_p && e.mod.meta) {
-			Palette.Swap("alt", 5);
-		}
-		*/
 
 		//load a different palette
 		if (e.keycode == Key.key_p && e.mod.lalt) {
@@ -225,12 +205,6 @@ class Main extends luxe.Game {
 		EditingTools.keydownCopyPasteVex( Editor.selection, Editor.scene.root, e );
 
 		// TODO new version of undo redo
-		//undo redo
-		/*
-		if (e.keycode == Key.key_z && e.mod.meta) Command.Undo();
-		if (e.keycode == Key.key_y && e.mod.meta) Command.Redo();
-		*/
-
 	}
 
 	override function onkeyup( e:KeyEvent ) {
@@ -254,44 +228,16 @@ class Main extends luxe.Game {
 		} 
 	}
 
-	override function onmousedown( e:MouseEvent ) {
-
-		/* panning */
-		if (e.button == luxe.Input.MouseButton.right) {
-			return;
-		}
-
-		/* mode specific mouse controls */
-		switch(mode) {
-			case Edit: onmousedown_edit(e);
-			case Animate: onmousedown_animate(e);
-			case Sketch: onmousedown_sketch(e);
-		}
-	}
+	override function onmousedown( e:MouseEvent ) {}
 
 	override function onmousemove(e:MouseEvent) {
 		/* PANNING */
 		if ( EditingTools.mousemovePanCamera( Luxe.camera, e ) ) {
 			return;
 		}
-
-		/* mode specific mouse controls */
-		switch(mode) {
-			case Edit: onmousemove_edit(e);
-			case Sketch: onmousemove_sketch(e);
-			case Animate: onmousemove_animate(e);
-			default: return;
-		}
 	}
 
-	override function onmouseup(e:MouseEvent) {
-		/* mode specific mouse controls */
-		switch(mode) {
-			case Animate: onmouseup_animate(e);
-			case Sketch: onmouseup_sketch(e);
-			default: return;
-		}
-	}
+	override function onmouseup(e:MouseEvent) {}
 
 	override function onmousewheel(e:MouseEvent) {
 		/* ZOOMING */
@@ -302,7 +248,7 @@ class Main extends luxe.Game {
 
 		//current mode
 		Luxe.draw.text({
-				text: "mode: " + mode,
+				text: "mode: " + states[stateIndex],
 				point_size: 16,
 				batcher: Editor.batcher.uiScreen,
 				immediate: true
@@ -322,305 +268,7 @@ class Main extends luxe.Game {
 		// DRAW ORIGIN
 		EditingTools.drawWorldOrigin( Editor.batcher.uiWorld );
 
-		/* mode specific update functions */
-		switch(mode) {
-			case Edit: update_edit(dt);
-			case Animate: update_animate(dt);
-			case Sketch: update_sketch(dt);
-			default: return;
-		}
-
 	} //update
-
-	/* EDIT */
-	function onkeydown_edit( e:KeyEvent ) {
-		//z order
-		EditingTools.keydownChangeDepthVex( Editor.multiselection, e );
-
-		//delete selected element
-		Editor.multiselection = EditingTools.keydownDeleteVex( Editor.multiselection, e ).selection;
-
-		//change color
-		EditingTools.keydownFillColorVex( Editor.multiselection, "pal(" + Editor.curPalIndex + ")", e );
-
-		//group selected elements
-		Editor.multiselection = EditingTools.keydownGroupVex( Editor.multiselection, Editor.scene.root, e );
-
-		//ungroup selected group
-		Editor.selection = EditingTools.keydownUngroupVex( Editor.selection, e );
-
-		//rotate selected elements //TODO make command //TODO make rotate handle?
-		EditingTools.keydownRotateVex( Editor.multiselection, e );
-
-		//scale selected elements //TODO make command //TODO separate x- and y- axes
-		EditingTools.keydownScaleVex( Editor.multiselection, e );
-	}
-
-	function onmousedown_edit( e:MouseEvent ) {
-		var p = Luxe.camera.screen_point_to_world(e.pos);
-
-		/* SET ORIGIN */
-		if ( EditingTools.mousedownSetOriginVex( Editor.multiselection, e ).success ) {
-			return;
-		}
-
-		/* CHANGE SELECTION */
-		Editor.multiselection = EditingTools.mousedownChangeSelection( Editor.multiselection, Editor.scene.root, e ).selection;
-	}
-
-	function onmousemove_edit(e:MouseEvent) {
-		/* TRANSLATE SELECTION */
-		EditingTools.mousemoveTranslateVex( Editor.multiselection, e );
-	}
-
-	function update_edit( dt:Float ) {
-		renderSelectionBounds();
-	}
-
-	/* ANIMATE */
-	var curAnimation : Animation = null;
-	var isTouchingTimeline = false;
-	var selectedKeyframeOnMousedown = false;
-	var isTranslatingSelection = false;
-
-	function onkeydown_animate( e:KeyEvent ) {
-		//open animation
-		//TODO overload key_o instead
-		if (e.keycode == Key.key_a && e.mod.meta) {
-			//load file
-			curAnimation = Editor.scene.root.addAnimation( EditingTools.openJson() );
-		}
-
-		//make new animation
-		if (e.keycode == Key.key_n && e.mod.meta) {
-			curAnimation = Editor.scene.root.addAnimation({id:"newAnimation"});
-		}
-
-		//play animation
-		if (e.keycode == Key.key_p && e.mod.meta) {
-			Editor.scene.root.playAnimation(curAnimation.id, 5)
-					.onComplete(function() {
-							trace("animation complete!");
-							Editor.scene.root.resetToBasePose();
-						});
-		}
-
-		if (curAnimation != null) { //TODO should I ensure that curAnimation is never null?
-
-			//export animation //TODO overload cmd+s
-			if (e.keycode == Key.key_e && e.mod.meta) {
-				var json = curAnimation.serialize();
-				EditingTools.saveJson( json );
-			}
-
-			//delete current keyframe
-			if (e.keycode == Key.backspace) {
-				curAnimation.delete(curAnimation.t);
-				curAnimation.t = curAnimation.t; //update the view
-			}
-
-			//TODO share code between regular edit & animate edit?
-			//rotate selected elements //TODO make command //TODO make rotate handle?
-			if (e.keycode == Key.right && e.mod.meta) {
-				trace("!!");
-				for (sel in Editor.multiselection) {
-					trace(sel);
-					sel.rotation_z += 5;
-					curAnimation.set({
-							t : curAnimation.t,
-							select : sel.properties.id,
-							rot : sel.rotation_z
-						});
-				}
-			}
-			if (e.keycode == Key.left && e.mod.meta) {
-				for (sel in Editor.multiselection) {
-					sel.rotation_z -= 5;
-					curAnimation.set({
-							t : curAnimation.t,
-							select : sel.properties.id,
-							rot : sel.rotation_z
-						});
-				}
-			}
-
-			//scale selected elements //TODO make command //TODO separate x- and y- axes
-			if (e.keycode == Key.up && e.mod.meta) {
-				for (sel in Editor.multiselection) {
-					sel.scale.add(new Vector(0.1,0.1)); //TODO do I need defaults for properties???
-					curAnimation.set({
-							t : curAnimation.t,
-							select : sel.properties.id,
-							scale : sel.scale
-						});
-				}
-			}
-			if (e.keycode == Key.down && e.mod.meta) {
-				for (sel in Editor.multiselection) {
-					sel.scale.subtract(new Vector(0.1,0.1));
-					curAnimation.set({
-							t : curAnimation.t,
-							select : sel.properties.id,
-							scale : sel.scale
-						});
-				}
-			}	
-		}
-
-	}
-
-	function onmousedown_animate( e:MouseEvent ) {
-		var screenPos = e.pos;
-		var p = Luxe.camera.screen_point_to_world(e.pos);
-
-		// timeline scrubbing
-		var timelineY = Luxe.screen.h * 0.9;
-		var distFromTimelineY = Math.abs(timelineY - screenPos.y);
-		isTouchingTimeline = distFromTimelineY < 15;
-		if (isTouchingTimeline) {
-			selectedKeyframeOnMousedown = animationTimelineSelect(screenPos.x);
-		}
-		else {
-			//TODO add multiselect here
-			/* SELECT */
-			var newSelection : Vex = null;
-			if (Editor.selection != null && Editor.selection.properties.type != "ref") newSelection = Editor.selection.getChildWithPointInside(p);
-			if (newSelection == null) newSelection = Editor.scene.root.getChildWithPointInside(p);
-			Editor.selection = newSelection;
-		}
-	}
-
-	function onmousemove_animate( e:MouseEvent ) {
-		var screenPos = e.pos;
-		var p = Luxe.camera.screen_point_to_world(e.pos);
-
-		// timeline scrubbing
-		if (selectedKeyframeOnMousedown) {
-			//don't do nothin
-		}
-		else if (isTouchingTimeline) {
-			animationTimelineSelect(screenPos.x);
-		}
-		/* TRANSLATE SELECTION */
-		else if (Luxe.input.mousedown(luxe.MouseButton.left)) {
-			if (Editor.multiselection.length > 0) {
-				for (sel in Editor.multiselection) {
-					sel.pos.x += e.x_rel / Luxe.camera.zoom;
-					sel.pos.y += e.y_rel / Luxe.camera.zoom;
-					isTranslatingSelection = true;
-				}
-			}
-		}
-
-	}
-
-	function animationTimelineSelect(x:Float) {
-		var isKeyframeTouched = false;
-
-		var timelineX = Luxe.screen.w * 0.1;
-		var timelineW = Luxe.screen.w * 0.8;
-
-		var selectX = Maths.clamp(x - timelineX, 0, timelineW);
-		var timelinePercent = selectX / timelineW;
-		
-		if (curAnimation != null) {
-
-			//snap & select
-			for (t in curAnimation.times()) {
-				var keyframeX = (timelineW * t);
-				if (Math.abs(keyframeX - selectX) < 10) {
-					timelinePercent = t;
-					isKeyframeTouched = true;
-				}
-			}
-
-			//move animation marker & update animation
-			curAnimation.t = timelinePercent;
-
-		}
-
-		return isKeyframeTouched;
-	}
-
-	function onmouseup_animate(e:MouseEvent) {
-		if (selectedKeyframeOnMousedown) {
-			var timelineX = Luxe.screen.w * 0.1;
-			var timelineW = Luxe.screen.w * 0.8;
-			var selectX = Maths.clamp(e.pos.x - timelineX, 0, timelineW);
-			var timelinePercent = selectX / timelineW;
-			curAnimation.move(curAnimation.t, timelinePercent);
-			curAnimation.t = timelinePercent;
-		}
-
-		if (isTranslatingSelection) {
-			for (sel in Editor.multiselection) {
-				curAnimation.set({
-					t : curAnimation.t,
-					select : sel.properties.id, //do I rely too much on everything having a unique id?
-					pos : sel.pos
-				});
-			}
-		}
-
-		isTouchingTimeline = false;
-		selectedKeyframeOnMousedown = false;
-		isTranslatingSelection = false;
-	}
-
-	function update_animate( dt:Float ) {
-		//draw timeline
-		var timelineY = Luxe.screen.h * 0.9;
-		var timelineX = Luxe.screen.w * 0.1;
-		var timelineW = Luxe.screen.w * 0.8;
-
-		Luxe.draw.line({
-				p0: new Vector(timelineX, timelineY),
-				p1: new Vector(timelineX + timelineW, timelineY),
-				batcher: Editor.batcher.uiScreen,
-				immediate: true
-			});
-
-		if (curAnimation != null) {
-			if (!selectedKeyframeOnMousedown) {
-				var animationProgressMarkerX = timelineX + (timelineW * curAnimation.t);
-				Luxe.draw.line({
-						p0: new Vector(animationProgressMarkerX, timelineY - 15),
-						p1: new Vector(animationProgressMarkerX, timelineY + 15),
-						batcher: Editor.batcher.uiScreen,
-						immediate: true
-					});
-			}
-
-			for (t in curAnimation.times()) {
-				var keyframeX = timelineX + (timelineW * t);
-
-				if (t == curAnimation.t) {
-					if (selectedKeyframeOnMousedown) {
-						var selectX = Maths.clamp(Luxe.screen.cursor.pos.x, timelineX, timelineX + timelineW);
-						keyframeX = selectX;
-					}
-					Luxe.draw.circle({
-							x: keyframeX, 
-							y: timelineY,
-							r: 10,
-							batcher: Editor.batcher.uiScreen,
-							immediate: true
-						});
-				}
-				else {
-					Luxe.draw.ring({
-							x: keyframeX, 
-							y: timelineY,
-							r: 10,
-							batcher: Editor.batcher.uiScreen,
-							immediate: true
-						});
-				}
-			}
-		}
-
-		renderSelectionBounds();
-	}
 
 	/* SKETCH */
 	function onkeydown_sketch( e:KeyEvent ) {
@@ -679,18 +327,5 @@ class Main extends luxe.Game {
 			}
 		}
 	}
-
-	/*
-	function switchMode(nextMode:EditorMode) {
-		if (mode == EditorMode.Draw) drawingPath = [];
-		if (mode == EditorMode.Animate) Editor.scene.root.resetToBasePose();
-		mode = nextMode;
-	}
-	*/
-
-	function renderSelectionBounds() {
-		EditingTools.drawVexBounds( Editor.multiselection, Editor.batcher.uiWorld );
-	}
-
 
 } //Main
