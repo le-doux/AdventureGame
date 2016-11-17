@@ -114,7 +114,7 @@ class EditingTools {
 	}
 
 	//returns true if pan is successful
-	public static function panCameraWhileRightMouseDown(cam:Camera, e:MouseEvent) : Bool {
+	public static function mousemovePanCamera(cam:Camera, e:MouseEvent) : Bool {
 		if ( Luxe.input.mousedown(luxe.Input.MouseButton.right) ) {
 			panCamera(cam, e.x_rel, e.y_rel);
 			return true;
@@ -420,39 +420,57 @@ class EditingTools {
 
 	// returns true if the event happened (TODO should it return the vex too?)
 	// TODO name keydown vs onkeydown
-	public static function keydownOpenVex(vex:Vex, e:KeyEvent) {
+	public static function keydownOpenVex(root:Vex, e:KeyEvent) {
 		//open
 		if (e.keycode == Key.key_o && e.mod.meta ) {
 			//destroy current image
-			vex.destroy();
+			root.destroy();
 			//load new image
-			vex = EditingTools.openVex();
+			root = EditingTools.openVex();
 
 			return {
-				vex: vex,
+				root: root,
 				success: true
 			};
 		}
 
 		return {
-			vex: vex,
+			root: root,
 			success: false
 		};
 	}
 
-	public static function keydownSaveVex(vex:Vex, e:KeyEvent) {
-		//save
-		if (e.keycode == Key.key_s && e.mod.meta ) {
-			EditingTools.saveVex(vex);
-
+	//TODO how useful are some of these functions that are only a few lines?
+	public static function keydownImportVexReference(root:Vex, e:KeyEvent) {
+		if (e.keycode == Key.key_r && e.mod.meta) {
+			var vex = EditingTools.importVexReference();
+			vex.parent = root;
+			
 			return {
-				vex: vex,
+				imported: vex,
 				success: true
 			};
 		}
 
 		return {
-			vex: vex,
+			imported: null,
+			success: false
+		};
+	}
+
+	public static function keydownSaveVex(root:Vex, e:KeyEvent) {
+		//save
+		if (e.keycode == Key.key_s && e.mod.meta ) {
+			EditingTools.saveVex(root);
+
+			return {
+				root: root,
+				success: true
+			};
+		}
+
+		return {
+			root: root,
 			success: false
 		};
 	}
@@ -479,17 +497,25 @@ class EditingTools {
 		return false;
 	}
 
-	public static function keydownDeleteVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
+	public static function keydownDeleteVex(multiselection:Array<Vex>, e:KeyEvent) {
 		if (e.keycode == Key.backspace && e.mod.meta) {
 			if (multiselection.length > 0) {
 				for (s in multiselection) {
 					s.destroy(true);
 				}
 				multiselection = [];
-				return true;
+
+				return {
+					selection: multiselection,
+					success: true
+				};
 			}
 		}
-		return false;
+
+		return {
+			selection: multiselection,
+			success: false
+		};
 	}
 
 	public static function keydownFillColorVex(multiselection:Array<Vex>, color:String, e:KeyEvent) : Bool {
@@ -653,5 +679,7 @@ class EditingTools {
 			success: false
 		};
 	}
-		
+	
+	//TODO	
+	//public static function mousedownDrawPath(path:Array<vex>, type:String, )
 }
