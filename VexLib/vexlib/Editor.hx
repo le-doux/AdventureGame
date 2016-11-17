@@ -64,7 +64,7 @@ class Editor {
 		batcher.uiWorld = Luxe.renderer.create_batcher({name:"uiWorldBatcher", layer:5, camera:camera.world.view});
 
 		//setup drawing
-		scene.root = new Vex({
+		scene.root = Vex.Create({
 				type: "group",
 				origin: "0,0",
 				pos: "0,0"

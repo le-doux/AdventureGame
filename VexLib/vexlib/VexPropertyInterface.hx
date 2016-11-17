@@ -4,6 +4,8 @@ import luxe.Vector;
 import luxe.Color;
 import luxe.Visual;
 import luxe.utils.Maths;
+import luxe.resource.Resource.JSONResource;
+import luxe.resource.Resource.Resource;
 
 import phoenix.geometry.Geometry;
 import phoenix.geometry.Vertex;
@@ -21,12 +23,13 @@ typedef VexJsonFormat = { //TODO rename?
 	@:optional public var path 		: Property;
 	@:optional public var weight	: Property; //only for lines
 	@:optional public var src 		: Property;
+
 	@:optional public var children 	: Array<VexJsonFormat>;
 
 	@:optional public var components : Array<ComponentJsonFormat>;
 
 	//render time options (todo is this the right place for this? I might need to rethink the whole set up I have)
-	@:optional public var batcher : Batcher;
+	//@:optional public var batcher : Batcher;
 }
 
 typedef ComponentJsonFormat = { //TODO rename?
@@ -47,10 +50,12 @@ class VexPropertyInterface {
 	public var weight	(default, set) : Null<Property>;
 	public var src 		(default, set) : Null<Property>;
 
+	public var children (get, set) : Array <VexJsonFormat>;
+
 	public var components (default, set) : Null<Array<ComponentJsonFormat>>;
 
 	var visual : Visual;
-	var batch : Batcher; //hack
+	public var batch : Batcher; //hack
 
 	public function new(v:Visual) {
 		visual = v;
@@ -70,14 +75,16 @@ class VexPropertyInterface {
 		if (path != null) 	json.path = path;
 		if (src != null) 	json.src = src;
 
+		if (children.length > 0) json.children = children;
+
 		if (components != null) json.components = components;
 
 		return json;
 	}
 
-	public function deserialize(json:VexJsonFormat) {
+	public function parse(json:VexJsonFormat) {
 		
-		batch = json.batcher; //hack
+		//batch = json.batcher; //hack
 
 		if (json.type != null) 		type = json.type;
 		if (json.id != null) 		id = json.id;
@@ -91,11 +98,47 @@ class VexPropertyInterface {
 		if (json.color != null) 	color = json.color;
 		if (json.src != null) 		src = json.src;
 
+		if (json.children != null) children = json.children;
+
 		if (json.components != null) components = json.components;
 
+		if (type == "ref") loadRef( src );
 	}
 
-	public function deserializeRef(json:VexJsonFormat) {
+	//TODO clean up this async nonsense -- get advice from snowkit peeps?
+	function loadRef(src:String) {
+		if ( Luxe.resources.has(src) ) {
+			//trace("has ref!");
+			var jsonRes = Luxe.resources.json(src);
+			if (jsonRes.state == luxe.Resources.ResourceState.loaded) {
+				//trace("load from store");
+				var json = jsonRes.asset.json;
+				parseRef(json);
+			}
+			else {
+				//TODO does this event handler stick around?
+				Luxe.resources.on(luxe.Resources.ResourceEvent.loaded, function(r:Resource) {
+						//trace("load on event");
+						var json = Luxe.resources.json(r.id).asset.json;
+						parseRef(json);
+					});
+			}
+		}
+		else {
+			//trace("load ref!");
+			var load = Luxe.resources.load_json(src);
+			load.then(function(jsonRes : JSONResource) {
+				//trace("ref loaded!");
+				var json = jsonRes.asset.json;
+				parseRef(json);
+
+				//TODO
+				//if (onLoad != null) onLoad(this);
+			});
+		}
+	}
+
+	public function parseRef(json:VexJsonFormat) {
 		// Properties that will be saved
 		// id
 		if (json.id != null && id == null) id = json.id; //is this really a good idea?
@@ -117,6 +160,9 @@ class VexPropertyInterface {
 		if (json.rot != null && rot == null) {
 			visual.rotation_z = json.rot;
 		}
+
+		//children
+		if (json.children != null) children = json.children;
 
 		// Properties currently not accounted for (probably not needed at all for ref objects)
 		// type
@@ -212,6 +258,25 @@ class VexPropertyInterface {
 			}
 		}
 		return path;
+	}
+
+	function set_children(childData:Array<VexJsonFormat>) : Array<VexJsonFormat> {
+		visual.children = []; //potentially destructive hack TODO preserve any existing matching children
+		for (json in childData) {
+			var child = Vex.Create(json);
+			child.parent = visual;
+		}
+
+		return childData;
+	}
+
+	function get_children() : Array<VexJsonFormat> {
+		var childrenJson = [];
+		if (type == "ref") return childrenJson; //children of references are not accessable through this interface
+		for (child in VexTools.getVexChildren( visual )) {
+			childrenJson.push( child.serialize() );
+		}
+		return childrenJson;
 	}
 
 	function set_components(componentData:Array<ComponentJsonFormat>) : Array<ComponentJsonFormat> {

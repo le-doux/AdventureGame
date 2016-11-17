@@ -48,7 +48,7 @@ class DrawVexCommand extends Command {
 	}
 
 	override public function Perform() {
-		vex = new Vex(properties);
+		vex = Vex.Create(properties);
 		trace("!!! create");
 		trace(vex.name);
 		vex.parent = parent;
@@ -142,7 +142,7 @@ class DeleteCommand extends SelectionCommand {
 		trace("--- undelete");
 		selection = [];
 		for (json in saveDeletedVex) {
-			var v = new Vex(json);
+			var v = Vex.Create(json);
 			trace(v.name);
 			v.parent = parent;
 			selection.push(v);

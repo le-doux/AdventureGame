@@ -15,37 +15,33 @@ import vexlib.Animation;
 import phoenix.Batcher;
 
 class Vex extends Visual {
+
+	public static function Create( json:VexJsonFormat, ?_options:luxe.options.VisualOptions ) : Vex {
+		if (_options == null) _options = {no_geometry:true}; //back compat with old new() -- is there a nicer way?
+
+		var vex = new Vex( _options );
+
+		//hacky way to get batcher shit into the properties.. there must be a nicer way
+		if (_options != null && _options.batcher != null) {
+			vex.properties.batch = _options.batcher;
+		}
+		else {
+			vex.properties.batch = Luxe.renderer.batcher;
+		}
+		
+		vex.properties.parse( json );
+		return vex;
+	}
+
 	public var properties : VexPropertyInterface;
 
+	//TODO recreate this hack
 	//hack
 	var onLoad : Dynamic;
 
-	override public function new( json : VexJsonFormat, ?onLoad:Dynamic ) {
-		super({no_geometry:true});
-		if (json.batcher == null) json.batcher = Luxe.renderer.batcher;
-		//trace(json.batcher.name);
-
-		// create children first, so that properties
-		// we set in the parent (like depth) can trickle down to them
-		if (json.children != null) {
-			for (c in json.children) {
-				if (json.batcher != null) c.batcher = json.batcher;
-				var child = new Vex(c);
-				child.parent = this;
-			}
-		}
-
+	override public function new( ?_options:luxe.options.VisualOptions ) {
+		super(_options);
 		properties = new VexPropertyInterface(this);
-		properties.deserialize(json);
-
-		//hack
-		if (onLoad != null) this.onLoad = onLoad;
-
-		if (properties.type == "ref") {
-			loadRef( properties.src );
-		}
-
-		//trace(properties.id);
 	}
 
 	public function resetToBasePose() {
@@ -78,59 +74,7 @@ class Vex extends Visual {
 	}
 
 	public function serialize() : VexJsonFormat {
-		var json = properties.serialize();
-
-		var shouldSerializeChildren = (json.type != "ref"); //don't serialize children of reference objects
-		if (shouldSerializeChildren) {
-			for (c in getVexChildren()) {
-				if (json.children == null) json.children = [];
-				json.children.push( c.serialize() );
-			}			
-		}
-
-		return json;
-	}
-
-	//TODO clean up this async nonsense -- get advice from snowkit peeps?
-	function loadRef(src:String) {
-		if ( Luxe.resources.has(src) ) {
-			//trace("has ref!");
-			var jsonRes = Luxe.resources.json(src);
-			if (jsonRes.state == luxe.Resources.ResourceState.loaded) {
-				//trace("load from store");
-				var json = jsonRes.asset.json;
-				deserializeRef(json);
-			}
-			else {
-				//TODO does this event handler stick around?
-				Luxe.resources.on(luxe.Resources.ResourceEvent.loaded, function(r:Resource) {
-						//trace("load on event");
-						var json = Luxe.resources.json(r.id).asset.json;
-						deserializeRef(json);
-					});
-			}
-		}
-		else {
-			//trace("load ref!");
-			var load = Luxe.resources.load_json(src);
-			load.then(function(jsonRes : JSONResource) {
-				//trace("ref loaded!");
-				var json = jsonRes.asset.json;
-				deserializeRef(json);
-
-				if (onLoad != null) onLoad(this);
-			});
-		}
-	}
-
-	function deserializeRef(json) {
-		properties.deserializeRef(json);
-		if (json.children != null) {
-			for (c in json.children) {
-				var child = new Vex(c);
-				child.parent = this;
-			}
-		}
+		return properties.serialize();
 	}
 
 	public function find(searchStr:String) : Array<Vex> {
@@ -201,6 +145,7 @@ class Vex extends Visual {
 			trace(k);
 		}
 	}
+
 	public function addAnimation(json:AnimationFormat, ?name:String) : Animation {
 		if (name == null) {
 			//trace(json.id);
@@ -216,6 +161,7 @@ class Vex extends Visual {
 		animations.set(name, anim);
 		return anim;
 	}
+
 	public function playAnimation(name:String, duration:Float) {
 		curAnimation = animations.get(name);
 		curTween = curAnimation.play(duration).ease(luxe.tween.easing.Linear.easeNone).onComplete(function() {
@@ -225,6 +171,7 @@ class Vex extends Visual {
 			});
 		return curTween;
 	}
+
 	public function stopAnimation() { //rename pause?
 		if (curAnimation != null) Actuate.stop(curAnimation);
 		curAnimation = null;

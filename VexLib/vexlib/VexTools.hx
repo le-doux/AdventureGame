@@ -1,6 +1,7 @@
 package vexlib;
 
 import luxe.Vector;
+import luxe.Visual;
 import luxe.Transform;
 import luxe.Color;
 import luxe.utils.Maths;
@@ -14,7 +15,6 @@ import phoenix.geometry.Geometry;
 class VexTools {
 
 	//TODO serializeVex, parseVex, serializeVPI, parseVPI
-	//TODO rename all blankToBlank in form serialize*, parse*
 	
 	/*
 		Wraps poly2tri library polygon-to-mesh algorithm
@@ -378,7 +378,7 @@ class VexTools {
 		return [new Vector(0,0), new Vector(0,0), new Vector(0,0), new Vector(0,0)]; //degenerate case
 	}
 
-	public static function getVexChildren(parent:Vex) : Array<Vex> {
+	public static function getVexChildren(parent:Visual) : Array<Vex> {
 		var vexChildren = [];
 		//find children that are of type Vex
 		if (parent.children != null && parent.children.length > 0) {

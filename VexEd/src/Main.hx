@@ -28,7 +28,7 @@ X remove chunks of related input code & put in editing tools
 	X edit
 	X animate
 	- sketch
-- figure out globals (root of scene, batchers, anything else?)
+X figure out globals (root of scene, batchers, anything else?)
 - more comprehensive selection model
 - rethink undo/redo entirely
 */
@@ -123,12 +123,6 @@ class Main extends luxe.Game {
 
 	//flags
 	var isEditingId = false;
-
-	//sketchmode
-	var showSketchLayer = true;
-	var sketchLines : Array<Array<Vector>> = [];
-	var curSketchLine : Array<Vector>;
-	var sketchGeo : Array<Geometry> = [];
 
 	override function ready() {
 		Editor.setup();
@@ -270,7 +264,15 @@ class Main extends luxe.Game {
 
 	} //update
 
+
+
+
+	//TODO move sketch mode into its own state
 	/* SKETCH */
+	var showSketchLayer = true;
+	var sketchLines : Array<Array<Vector>> = [];
+	var curSketchLine : Array<Vector>;
+	var sketchGeo : Array<Geometry> = [];
 	function onkeydown_sketch( e:KeyEvent ) {
 		if (e.keycode == Key.backspace) {
 			//sketchLines = [];

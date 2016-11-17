@@ -74,7 +74,7 @@ class EditingTools {
 	}
 
 	public static function openVex() : Vex {
-		return new Vex( openJson() );
+		return Vex.Create( openJson() );
 	}
 
 	//TODO openPalette?
@@ -91,7 +91,7 @@ class EditingTools {
 
 	public static function importVexReference() : Vex {
 		var srcString = importAssetReference();
-		return new Vex({type:"ref",src:srcString});
+		return Vex.Create({type:"ref",src:srcString});
 	}
 
 	public static function copyVex(vex:Vex) {
@@ -102,7 +102,7 @@ class EditingTools {
 	//TODO error checking
 	public static function pasteVex() : Vex {
 		var json = Json.parse( Clipboard.get() );
-		return new Vex(json);
+		return Vex.Create(json);
 	}
 
 	//TODO hasValidVexOnClipBoard?
@@ -335,7 +335,7 @@ class EditingTools {
 
 	public static function groupVex(children:Array<Vex>) : Vex {
 		//make group
-		var g = new Vex({
+		var g = Vex.Create({
 				type: "group",
 				pos: "0,0"
 			});
