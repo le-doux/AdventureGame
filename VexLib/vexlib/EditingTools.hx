@@ -334,6 +334,11 @@ class EditingTools {
 	//TODO function that combine` all path drawing stuff?
 
 	public static function groupVex(children:Array<Vex>) : Vex {
+		trace("group");
+		for (c in children) {
+			trace(c);
+		}
+
 		//make group
 		var g = Vex.Create({
 				type: "group",
@@ -501,6 +506,7 @@ class EditingTools {
 		if (e.keycode == Key.backspace && e.mod.meta) {
 			if (multiselection.length > 0) {
 				for (s in multiselection) {
+					s.parent = null;
 					s.destroy(true);
 				}
 				multiselection = [];
@@ -540,6 +546,8 @@ class EditingTools {
 				//add group to scene
 				g.parent = root;
 
+				trace(g);
+
 				return [g];
 			}
 		}
@@ -548,16 +556,27 @@ class EditingTools {
 
 	}
 
-	public static function keydownUngroupVex(group:Vex, e:KeyEvent) : Vex {
+	public static function keydownUngroupVex(multiselection:Array<Vex>, e:KeyEvent) {
 		//ungroup selected group
 		if (e.keycode == Key.key_u && e.mod.meta) {
-			if ( group != null && (group.properties.type == "group" || group.properties.type == "ref") ) {
-				ungroupVex( group );
-				group.destroy(true);
-				return null;
+			if (multiselection.length > 0) {
+				var group = multiselection[0];
+				if ( group.properties.type == "group" || group.properties.type == "ref" ) {
+					var children = group.getVexChildren();
+					ungroupVex( group );
+					group.parent = null;
+					group.destroy(true);
+					return {
+						selection: children,
+						success: true
+					};
+				}
 			}
 		}
-		return group;
+		return {
+			selection: multiselection,
+			success: false
+		};
 	}
 
 	public static function keydownRotateVex(multiselection:Array<Vex>, e:KeyEvent) : Bool {
@@ -645,9 +664,14 @@ class EditingTools {
 			var selection = null;
 			if ( multiselection.length > 0 ) selection = multiselection[0];
 
+			trace("single select");
+			trace(selection);
+
 			selection = select( selection, pos, root );
 
 			if ( selection != null ) newSelection = [selection];
+
+			trace(newSelection);
 		}
 
 		return {

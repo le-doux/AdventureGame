@@ -14,7 +14,7 @@ import phoenix.geometry.Geometry;
 
 class VexTools {
 
-	//TODO serializeVex, parseVex, serializeVPI, parseVPI
+	//TODO serializeVPI, parseVPI (is it necessary now that I've simplified the Vex<->VPI connection?)
 	
 	/*
 		Wraps poly2tri library polygon-to-mesh algorithm
@@ -187,7 +187,7 @@ class VexTools {
 		var coords = str.split(",");
 		var x = Std.parseFloat(coords[0]);
 		var y = Std.parseFloat(coords[1]);
-		return new Vector(x,y);
+		return new Vector(x,y,1); //hack nominal z value is necessary for scale not to freak out
 	}
 
 	public static function serializePath(path:Array<Vector>) : String {
@@ -415,9 +415,6 @@ class VexTools {
 	}
 
 	public static function vectorToWorldSpace(t:Transform, p:Vector) : Vector {
-		trace(t);
-		trace(t.world);
-		trace(t.world.matrix);
 		return p.clone().applyProjection( t.world.matrix );
 	}
 

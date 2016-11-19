@@ -1,0 +1,47 @@
+{
+	"tracks": [
+		{
+			"select": "body",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-35"
+					},
+					"t": "0.1328125"
+				},
+				{
+					"props": {
+						"rot": "-45"
+					},
+					"t": "0.188802083333333"
+				},
+				{
+					"props": {
+						"rot": "-25"
+					},
+					"t": "0.270833333333333"
+				},
+				{
+					"props": {
+						"rot": "-40"
+					},
+					"t": "0.315104166666667"
+				}
+			]
+		},
+		{
+			"select": "head",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-70"
+					},
+					"t": "0.188802083333333"
+				}
+			]
+		}
+	],
+	"id": "newAnimation"
+}

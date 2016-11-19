@@ -47,12 +47,17 @@ class Vex extends Visual {
 	public function resetToBasePose() {
 		//properties.deserialize( properties.serialize() );
 
+		trace("reset base pose");
+		trace(scale);
 		if (properties.scale != null) {
+			trace("A");
 			scale = properties.scale;
 		}
 		else {
+			trace("B");
 			scale = new Vector(1,1,1); //fuck z scale - it always causes the weirdest bugs
 		}
+		trace(scale);
 		
 		if (properties.pos != null) {
 			pos = properties.pos;

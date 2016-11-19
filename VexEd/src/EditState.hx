@@ -16,6 +16,7 @@ class EditState extends State {
 
 		//delete selected element
 		Editor.multiselection = EditingTools.keydownDeleteVex( Editor.multiselection, e ).selection;
+		trace(Editor.multiselection);
 
 		//change color
 		EditingTools.keydownFillColorVex( Editor.multiselection, "pal(" + Editor.curPalIndex + ")", e );
@@ -24,7 +25,7 @@ class EditState extends State {
 		Editor.multiselection = EditingTools.keydownGroupVex( Editor.multiselection, Editor.scene.root, e );
 
 		//ungroup selected group
-		Editor.selection = EditingTools.keydownUngroupVex( Editor.selection, e );
+		Editor.multiselection = EditingTools.keydownUngroupVex( Editor.multiselection, e ).selection;
 
 		//rotate selected elements //TODO make command //TODO make rotate handle?
 		EditingTools.keydownRotateVex( Editor.multiselection, e );
@@ -34,6 +35,11 @@ class EditState extends State {
 	}
 
 	override function onmousedown(e:MouseEvent) {
+		if (Luxe.input.mousedown(luxe.MouseButton.right)) {
+			//panning
+			return;
+		}
+
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 
 		/* SET ORIGIN */
@@ -46,6 +52,11 @@ class EditState extends State {
 	}
 
 	override function onmousemove(e:MouseEvent) {
+		if (Luxe.input.mousedown(luxe.MouseButton.right)) {
+			//panning
+			return;
+		}
+
 		/* TRANSLATE SELECTION */
 		EditingTools.mousemoveTranslateVex( Editor.multiselection, e );
 	}

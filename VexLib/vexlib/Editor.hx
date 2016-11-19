@@ -71,11 +71,12 @@ class Editor {
 			});
 
 		//load default palettes - hacky nonsense
-		var load = Luxe.resources.load_json('assets/testpal.vex');
+		//var load = Luxe.resources.load_json('assets/testpal.vex');
+		var load = Luxe.resources.load_json('assets/pico8pal.vex');
 		load.then(function(jsonRes : JSONResource) {
 			var json = jsonRes.asset.json;
 			Palette.Load(json);
-			Palette.Init("test");
+			Palette.Init("pico8");
 			Luxe.renderer.clear_color = Palette.Colors[0];
 		});
 	}

@@ -21,6 +21,17 @@ import vexlib.EditingTools;
 import Command;
 
 /*
+	PIGEON TODOS
+	X isPointInside bug
+	- cmd-n (new)
+	- cmd-a (select all)
+	- auto save work so far
+	- need animation without naming everything
+	- need to fix sub-selction in groups
+	- switch colors 0-7, 8-15
+*/
+
+/*
 REFACTORING masterplan
 X remove chunks of related input code & put in editing tools
 - turn editing modes into states (in their own files)
@@ -210,6 +221,8 @@ class Main extends luxe.Game {
 	} //onkeyup
 
 	override function ontextinput(e:TextEvent) {
+		trace(e);
+
 		//edit id
 		if (isEditingId) {
 			Editor.selection.properties.id += e.text; //TODO command-ify
@@ -218,7 +231,9 @@ class Main extends luxe.Game {
 		//change current color
 		var n = Std.parseInt(e.text);
 		if (n != null && n > 0 && n < 9) {
-			Editor.curPalIndex = n - 1;
+			var palIndex = n - 1;
+			if ( Luxe.input.keydown(Key.lmeta) ) palIndex += 8; //want to use shift, but textevent might not be the way to do it
+			Editor.curPalIndex = palIndex;
 		} 
 	}
 

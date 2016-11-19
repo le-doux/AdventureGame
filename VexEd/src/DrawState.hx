@@ -64,6 +64,11 @@ class DrawState extends State {
 	}
 
 	override function onmousedown(e:MouseEvent) {
+		if (Luxe.input.mousedown(luxe.MouseButton.right)) {
+			//panning
+			return;
+		}
+
 		//TODO package this up one thing?
 		var p = Luxe.camera.screen_point_to_world(e.pos);
 		var pathResults = EditingTools.buildPath( drawingPath, p, 
