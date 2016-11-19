@@ -26,9 +26,9 @@ import Command;
 	- cmd-n (new)
 	- cmd-a (select all)
 	- auto save work so far
-	- need animation without naming everything
-	- need to fix sub-selction in groups
-	- switch colors 0-7, 8-15
+	- need animation without naming everything in local storage
+	X need to fix sub-selction in groups
+	X switch colors 0-7, 8-15
 */
 
 /*
@@ -135,6 +135,8 @@ class Main extends luxe.Game {
 	//flags
 	var isEditingId = false;
 
+	var palOffset = 0;
+
 	override function ready() {
 		Editor.setup();
 
@@ -209,6 +211,14 @@ class Main extends luxe.Game {
 		// copy/paste
 		EditingTools.keydownCopyPasteVex( Editor.selection, Editor.scene.root, e );
 
+		//toggle pal offset
+		if (e.keycode == Key.key_c && e.mod.lshift) {
+			if (palOffset == 0)
+				palOffset = 8;
+			else
+				palOffset = 0;
+		}
+
 		// TODO new version of undo redo
 	}
 
@@ -231,8 +241,7 @@ class Main extends luxe.Game {
 		//change current color
 		var n = Std.parseInt(e.text);
 		if (n != null && n > 0 && n < 9) {
-			var palIndex = n - 1;
-			if ( Luxe.input.keydown(Key.lmeta) ) palIndex += 8; //want to use shift, but textevent might not be the way to do it
+			var palIndex = (n - 1) + palOffset;
 			Editor.curPalIndex = palIndex;
 		} 
 	}
