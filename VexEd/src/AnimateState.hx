@@ -14,6 +14,7 @@ class AnimateState extends State {
 	var isTouchingTimeline = false;
 	var selectedKeyframeOnMousedown = false;
 	var isTranslatingSelection = false;
+	var animationPreviewDuration = 5.0;
 
 	override function onkeydown( e:KeyEvent ) {
 		//open animation
@@ -28,9 +29,18 @@ class AnimateState extends State {
 			curAnimation = Editor.scene.root.addAnimation({id:"newAnimation"});
 		}
 
+		//change animation duration
+		if (e.keycode == Key.key_t && e.mod.meta) {
+			animationPreviewDuration += 1;
+		}
+		else if (e.keycode == Key.key_g && e.mod.meta) {
+			animationPreviewDuration -= 1;
+			if (animationPreviewDuration < 1) animationPreviewDuration = 1;
+		}
+
 		//play animation
 		if (e.keycode == Key.key_p && e.mod.meta) {
-			Editor.scene.root.playAnimation(curAnimation.id, 5)
+			Editor.scene.root.playAnimation(curAnimation.id, animationPreviewDuration)
 					.onComplete(function() {
 							trace("animation complete!");
 							Editor.scene.root.resetToBasePose();
@@ -200,6 +210,15 @@ class AnimateState extends State {
 	}
 
 	override function update( dt:Float ) {
+		//tool
+		Luxe.draw.text({
+				text: "time (s): " + animationPreviewDuration,
+				point_size: 16,
+				batcher: Editor.batcher.uiScreen,
+				pos: new Vector(0,40),
+				immediate: true
+			});
+
 		//draw timeline
 		var timelineY = Luxe.screen.h * 0.9;
 		var timelineX = Luxe.screen.w * 0.1;

@@ -29,6 +29,8 @@ import Command;
 	- need animation without naming everything in local storage
 	X need to fix sub-selction in groups
 	X switch colors 0-7, 8-15
+	- change default animation speed
+	- show color palete in other modes beside draw
 */
 
 /*

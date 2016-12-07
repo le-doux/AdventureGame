@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'shaders',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'shaders',
+      package : 'org.luxeengine.shaders'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}
