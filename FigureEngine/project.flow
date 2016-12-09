@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'figure',
+    version : '1.0.0',
+    author : 'ledoux',
+
+    app : {
+      name : 'figure',
+      package : 'org.luxeengine.figure'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

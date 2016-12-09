@@ -4,632 +4,691 @@
 		"selected_items":
 		[
 			[
-				"w",
-				"p· width	Float"
+				"animat",
+				"animationPreviewDuration"
 			],
 			[
-				"reflec",
-				"reflectVectorByNormal"
+				"mult",
+				"multiselection"
 			],
 			[
-				"norma",
-				"normalComponentV"
+				"getCh",
+				"m· getVexChildren\tArray<vexlib.Vex>"
 			],
 			[
-				"terr",
-				"terrainPoints"
-			],
-			[
-				"file",
-				"filename"
-			],
-			[
-				"eas",
-				"easeOut"
-			],
-			[
-				"hei",
-				"heightInWorldPixels"
-			],
-			[
-				"mi",
-				"p· mid	luxe.Vector"
-			],
-			[
-				"dial",
-				"dialog_cam"
-			],
-			[
-				"b",
-				"p· batcher	Null<phoenix.Batcher>"
+				"children",
+				"childrenJson"
 			],
 			[
 				"ba",
-				"p· batchers	Array<phoenix.Batcher>"
+				"p· batcher\tNull<phoenix.Batcher>"
 			],
 			[
-				"lin",
-				"lineWidth"
+				"Ed",
+				"p· EditingTools\tEditingTools"
 			],
 			[
-				"dialog_",
-				"dialog_cam"
+				"uiSc",
+				"p· uiScene\tphoenix.Batcher"
 			],
 			[
-				"B",
-				"p· Batcher	Batcher"
+				"ui",
+				"p· uiScreen\tphoenix.Batcher"
 			],
 			[
-				"onl",
-				"onLevelUpdate"
+				"uisc",
+				"p· uiScreen\tphoenix.Batcher"
 			],
 			[
-				"ac",
-				"active"
+				"Edi",
+				"Editor"
 			],
 			[
-				"onLevel",
-				"onShowLevel"
-			],
-			[
-				"ter",
-				"terrain"
-			],
-			[
-				"lv",
-				"level5"
-			],
-			[
-				"hell",
-				"helloButton"
-			],
-			[
-				"switc",
-				"switchLevels"
-			],
-			[
-				"swit",
-				"switchLevels"
-			],
-			[
-				"tre",
-				"terrainPos"
-			],
-			[
-				"Ac",
-				"ActionButton"
-			],
-			[
-				"re",
-				"m· reflect	luxe.tween.actuators.IGenericActuator"
-			],
-			[
-				"arro",
-				"arrowPos"
-			],
-			[
-				"width",
-				"widthInWorldPixels"
-			],
-			[
-				"Di",
-				"DialogOptions"
-			],
-			[
-				"wid",
-				"widthInWorldPixels"
-			],
-			[
-				"vel",
-				"velocity"
-			],
-			[
-				"end",
-				"endSize"
-			],
-			[
-				"sente",
-				"sentenceIndex"
-			],
-			[
-				"ad",
-				"m· add	 "
-			],
-			[
-				"inser",
-				"insertIndex"
-			],
-			[
-				"des",
-				"m· destroy	 "
-			],
-			[
-				"sen",
-				"sentenceIndex"
-			],
-			[
-				"initia",
-				"initialBounds"
-			],
-			[
-				"dia",
-				"dialogPullDist"
-			],
-			[
-				"di",
-				"dialogPullDist"
-			],
-			[
-				"scroll",
-				"scrollInput"
-			],
-			[
-				"scre",
-				"screenCenter"
-			],
-			[
-				"wo",
-				"m· screen_point_to_world	luxe.Vector"
-			],
-			[
-				"dialog",
-				"dialogFile"
-			],
-			[
-				"test",
-				"testDialog"
-			],
-			[
-				"Dia",
-				"Dialogs"
-			],
-			[
-				"File",
-				"FileOutput"
-			],
-			[
-				"mo",
-				"p· module	snow.types.ModuleIO"
-			],
-			[
-				"Wo",
-				"Word"
-			],
-			[
-				"to",
-				"m· toJson	 "
-			],
-			[
-				"jsonS",
-				"jsonSentences"
-			],
-			[
-				"Wor",
-				"Word"
-			],
-			[
-				"len",
-				"length"
-			],
-			[
-				"show",
-				"showSentence"
-			],
-			[
-				"anim",
-				"animateSentence"
-			],
-			[
-				"cl",
-				"m· clear	 "
-			],
-			[
-				"anima",
-				"animateSentenceControl"
-			],
-			[
-				"spac",
-				"spaceWidth"
-			],
-			[
-				"word",
-				"wordPos"
-			],
-			[
-				"add",
-				"m· addWord	 "
-			],
-			[
-				"a",
-				"m· add	add.T"
-			],
-			[
-				"he",
-				"height"
-			],
-			[
-				"draw",
-				"drawIncomplete"
-			],
-			[
-				"Entit",
-				"EntityOptions"
-			],
-			[
-				"comp",
-				"p· components	luxe.structural.OrderedMap_String_luxe_Component"
-			],
-			[
-				"remove",
-				"m· _remove_child	 "
-			],
-			[
-				"remo",
-				"m· _remove_child	 "
-			],
-			[
-				"pick",
-				"pickIndex"
-			],
-			[
-				"ch",
-				"m· charCodeAt	Null<Int>"
-			],
-			[
-				"cur",
-				"curSprite"
-			],
-			[
-				"mul",
-				"m· multiplyScalar	 "
-			],
-			[
-				"emoi",
-				"emojiSpriteList"
-			],
-			[
-				"emoji",
-				"emojiSpriteList"
-			],
-			[
-				"do",
-				"p· down	Int"
-			],
-			[
-				"get_",
-				"m· get_components	 "
-			],
-			[
-				"get",
-				"m· get	get.T"
-			],
-			[
-				"I",
-				"p· Input	Input"
-			],
-			[
-				"ph",
-				"p· Physics	Physics"
-			],
-			[
-				"par",
-				"m· parseInt	Null<Int>"
-			],
-			[
-				"Emoji",
-				"EmojiPickerOptions"
-			],
-			[
-				"Enti",
-				"EntityOptions"
-			],
-			[
-				"E",
-				"p· Entity	Entity"
-			],
-			[
-				"fi",
-				"m· fields	Array<String>"
-			],
-			[
-				"geometr",
-				"geometryList"
-			],
-			[
-				"thermom",
-				"p· thermometer_face	{ unicode_alternates : String, unicode : String, shortname : String, name : String, keywords : Array<Unknown<1122>>, emoji_order : String, category : String, aliases : Array<String> }"
-			],
-			[
-				"spark",
-				"p· sparkling_heart	{ unicode : Array<String>, isCanonical : Bool }"
-			],
-			[
-				"node",
-				"nodeName"
-			],
-			[
-				"svG",
-				"svgXml"
-			],
-			[
-				"nod",
-				"p· nodeName	String"
-			],
-			[
-				"firs",
-				"m· firstElement	Xml"
-			],
-			[
-				"n",
-				"node"
-			],
-			[
-				"svg",
-				"svgXml"
-			],
-			[
-				"Re",
-				"p· Resources	Resources"
-			],
-			[
-				"loadim",
-				"loadImageFromShortname"
-			],
-			[
-				"ai",
-				"p· airplane	{ unicode : Array<String>, isCanonical : Bool }"
-			],
-			[
-				"text",
-				"m· texture	 "
-			],
-			[
-				"te",
-				"m· texture	 "
-			],
-			[
-				"lo",
-				"m· loadImage	 "
+				"keyd",
+				"m· keydownSaveVex\t "
 			],
 			[
 				"m",
-				"p· mid	luxe.Vector"
+				"p· matrix\tphoenix.Matrix"
 			],
 			[
-				"sc",
-				"p· screen	luxe.Screen"
+				"selec",
+				"selected"
 			],
 			[
-				"EmojiS",
-				"EmojiSpriteOptions"
+				"mulit",
+				"multiSelection"
 			],
 			[
-				"load",
-				"m· loadImageFromShortname	 "
+				"mulitsel",
+				"multiselection"
 			],
 			[
-				"subt",
-				"m· substring	String"
+				"multise",
+				"multiselection"
 			],
 			[
-				"image",
-				"imageName"
+				"multi",
+				"multiselect"
 			],
 			[
-				"uni",
-				"unicode"
+				"mulitse",
+				"multiselection"
 			],
 			[
-				"unicod",
-				"unicodeList"
+				"multis",
+				"multiselection"
 			],
 			[
-				"emojio",
-				"emojioneList"
+				"muli",
+				"multiselection"
 			],
 			[
-				"en",
-				"p· enter	Int"
+				"sele",
+				"selection"
 			],
 			[
-				"new",
-				"newWord"
+				"keydow",
+				"m· keydownUngroupVex\tvexlib.Vex"
 			],
 			[
-				"P0",
-				"p0_inWorld"
+				"select",
+				"selection"
 			],
 			[
-				"p0",
-				"p0_inWorld"
+				"keydo",
+				"m· keydownRotateVex\tBool"
 			],
 			[
-				"p",
-				"p· pos	luxe.Vector"
+				"Key",
+				"KeyEvent"
 			],
 			[
-				"boundsRe",
-				"boundsResizeRatio"
+				"seria",
+				"m· serializeMultipath\tString"
 			],
 			[
-				"boundsr",
-				"boundsResizeRatio"
+				"sel",
+				"selection"
 			],
 			[
-				"Visu",
-				"VisualOptions"
+				"pu",
+				"public"
 			],
 			[
-				"clear",
-				"p· clear_color	phoenix.Color"
+				"curren",
+				"currentTool"
 			],
 			[
-				"onCom",
-				"onCompleteCallback"
+				"drawp",
+				"m· drawPoints\t "
 			],
 			[
-				"on",
-				"m· onUpdate	luxe.tween.actuators.IGenericActuator"
+				"scen",
+				"uiSceneBatcher"
 			],
 			[
-				"worl",
-				"screen_point_to_world"
+				"screen",
+				"screenBatcher"
+			],
+			[
+				"drawing",
+				"drawingPath"
 			],
 			[
 				"is",
-				"isOutroed"
+				"p· isPathClosed\tBool"
 			],
 			[
-				"animate",
-				"animateOutro"
+				"isp",
+				"p· isPathFinished\tBool"
 			],
 			[
-				"star",
-				"startSize"
+				"isPath",
+				"isPathClosed"
 			],
 			[
-				"pullD",
-				"pullDist"
+				"isPat",
+				"isPathFinished"
 			],
 			[
-				"isAp",
-				"isAppeared"
+				"drawin",
+				"drawingPath"
 			],
 			[
-				"appea",
-				"animateAppear"
+				"ispa",
+				"isPathClosed"
+			],
+			[
+				"C",
+				"p· Color\tColor"
+			],
+			[
+				"curre",
+				"currentTool"
+			],
+			[
+				"curr",
+				"currentTool"
+			],
+			[
+				"draw",
+				"drawingPath"
+			],
+			[
+				"fin",
+				"m· findTopLeft\tluxe.Vector"
+			],
+			[
+				"Vex",
+				"VexTools"
+			],
+			[
+				"or",
+				"origin"
+			],
+			[
+				"div",
+				"m· divideScalar\tphoenix.Vector"
+			],
+			[
+				"uiB",
+				"uiSceneBatcher"
+			],
+			[
+				"mouse",
+				"MouseButton"
+			],
+			[
+				"panC",
+				"m· panCameraWhileRightMouseDown\tBool"
+			],
+			[
+				"pan",
+				"m· panCameraWhileRightMouseDown\tBool"
+			],
+			[
+				"x",
+				"p· x_rel\tInt"
+			],
+			[
+				"impor",
+				"m· importVexReference\tvexlib.Vex"
+			],
+			[
+				"open",
+				"m· openVex\tvexlib.Vex"
+			],
+			[
+				"saveSt",
+				"saveString"
+			],
+			[
+				"Eid",
+				"EditingTools"
+			],
+			[
+				"Edit",
+				"EditingTools"
+			],
+			[
+				"vecto",
+				"m· vectorToWorldSpace\tluxe.Vector"
+			],
+			[
+				"toWol",
+				"m· vectorToWorldSpace\tluxe.Vector"
+			],
+			[
+				"prevori",
+				"prevOriginLocalSpace"
+			],
+			[
+				"vect",
+				"m· vectorToWorldSpace\tluxe.Vector"
+			],
+			[
+				"vectot",
+				"m· vectorToParentSpace\tluxe.Vector"
+			],
+			[
+				"vectorTo",
+				"m· vectorToParentSpace\tluxe.Vector"
+			],
+			[
+				"tra",
+				"transform"
+			],
+			[
+				"vec",
+				"m· vectorToLocalSpace\tluxe.Vector"
+			],
+			[
+				"find",
+				"m· findVexById\tArray<vexlib.Vex>"
+			],
+			[
+				"ad",
+				"m· addMultiLineToGeometry\tphoenix.geometry.Geometry"
+			],
+			[
+				"mu",
+				"multiline"
+			],
+			[
+				"stringTopa",
+				"stringToPaletteColor"
+			],
+			[
+				"stringToH",
+				"stringToHexColor"
+			],
+			[
+				"St",
+				"String"
+			],
+			[
+				"substr",
+				"m· substring\tString"
+			],
+			[
+				"StringTo",
+				"StringToMultipath"
+			],
+			[
+				"func",
+				"function"
+			],
+			[
+				"y",
+				"p· y_rel\tInt"
+			],
+			[
+				"de",
+				"m· destroy\t "
+			],
+			[
+				"Ex",
+				"Exit"
+			],
+			[
+				"Exi",
+				"ExitOptions"
+			],
+			[
+				"re",
+				"m· repeat\tluxe.tween.actuators.IGenericActuator"
+			],
+			[
+				"bouncy",
+				"bouncyArrow"
+			],
+			[
+				"bounc",
+				"bouncyArrow"
+			],
+			[
+				"ea",
+				"p· easeInOut\tluxe.tween.easing.IEasing"
+			],
+			[
+				"eas",
+				"easing"
+			],
+			[
+				"dial",
+				"dialogArrowBounce"
+			],
+			[
+				"boun",
+				"dialogArrowBounceAnim"
+			],
+			[
+				"curD",
+				"curDescription"
+			],
+			[
+				"next",
+				"nextChar"
+			],
+			[
+				"max",
+				"maxRow"
+			],
+			[
+				"curdi",
+				"curDialogRow"
+			],
+			[
+				"isdi",
+				"isDescriptionMode"
+			],
+			[
+				"curDi",
+				"curDialogRow"
+			],
+			[
+				"clear",
+				"clearDescription"
+			],
+			[
+				"iswa",
+				"isWaitingToContinueCurDialog"
+			],
+			[
+				"isw",
+				"isWaitingToContinueCurDialog"
+			],
+			[
+				"curR",
+				"curDialogRow"
+			],
+			[
+				"retu",
+				"returnObj"
+			],
+			[
+				"textboxpad",
+				"textBoxPadY"
+			],
+			[
+				"textboxpa",
+				"textBoxPadX"
+			],
+			[
+				"batc",
+				"batch"
+			],
+			[
+				"b",
+				"p· batcher\tphoenix.Batcher"
+			],
+			[
+				"texb",
+				"textBoxHeight"
+			],
+			[
+				"textbo",
+				"textBoxY"
+			],
+			[
+				"description",
+				"descriptionVex"
+			],
+			[
+				"wo",
+				"m· screen_point_to_world\tluxe.Vector"
+			],
+			[
+				"scre",
+				"screenMidWorldPos"
+			],
+			[
+				"isdes",
+				"isDescriptionMode"
+			],
+			[
+				"isDesc",
+				"isDescriptionMode"
+			],
+			[
+				"p",
+				"player"
+			],
+			[
+				"Desc",
+				"Description"
+			],
+			[
+				"com",
+				"p· Component\tComponent"
+			],
+			[
+				"scene",
+				"scenery"
 			],
 			[
 				"js",
-				"jsonRes"
+				"json"
 			],
 			[
-				"trig",
-				"m· triggerTouch	 "
+				"COmpon",
+				"ComponentJsonFormat"
 			],
 			[
-				"action",
-				"actionButtons"
+				"Compon",
+				"ComponentJsonFormat"
 			],
 			[
-				"tri",
-				"m· triggerDisappear	 "
+				"bou",
+				"m· boundsWorld\tArray<luxe.Vector>"
+			],
+			[
+				"co",
+				"p· Color\tColor"
+			],
+			[
+				"render",
+				"renderSelectionBounds"
+			],
+			[
+				"Des",
+				"Description"
+			],
+			[
+				"type",
+				"typedef"
+			],
+			[
+				"po",
+				"p· pos\tNull<vexlib.Property>"
+			],
+			[
+				"curs",
+				"cursorWorldPos"
+			],
+			[
+				"curS",
+				"cursorWorldPos"
+			],
+			[
+				"stage",
+				"stageStart"
+			],
+			[
+				"pa",
+				"p· Palette\tPalette"
+			],
+			[
+				"textob",
+				"textBoxHeight"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"pullDi",
+				"pullDistX"
+			],
+			[
+				"pulldi",
+				"pullDistX"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "AdventurEr/adventurer.flow",
+			"file": "VexEd/project.flow",
 			"settings":
 			{
-				"buffer_size": 327,
+				"buffer_size": 320,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "AventurLib/adventurlib/Terrain.hx",
+			"file": "VexEd/src/Main.hx",
 			"settings":
 			{
-				"buffer_size": 3149,
+				"buffer_size": 9204,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "AdventurEd/src/Main.hx",
+			"file": "VexLib/vexlib/EditingTools.hx",
 			"settings":
 			{
-				"buffer_size": 8883,
+				"buffer_size": 18601,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "class Editing {"
+			}
+		},
+		{
+			"file": "VexEd/src/DrawState.hx",
+			"settings":
+			{
+				"buffer_size": 2663,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "import luxe.States;"
+			}
+		},
+		{
+			"file": "VexEd/src/EditState.hx",
+			"settings":
+			{
+				"buffer_size": 1857,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "AdventurEr/src/Main.hx",
+			"file": "VexEd/src/AnimateState.hx",
 			"settings":
 			{
-				"buffer_size": 18435,
+				"buffer_size": 7537,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "DialogWriter/dialogwriter.flow",
+			"file": "VexPlay/assets/pigeon5.vex",
 			"settings":
 			{
-				"buffer_size": 361,
+				"buffer_size": 4055,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "AventurLib/adventurlib/Level.hx",
+			"file": "VexPlay/assets/peckanim3.vex",
 			"settings":
 			{
-				"buffer_size": 4427,
+				"buffer_size": 1371,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "DialogWriter/src/Main.hx",
+			"file": "VexLib/vexlib/Vex.hx",
 			"settings":
 			{
-				"buffer_size": 4497,
+				"buffer_size": 6109,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "AventurLib/adventurlib/Dialog.hx",
+			"file": "VexPlay/assets/pigeon4.vex",
 			"settings":
 			{
-				"buffer_size": 5244,
+				"buffer_size": 3954,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "AventurLib/adventurlib/Avatar.hx",
+			"file": "VexLib/vexlib/VexPropertyInterface.hx",
 			"settings":
 			{
-				"buffer_size": 1578,
+				"buffer_size": 9152,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "AdventurEr/src/ScrollInputHandler.hx",
+			"file": "VexLib/vexlib/GameTools.hx",
 			"settings":
 			{
-				"buffer_size": 1748,
-				"line_ending": "Unix"
+				"buffer_size": 97,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "class Game {"
 			}
 		},
 		{
-			"file": "AventurLib/adventurlib/Word.hx",
+			"file": "VexLib/vexlib/Tools.hx",
 			"settings":
 			{
-				"buffer_size": 3818,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "VexPlay/src/Main.hx",
-			"settings":
-			{
-				"buffer_size": 27585,
+				"buffer_size": 74,
+				"encoding": "UTF-8",
 				"line_ending": "Unix",
 				"name": "/*"
 			}
 		},
 		{
-			"file": "VexPlay/project.flow",
+			"file": "VexLib/vexlib/VexTools.hx",
 			"settings":
 			{
-				"buffer_size": 347,
+				"buffer_size": 12353,
+				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "VexPlay/src/UniversalJoystick.hx",
+			"file": "/Users/adamrossledoux/Code/haxelib/luxe/git/phoenix/defaults/shaders/vert.glsl",
 			"settings":
 			{
-				"buffer_size": 9349,
+				"buffer_size": 600,
 				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "VexEd/assets/testpal.vex",
+			"settings":
+			{
+				"buffer_size": 137,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "VexLib/vexlib/Editor.hx",
+			"settings":
+			{
+				"buffer_size": 2091,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "package vexlib;"
+			}
+		},
+		{
+			"file": "VexLib/vexlib/Palette.hx",
+			"settings":
+			{
+				"buffer_size": 2105,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "VexEd/assets/pico8pal.vex",
+			"settings":
+			{
+				"buffer_size": 237,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "{"
 			}
 		}
 	],
@@ -688,10 +747,14 @@
 	"build_varint": "",
 	"command_palette":
 	{
-		"height": 127.0,
-		"last_filter": "package control: ins",
+		"height": 87.0,
+		"last_filter": "package control: up",
 		"selected_items":
 		[
+			[
+				"package control: up",
+				"Package Control: Upgrade Package"
+			],
 			[
 				"package control: ins",
 				"Package Control: Install Package"
@@ -785,7 +848,7 @@
 				"Package Control: Install Package"
 			]
 		],
-		"width": 449.0
+		"width": 428.0
 	},
 	"console":
 	{
@@ -806,6 +869,60 @@
 	},
 	"file_history":
 	[
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexEd/src/Command.hx",
+		"/Users/adamrossledoux/Code/Haxe/Pincushion/pincushion/Pincushion.hx",
+		"/Users/adamrossledoux/Code/Haxe/Pincushion/pincushion/DrawingState.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexStage/project.flow",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/project.flow",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib.flow",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/Vex.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/src/Main.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexStage/src/Main.hx",
+		"/Users/adamrossledoux/Dropbox/Public/bitsy/driftwood.txt",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/VexPropertyInterface.hx",
+		"/Users/adamrossledoux/Code/Haxe/Pincushion/pincushion.flow",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/src/UniversalJoystick.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/assets/testpal.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/Stage.hx",
+		"/Users/adamrossledoux/Code/haxelib/poly2trihx/0,1,4/org/poly2tri/VisiblePolygon.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/assets/stage2.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/assets/newstagetest.vex",
+		"/Users/adamrossledoux/Code/haxelib/luxe/git/luxe/Engine.hx",
+		"/Users/adamrossledoux/Code/haxelib/luxe/git/luxe/utils/Maths.hx",
+		"/Users/adamrossledoux/Code/haxelib/luxe/git/luxe/Game.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexDialogPlayer/src/Main.hx",
+		"/Users/adamrossledoux/Code/haxelib/luxe/git/phoenix/Camera.hx",
+		"/Users/adamrossledoux/Code/haxelib/luxe/git/luxe/Camera.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/assets/testpal2.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexStage/assets/shroom.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexStage/assets/testpal.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexStage/assets/stage1.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexStage/assets/stage0.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexStage/assets/stage2.vex",
+		"/Users/adamrossledoux/Code/Web/other bitsy games/wonkybits_restored.html",
+		"/Users/adamrossledoux/Code/Web/other bitsy games/rise.html",
+		"/Users/adamrossledoux/Downloads/mygame (18).html",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexDialogPlayer/project.flow",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/Animation.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLetterer/project.flow",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexDialogPlayer/assets/testdialog.txt",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/Font.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLetterer/src/Main.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/DialogWriter/src/Main.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexPlay/assets/playground1.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexDialogPlayer/assets/sysfont.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLetterer/src/Font.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLetterer/assets/testfont.vex",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Word.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/src/ScrollInputHandler.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Avatar.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Dialog.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/DialogWriter/dialogwriter.flow",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Level.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/src/Main.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEd/src/Main.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Terrain.hx",
+		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/adventurer.flow",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/5_bagelBakery_b",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/4_bagelEntrance_b",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/assets/2_mahjongApt",
@@ -825,13 +942,10 @@
 		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/src/Emojione.hx",
 		"/Users/adamrossledoux/Code/Haxe/EmojiPrototype/src/Emoji.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/VectorExtender.hx",
-		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Terrain.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ScrollInputHandler.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Polystroke.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/PolylineExtender.hx",
-		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Level.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/ColorExtender.hx",
-		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AventurLib/adventurlib/Avatar.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/AdventurEr/project.flow",
 		"/Users/adamrossledoux/Code/Haxe/libs/pincushion/pincushion/Pincushion.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventurEd/assets/leveltest7",
@@ -882,58 +996,7 @@
 		"/Users/adamrossledoux/Code/C++/Boat/src/rain_vert.glsl",
 		"/Users/adamrossledoux/Code/C++/Boat/src/flag_vert.glsl",
 		"/Users/adamrossledoux/Code/C++/Boat/src/flag_frag.glsl",
-		"/Users/adamrossledoux/Code/C++/Boat/src/RainParticles.h",
-		"/Users/adamrossledoux/Code/C++/Boat/src/Camera.cpp",
-		"/Users/adamrossledoux/Code/C++/Boat/src/Lighthouse.h",
-		"/Users/adamrossledoux/Code/C++/Boat/src/lighthouse_frag.glsl",
-		"/Users/adamrossledoux/Code/C++/Boat/src/lighthouse_vert.glsl",
-		"/Users/adamrossledoux/Code/C++/Boat/src/lightbeam_frag.glsl",
-		"/Users/adamrossledoux/Code/C++/Boat/src/lightbeam_vert.glsl",
-		"/Users/adamrossledoux/Code/C++/Boat/src/Lightbeam.h",
-		"/Users/adamrossledoux/Code/C++/Boat/src/Flag.h",
-		"/Users/adamrossledoux/Code/C++/Boat/src/ocean_frag.glsl",
-		"/Users/adamrossledoux/Code/C++/Boat/src/ocean_vert.glsl",
-		"/Users/adamrossledoux/Code/C++/Boat/src/Camera.h",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/Fish.cpp",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/Fish.h",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/vertex_shader.vert",
-		"/Users/adamrossledoux/Code/C++/Boat/src/boag_vert.glsl",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/ocean_vert.glsl",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/Camera.cpp",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/utils.cpp",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/utils.h",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/main.cpp",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/makefile",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/ocean_frag.glsl",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/vertex_shader.vert",
-		"/Users/adamrossledoux/Code/C++/BoatHope/src/fragment_shader.frag",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/fragment_shader.glsl",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/vertex_shader.glsl",
-		"/Users/adamrossledoux/Code/C++/FishOO/makefile",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/TestClass.h",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/TestClass.cpp",
-		"/Users/adamrossledoux/Code/C++/FishOO/src/makefile",
-		"/Users/adamrossledoux/.Archive/Code/C++/FirstClass/FirstClass.cpp",
-		"/Users/adamrossledoux/.Archive/Code/C++/FirstClass/main.cpp",
-		"/Users/adamrossledoux/.Archive/Code/C++/FirstClass/FirstClass.h",
-		"/Users/adamrossledoux/Code/C++/FishOO/TestClass.cpp",
-		"/Users/adamrossledoux/Code/C++/FishOO/TestClass.h",
-		"/Users/adamrossledoux/Code/C++/FishOO/main.cpp",
-		"/Users/adamrossledoux/Code/C++/FishShader/makefile",
-		"/Users/adamrossledoux/Code/C++/FishShader/main.cpp",
-		"/Users/adamrossledoux/Code/C++/opengl tutorials/2 - drawing/main.cpp",
-		"/Users/adamrossledoux/Code/Haxe/StarSlam/src/Main.hx",
-		"/Users/adamrossledoux/Code/C++/opengl tutorials/3 - transformations/main.cpp",
-		"/Users/adamrossledoux/Code/C++/opengl tutorials/3 - transformations/makefile",
-		"/Users/adamrossledoux/Code/C++/opengl tutorials/2 - drawing/makefile",
-		"/Users/adamrossledoux/Code/C++/opengl tutorials/1 - context/makefile",
-		"/Users/adamrossledoux/Code/C++/opengl tutorials/1 - context/main.cpp",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo51_modern_opengl/main.cpp",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo51_modern_opengl/makefile",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/makefile",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/main.cpp",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/foo3_events/03_event_driven_programming.cpp",
-		"/Users/adamrossledoux/Code/C++/sdl2 tutorials/0/main.cpp"
+		"/Users/adamrossledoux/Code/C++/Boat/src/RainParticles.h"
 	],
 	"find":
 	{
@@ -957,6 +1020,81 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"id",
+			"luxe.input",
+			"new Vex",
+			"no_geometry",
+			"switchMode",
+			"Editor.singleselection",
+			"Editor.selection",
+			"Editor.singleSelection",
+			"Editor.selection",
+			"multiSelection",
+			"selected",
+			"multiselection",
+			"curpalindex",
+			"curlineweight",
+			"uiScene",
+			"keydowndeletevex",
+			"instance",
+			"ispanning",
+			"multiselection",
+			"opensave",
+			"group",
+			"command",
+			"sketch",
+			"ispanning",
+			"editingtools.",
+			"toworldspace2",
+			"rectangletopath",
+			"onmousewheel",
+			"stagesrc",
+			"new stage",
+			"description",
+			"camera.",
+			"refle",
+			"dialogarrowbounce",
+			"pullvelocity",
+			"pulldelta",
+			"curdescription",
+			"trace",
+			"draw.box",
+			"batcher",
+			"new vex",
+			"luxe.renderer.batcher",
+			"batcher",
+			"iswaiting",
+			"//y",
+			"pulldelta =",
+			"pulldelta",
+			"clear_color =",
+			"path",
+			"set",
+			"set.",
+			"set",
+			"key_s",
+			"root",
+			"\\n",
+			"til ",
+			"\\\\n",
+			"exportedgamedata",
+			"uiscreenbat",
+			"ispanning",
+			"zoom",
+			"components",
+			"debugDialog",
+			"textboxy",
+			"clearpage",
+			"animateStrokes",
+			"typingcount",
+			"//save",
+			"tween",
+			"typingcount",
+			"mode = ",
+			"trace",
+			"mode = ",
+			"trace",
+			"weight",
 			"scrollinput",
 			"camera.",
 			"player.",
@@ -1009,82 +1147,7 @@
 			"draw(",
 			"sizemode",
 			"zoom",
-			"stringify",
-			"e.mod ",
-			"actionbutton.pos = ",
-			"draw door",
-			"minYOffset",
-			"testCharacterPosInLevel2",
-			"reset the camera",
-			"actionButton",
-			"player.terrainPos",
-			"jump",
-			"levelboundleft",
-			"maxVelocity",
-			"isCamTooFarRight",
-			"isCamTooFarLeft",
-			"scrollVelocityOnRelease",
-			"lastScrollDelta",
-			"scrollVelocitySamples",
-			"player",
-			".glsl",
-			"f.",
-			"f",
-			"smoke.",
-			"sailor s",
-			"isstunned = ",
-			"isthebigone",
-			"isstunned",
-			"testsailors",
-			"testsailor",
-			"lightningTimer",
-			"storminess",
-			"rand(",
-			"rp.",
-			"rainparticles",
-			"rainparti",
-			"rp ",
-			"particlesystem::",
-			"totalTime",
-			"dramaupdate",
-			"unilightning",
-			"startnewwave",
-			"toboat",
-			"boat.",
-			"boat",
-			"boat = ",
-			"transform",
-			"rand()",
-			"uniStormine",
-			"uniwave",
-			"30f",
-			"dissapear",
-			"rand()",
-			"cout",
-			"[]",
-			"constructshaderprogram",
-			"glew",
-			"tmpCurLen",
-			"save(",
-			"pinBatcher",
-			"poseChanges",
-			"new Pin",
-			"allChildPins",
-			"AnimationLerp",
-			"PoseLerp",
-			"name",
-			"PinAnimation",
-			"PinFrame",
-			"PinData",
-			"parent",
-			"destroypanel",
-			"vSlider",
-			"e.pos",
-			"pin = ",
-			"isDragging",
-			"data = ",
-			"mode == 0",
-			"setstartpose"
+			"stringify"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1092,6 +1155,23 @@
 		"regex": false,
 		"replace_history":
 		[
+			"Editor.selection",
+			"Editor.multiselection",
+			"Editor.selection",
+			"Editor.multiselection",
+			"Editor.selection",
+			"selected",
+			"Editor.singleSelection",
+			"root",
+			"}\n",
+			"selected",
+			"Editor.selection",
+			"Editor.curPalIndex",
+			"uiWorld",
+			"\\\\n",
+			"\\n",
+			"pages",
+			"code",
 			"pickIndex",
 			",",
 			"emoji",
@@ -1112,7 +1192,7 @@
 			"h.",
 			"h",
 			"totalPlayTime",
-			"void dramaUpdate(float dt) {\n	dramaTimer += dt;\n	totalPlayTime += dt;\n	//std::cout << dramaTimer << std::endl;\n\n	float startOfStormTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time);\n	float hardModeTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time);\n	float impossibleModeTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time + dramaticArc[4].time);\n	float fakeCalmTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time + dramaticArc[4].time + dramaticArc[5].time);\n	float endOfStormTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n							dramaticArc[3].time + dramaticArc[4].time + dramaticArc[5].time + \n							dramaticArc[6].time);\n\n	//std::cout << dramaTimer << std::endl;\n\n	//if (dramaTimer > dramaticArc[dramaIndex].time && dramaIndex < 5) {\n	if (dramaTimer > dramaticArc[dramaIndex].time && dramaIndex < 6) {\n		//std::cout << \"next difficulty!!!\" << std::endl;\n		dramaIndex++;\n		curDifficulty = dramaticArc[dramaIndex].difficulty;\n		dramaTimer = 0;\n\n		//make the current wave dissapear\n		didWaveHitPlayer = true;\n		waveDissapearTimer = 0;\n		waveStartHeight = wavePos.y;\n	}\n\n	//send the flag flying away\n	if (totalTime > (endOfStormTime - 10) && flag.isAttachedToBoat) {\n		flag.setRotYGoal( 270 );\n		flag.isAttachedToBoat = false;\n	}\n\n	if (!isTheBigOne && totalTime > (endOfStormTime - 5)) {\n		//std::cout << \"HERE IT COMES \" << std::endl;\n		startBigWave();\n	}\n	\n	//lighthouse events\n	if (totalTime > 2 && lighthouseMoveCounter < 1) {\n		lighthouse.moveTo(glm::vec3(6, -3.7, 10), startOfStormTime - 2);\n		lighthouseMoveCounter++;\n	}\n	else if (totalTime > (endOfStormTime + 30 + 3) && lighthouseMoveCounter < 2) {\n		//lighthouse.moveTo(glm::vec3(1.8, -0.4, 2.7), 15);\n		lighthouse.moveTo(glm::vec3(2, -0.4, 2.7), 15);\n		lighthouseMoveCounter++;\n	}\n	\n\n	//storminess\n	if (totalTime < startOfStormTime - 5) {\n		storminess = 0;\n	}\n	else if (totalTime < startOfStormTime) {\n		storminess = (totalTime - (startOfStormTime - 5)) / 5;\n	}\n	else if (totalTime < (endOfStormTime + 15)) {\n		storminess = 1;\n	}\n	else if (totalTime < endOfStormTime + 20) {\n		storminess = (5 - (totalTime - (endOfStormTime + 15))) / 5;\n	}\n	else {\n		storminess = 0;\n	}\n\n\n	//lightning\n	lightningTimer += dt;\n	//if (totalTime > (startOfStormTime - 2.51) && totalTime < startOfStormTime) { //start of storm\n	if (totalTime > startOfStormTime && totalTime < (startOfStormTime + 1)) {\n		if (lightningStrikeCounter < 1) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}\n	else if (totalTime > hardModeTime && totalTime < (hardModeTime + 5)) { //start of second wave\n		if (lightningStrikeCounter < 2) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}\n	//else if (totalTime > impossibleModeTime && totalTime < (impossibleModeTime + 5)) { //start of third wave\n	else if (totalTime > (impossibleModeTime - 1) && totalTime < impossibleModeTime) { //start of third wave\n		if (lightningStrikeCounter < 3) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n			//timeBetweenLightning = (2 + (rand() % 5)) * 1.0f;\n		}\n	}\n	else if (totalTime > impossibleModeTime && totalTime < (fakeCalmTime - 5)) { //third wave\n		doesLightningStrikeOnWaveCollision = true;\n		lightningTimer += dt; //double the speed of lightning in this period\n\n		/*\n		timeBetweenLightning -= dt;\n\n		if (timeBetweenLightning <= 0) {\n			lightningTimer = 0;\n			timeBetweenLightning = (3 + (rand() % 4)) * 1.0f;\n			//NOTE: this works ok. other possible ideas: \n			//lightning every time the boat gets hit, \n			//lightning every time a wave starts\n		}\n		*/\n	}\n	else if (totalTime > fakeCalmTime && totalTime < (fakeCalmTime + 5)) { //end of third wave\n		doesLightningStrikeOnWaveCollision = false;\n		if (lightningStrikeCounter < 4) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}\n	//else if (totalTime > (endOfStormTime + 20 - 2.51) && totalTime < (endOfStormTime + 25)) { //end of storm\n	else if (totalTime > (endOfStormTime + 20 - 5) && totalTime < (endOfStormTime + 25)) { //end of storm\n		if (lightningStrikeCounter < 5) {\n			lightningTimer = 0;\n			lightningStrikeCounter++;\n		}\n	}	\n}\n",
+			"void dramaUpdate(float dt) {\n\tdramaTimer += dt;\n\ttotalPlayTime += dt;\n\t//std::cout << dramaTimer << std::endl;\n\n\tfloat startOfStormTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time);\n\tfloat hardModeTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n\t\t\t\t\t\t\tdramaticArc[3].time);\n\tfloat impossibleModeTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n\t\t\t\t\t\t\tdramaticArc[3].time + dramaticArc[4].time);\n\tfloat fakeCalmTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n\t\t\t\t\t\t\tdramaticArc[3].time + dramaticArc[4].time + dramaticArc[5].time);\n\tfloat endOfStormTime = (dramaticArc[0].time + dramaticArc[1].time + dramaticArc[2].time + \n\t\t\t\t\t\t\tdramaticArc[3].time + dramaticArc[4].time + dramaticArc[5].time + \n\t\t\t\t\t\t\tdramaticArc[6].time);\n\n\t//std::cout << dramaTimer << std::endl;\n\n\t//if (dramaTimer > dramaticArc[dramaIndex].time && dramaIndex < 5) {\n\tif (dramaTimer > dramaticArc[dramaIndex].time && dramaIndex < 6) {\n\t\t//std::cout << \"next difficulty!!!\" << std::endl;\n\t\tdramaIndex++;\n\t\tcurDifficulty = dramaticArc[dramaIndex].difficulty;\n\t\tdramaTimer = 0;\n\n\t\t//make the current wave dissapear\n\t\tdidWaveHitPlayer = true;\n\t\twaveDissapearTimer = 0;\n\t\twaveStartHeight = wavePos.y;\n\t}\n\n\t//send the flag flying away\n\tif (totalTime > (endOfStormTime - 10) && flag.isAttachedToBoat) {\n\t\tflag.setRotYGoal( 270 );\n\t\tflag.isAttachedToBoat = false;\n\t}\n\n\tif (!isTheBigOne && totalTime > (endOfStormTime - 5)) {\n\t\t//std::cout << \"HERE IT COMES \" << std::endl;\n\t\tstartBigWave();\n\t}\n\t\n\t//lighthouse events\n\tif (totalTime > 2 && lighthouseMoveCounter < 1) {\n\t\tlighthouse.moveTo(glm::vec3(6, -3.7, 10), startOfStormTime - 2);\n\t\tlighthouseMoveCounter++;\n\t}\n\telse if (totalTime > (endOfStormTime + 30 + 3) && lighthouseMoveCounter < 2) {\n\t\t//lighthouse.moveTo(glm::vec3(1.8, -0.4, 2.7), 15);\n\t\tlighthouse.moveTo(glm::vec3(2, -0.4, 2.7), 15);\n\t\tlighthouseMoveCounter++;\n\t}\n\t\n\n\t//storminess\n\tif (totalTime < startOfStormTime - 5) {\n\t\tstorminess = 0;\n\t}\n\telse if (totalTime < startOfStormTime) {\n\t\tstorminess = (totalTime - (startOfStormTime - 5)) / 5;\n\t}\n\telse if (totalTime < (endOfStormTime + 15)) {\n\t\tstorminess = 1;\n\t}\n\telse if (totalTime < endOfStormTime + 20) {\n\t\tstorminess = (5 - (totalTime - (endOfStormTime + 15))) / 5;\n\t}\n\telse {\n\t\tstorminess = 0;\n\t}\n\n\n\t//lightning\n\tlightningTimer += dt;\n\t//if (totalTime > (startOfStormTime - 2.51) && totalTime < startOfStormTime) { //start of storm\n\tif (totalTime > startOfStormTime && totalTime < (startOfStormTime + 1)) {\n\t\tif (lightningStrikeCounter < 1) {\n\t\t\tlightningTimer = 0;\n\t\t\tlightningStrikeCounter++;\n\t\t}\n\t}\n\telse if (totalTime > hardModeTime && totalTime < (hardModeTime + 5)) { //start of second wave\n\t\tif (lightningStrikeCounter < 2) {\n\t\t\tlightningTimer = 0;\n\t\t\tlightningStrikeCounter++;\n\t\t}\n\t}\n\t//else if (totalTime > impossibleModeTime && totalTime < (impossibleModeTime + 5)) { //start of third wave\n\telse if (totalTime > (impossibleModeTime - 1) && totalTime < impossibleModeTime) { //start of third wave\n\t\tif (lightningStrikeCounter < 3) {\n\t\t\tlightningTimer = 0;\n\t\t\tlightningStrikeCounter++;\n\t\t\t//timeBetweenLightning = (2 + (rand() % 5)) * 1.0f;\n\t\t}\n\t}\n\telse if (totalTime > impossibleModeTime && totalTime < (fakeCalmTime - 5)) { //third wave\n\t\tdoesLightningStrikeOnWaveCollision = true;\n\t\tlightningTimer += dt; //double the speed of lightning in this period\n\n\t\t/*\n\t\ttimeBetweenLightning -= dt;\n\n\t\tif (timeBetweenLightning <= 0) {\n\t\t\tlightningTimer = 0;\n\t\t\ttimeBetweenLightning = (3 + (rand() % 4)) * 1.0f;\n\t\t\t//NOTE: this works ok. other possible ideas: \n\t\t\t//lightning every time the boat gets hit, \n\t\t\t//lightning every time a wave starts\n\t\t}\n\t\t*/\n\t}\n\telse if (totalTime > fakeCalmTime && totalTime < (fakeCalmTime + 5)) { //end of third wave\n\t\tdoesLightningStrikeOnWaveCollision = false;\n\t\tif (lightningStrikeCounter < 4) {\n\t\t\tlightningTimer = 0;\n\t\t\tlightningStrikeCounter++;\n\t\t}\n\t}\n\t//else if (totalTime > (endOfStormTime + 20 - 2.51) && totalTime < (endOfStormTime + 25)) { //end of storm\n\telse if (totalTime > (endOfStormTime + 20 - 5) && totalTime < (endOfStormTime + 25)) { //end of storm\n\t\tif (lightningStrikeCounter < 5) {\n\t\t\tlightningTimer = 0;\n\t\t\tlightningStrikeCounter++;\n\t\t}\n\t}\t\n}\n",
 			"totalPlayTime",
 			"animationLerp",
 			"poseLerp",
@@ -1152,24 +1232,24 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "AdventurEr/adventurer.flow",
+					"file": "VexEd/project.flow",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 327,
+						"buffer_size": 320,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								88,
-								88
+								317,
+								317
 							]
 						],
 						"settings":
@@ -1182,24 +1262,261 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 5,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "AventurLib/adventurlib/Terrain.hx",
+					"file": "VexEd/src/Main.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3149,
+						"buffer_size": 9204,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1600,
-								1600
+								7107,
+								6996
+							]
+						],
+						"settings":
+						{
+							"history_list_is_closing": true,
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3831.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "VexLib/vexlib/EditingTools.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 18601,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2784,
+								2784
+							]
+						],
+						"settings":
+						{
+							"auto_name": "class Editing {",
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 1521.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "VexEd/src/DrawState.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2663,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								507,
+								334
+							]
+						],
+						"settings":
+						{
+							"auto_name": "import luxe.States;",
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "VexEd/src/EditState.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1857,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								893,
+								893
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 267.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 14,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "VexEd/src/AnimateState.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7537,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5884,
+								5884
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 3070.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "VexPlay/assets/pigeon5.vex",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4055,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "VexPlay/assets/peckanim3.vex",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1371,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1328,
+								1328
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 822.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				}
+			]
+		},
+		{
+			"selected": 7,
+			"sheets":
+			[
+				{
+					"buffer": 2,
+					"file": "VexLib/vexlib/EditingTools.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 18601,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								9171,
+								9171
+							]
+						],
+						"settings":
+						{
+							"auto_name": "class Editing {",
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 5036.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 13,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "VexLib/vexlib/Vex.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6109,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1453,
+								1453
 							]
 						],
 						"settings":
@@ -1208,32 +1525,32 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 910.0,
+						"translation.y": 396.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 6,
+					"stack_index": 11,
 					"type": "text"
 				},
 				{
-					"buffer": 2,
-					"file": "AdventurEd/src/Main.hx",
+					"buffer": 9,
+					"file": "VexPlay/assets/pigeon4.vex",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 8883,
+						"buffer_size": 3954,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								1118,
-								1118
+								2323,
+								2328
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
+							"syntax": "Packages/Text/Plain text.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
@@ -1244,86 +1561,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "AdventurEr/src/Main.hx",
+					"buffer": 10,
+					"file": "VexLib/vexlib/VexPropertyInterface.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 18435,
+						"buffer_size": 9152,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								625,
-								625
-							]
-						],
-						"settings":
-						{
-							"history_list_is_closing": true,
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 10.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 2,
-			"sheets":
-			[
-				{
-					"buffer": 4,
-					"file": "DialogWriter/dialogwriter.flow",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 361,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								292,
-								264
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_flow/flow-file.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 11,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "AventurLib/adventurlib/Level.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4427,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1770,
-								1771
+								5640,
+								5640
 							]
 						],
 						"settings":
@@ -1332,217 +1583,177 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 277.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "DialogWriter/src/Main.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 4497,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								632,
-								632
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "AventurLib/adventurlib/Dialog.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 5244,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								610,
-								611
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 13,
-					"type": "text"
-				},
-				{
-					"buffer": 8,
-					"file": "AventurLib/adventurlib/Avatar.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1578,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								487,
-								493
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 176.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "AdventurEr/src/ScrollInputHandler.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 1748,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								665,
-								665
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
+						"translation.y": 2648.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 10,
 					"type": "text"
 				},
 				{
-					"buffer": 10,
-					"file": "AventurLib/adventurlib/Word.hx",
+					"buffer": 11,
+					"file": "VexLib/vexlib/GameTools.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3818,
+						"buffer_size": 97,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								3451,
-								3451
+								91,
+								91
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
+							"auto_name": "class Game {",
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 14,
+					"stack_index": 19,
 					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 3,
-			"sheets":
-			[
+				},
 				{
-					"buffer": 11,
-					"file": "VexPlay/src/Main.hx",
+					"buffer": 12,
+					"file": "VexLib/vexlib/Tools.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 27585,
+						"buffer_size": 74,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								374,
-								374
+								68,
+								68
 							]
 						],
 						"settings":
 						{
 							"auto_name": "/*",
-							"history_list_is_closing": true,
 							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
 						},
 						"translation.x": 0.0,
-						"translation.y": 3110.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 18,
+					"type": "text"
+				},
+				{
+					"buffer": 13,
+					"file": "VexLib/vexlib/VexTools.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 12353,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								11199,
+								11199
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 41.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				},
+				{
+					"buffer": 14,
+					"file": "/Users/adamrossledoux/Code/haxelib/luxe/git/phoenix/defaults/shaders/vert.glsl",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 600,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/ShaderLanguages/OpenGL SL.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 12,
-					"file": "VexPlay/project.flow",
+					"buffer": 15,
+					"file": "VexEd/assets/testpal.vex",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 347,
+						"buffer_size": 137,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								347,
-								347
+								137,
+								0
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/sublime_flow/flow-file.tmLanguage",
-							"tab_size": 2,
-							"translate_tabs_to_spaces": true
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 17,
+					"type": "text"
+				},
+				{
+					"buffer": 16,
+					"file": "VexLib/vexlib/Editor.hx",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2091,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1447,
+								1447
+							]
+						],
+						"settings":
+						{
+							"auto_name": "package vexlib;",
+							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
+						},
+						"translation.x": 40.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
@@ -1550,63 +1761,61 @@
 					"type": "text"
 				},
 				{
-					"buffer": 13,
-					"file": "VexPlay/src/UniversalJoystick.hx",
+					"buffer": 17,
+					"file": "VexLib/vexlib/Palette.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 9349,
+						"buffer_size": 2105,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5414,
-								5414
+								693,
+								703
 							]
 						],
 						"settings":
 						{
-							"history_list_is_closing": true,
 							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
 							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 136.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 15,
+					"type": "text"
+				},
+				{
+					"buffer": 18,
+					"file": "VexEd/assets/pico8pal.vex",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 237,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								231,
+								231
+							]
+						],
+						"settings":
+						{
+							"auto_name": "{",
+							"syntax": "Packages/Text/Plain text.tmLanguage"
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 13,
-					"file": "VexPlay/src/UniversalJoystick.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 9349,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2978,
-								2978
-							]
-						],
-						"settings":
-						{
-							"history_list_is_closing": true,
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1014.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
+					"stack_index": 16,
 					"type": "text"
 				}
 			]
@@ -1635,19 +1844,12 @@
 				0,
 				2,
 				1
-			],
-			[
-				2,
-				0,
-				3,
-				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.33,
-			0.66,
+			0.699252029367,
 			1.0
 		],
 		"rows":
@@ -1659,7 +1861,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 374.0
+		"height": 268.0
 	},
 	"output.find_results":
 	{
@@ -1673,7 +1875,7 @@
 	"project": "adventuregame.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 64.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1697,9 +1899,373 @@
 	"select_symbol":
 	{
 		"height": 47.0,
-		"last_filter": "camerl",
+		"last_filter": "zoom",
 		"selected_items":
 		[
+			[
+				"zoom",
+				"zoomCamera"
+			],
+			[
+				"set_sc",
+				"set_scale"
+			],
+			[
+				"parsev",
+				"parseVector"
+			],
+			[
+				"group",
+				"groupVex"
+			],
+			[
+				"reset",
+				"resetToBasePose"
+			],
+			[
+				"mousedownch",
+				"mousedownChangeSelection"
+			],
+			[
+				"sele",
+				"select"
+			],
+			[
+				"keydownde",
+				"keydownDeleteVex"
+			],
+			[
+				"keydownchange",
+				"keydownChangeDepthVex"
+			],
+			[
+				"onkey",
+				"onkeydown"
+			],
+			[
+				"grouv",
+				"groupVex"
+			],
+			[
+				"groupv",
+				"keydownGroupVex"
+			],
+			[
+				"keydownd",
+				"keydownDeleteVex"
+			],
+			[
+				"keyd",
+				"keydownDeleteVex"
+			],
+			[
+				"ispoin",
+				"isPointInside"
+			],
+			[
+				"vectorot",
+				"vectorToLocalSpace"
+			],
+			[
+				"desi",
+				"deserializeRef"
+			],
+			[
+				"get_chil",
+				"get_children"
+			],
+			[
+				"seri",
+				"serialize"
+			],
+			[
+				"loadre",
+				"loadRef"
+			],
+			[
+				"set_chi",
+				"set_children"
+			],
+			[
+				"getve",
+				"getVexChildren"
+			],
+			[
+				"children",
+				"getVexChildren"
+			],
+			[
+				"set_com",
+				"set_components"
+			],
+			[
+				"edit",
+				"update_edit"
+			],
+			[
+				"renderse",
+				"renderSelectionBounds"
+			],
+			[
+				"draw",
+				"update_draw"
+			],
+			[
+				"getse",
+				"get_selected"
+			],
+			[
+				"select",
+				"get_selected"
+			],
+			[
+				"onkeydowne",
+				"onkeydown_edit"
+			],
+			[
+				"panc",
+				"panCamera"
+			],
+			[
+				"keydownop",
+				"keydownOpenVex"
+			],
+			[
+				"rendersel",
+				"renderSelectionBounds"
+			],
+			[
+				"keydowne",
+				"keydownDeleteVex"
+			],
+			[
+				"opensave",
+				"keydownOpenSaveVex"
+			],
+			[
+				"drawve",
+				"drawVexBounds"
+			],
+			[
+				"pathtowl",
+				"pathToWorldSpace"
+			],
+			[
+				"bounds",
+				"boundsWorld"
+			],
+			[
+				"opensav",
+				"keydownOpenSaveVex"
+			],
+			[
+				"openve",
+				"openVex"
+			],
+			[
+				"renderd",
+				"renderDrawingPath"
+			],
+			[
+				"keydo",
+				"onkeydown"
+			],
+			[
+				"com",
+				"ComponentJsonFormat"
+			],
+			[
+				"getver",
+				"getVerticesAndTriangles"
+			],
+			[
+				"mousewh",
+				"onmousewheel"
+			],
+			[
+				"read",
+				"ready"
+			],
+			[
+				"isar",
+				"isArrowVisible"
+			],
+			[
+				"yax",
+				"yAxisHeld"
+			],
+			[
+				"upd",
+				"update"
+			],
+			[
+				"nextp",
+				"nextDialogPage"
+			],
+			[
+				"up",
+				"update"
+			],
+			[
+				"nextpage",
+				"nextDialogPage"
+			],
+			[
+				"star",
+				"start_description"
+			],
+			[
+				"write",
+				"writeText"
+			],
+			[
+				"start",
+				"start_description"
+			],
+			[
+				"startd",
+				"start_description"
+			],
+			[
+				"writet",
+				"writeText"
+			],
+			[
+				"return",
+				"DialogReturn"
+			],
+			[
+				"deseri",
+				"deserialize"
+			],
+			[
+				"orthwor",
+				"ortho_world_to_screen"
+			],
+			[
+				"worl",
+				"world_point_to_screen"
+			],
+			[
+				"world",
+				"world_point_to_screen"
+			],
+			[
+				"worldpos",
+				"worldPosFromPathPos"
+			],
+			[
+				"serai",
+				"serialize"
+			],
+			[
+				"sera",
+				"serialize"
+			],
+			[
+				"onmou",
+				"onmousedown"
+			],
+			[
+				"update",
+				"update_edit"
+			],
+			[
+				"onke",
+				"onkeydown"
+			],
+			[
+				"onmoused",
+				"onmousedown_edit"
+			],
+			[
+				"onmouse",
+				"onmousedown"
+			],
+			[
+				"set_p",
+				"set_path"
+			],
+			[
+				"componej",
+				"ComponentJsonFormat"
+			],
+			[
+				"onchoi",
+				"onChoiceMouseUp"
+			],
+			[
+				"upda",
+				"update"
+			],
+			[
+				"donextp",
+				"doNextPage"
+			],
+			[
+				"onte",
+				"ontextinput"
+			],
+			[
+				"ontex",
+				"ontextinput"
+			],
+			[
+				"animates",
+				"animateStrokes"
+			],
+			[
+				"drawf",
+				"drawFont"
+			],
+			[
+				"drawfon",
+				"drawFont"
+			],
+			[
+				"swit",
+				"switchMode"
+			],
+			[
+				"text",
+				"ontextinput"
+			],
+			[
+				"switchmo",
+				"switchMode"
+			],
+			[
+				"swi",
+				"switchMode"
+			],
+			[
+				"onkeyd",
+				"onkeydown"
+			],
+			[
+				"set_pat",
+				"set_path"
+			],
+			[
+				"ser",
+				"serialize"
+			],
+			[
+				"dese",
+				"deserialize"
+			],
+			[
+				"fromm",
+				"fromMultiPath"
+			],
+			[
+				"fromp",
+				"fromPath"
+			],
+			[
+				"textp",
+				"ontextinput"
+			],
 			[
 				"camerl",
 				"cameraLogic"
@@ -1745,10 +2311,6 @@
 				"enterDialog"
 			],
 			[
-				"up",
-				"update"
-			],
-			[
 				"animatea",
 				"animateAppear"
 			],
@@ -1759,10 +2321,6 @@
 			[
 				"enterD",
 				"enterDialog"
-			],
-			[
-				"upd",
-				"update"
 			],
 			[
 				"insertp",
@@ -1817,10 +2375,6 @@
 				"init"
 			],
 			[
-				"text",
-				"text"
-			],
-			[
 				"texture",
 				"texture"
 			],
@@ -1845,32 +2399,12 @@
 				"animateEmphasize"
 			],
 			[
-				"update",
-				"update"
-			],
-			[
 				"animated",
 				"animateDisappear2"
 			],
 			[
-				"onmouse",
-				"onmouseup"
-			],
-			[
-				"onmou",
-				"onmousedown"
-			],
-			[
 				"onw",
 				"onwindowresized"
-			],
-			[
-				"onke",
-				"onkeydown"
-			],
-			[
-				"onkey",
-				"onkeydown"
 			],
 			[
 				"sav",
@@ -1879,343 +2413,11 @@
 			[
 				"resi",
 				"onwindowresized"
-			],
-			[
-				"open",
-				"open"
-			],
-			[
-				"goto",
-				"goToLevel"
-			],
-			[
-				"level2",
-				"level2hack"
-			],
-			[
-				"got",
-				"goToLevel"
-			],
-			[
-				"read",
-				"ready"
-			],
-			[
-				"dram",
-				"dramaUpdate"
-			],
-			[
-				"randompo",
-				"randomPositionInDropZone"
-			],
-			[
-				"rand",
-				"randomWaveStartingPosition"
-			],
-			[
-				"upda",
-				"update"
-			],
-			[
-				"wave",
-				"waveUpdate"
-			],
-			[
-				"ready",
-				"ready"
-			],
-			[
-				"ancho",
-				"flagAnchorPoint"
-			],
-			[
-				"ra",
-				"randomWaveStartingPosition"
-			],
-			[
-				"neww",
-				"startNewWave"
-			],
-			[
-				"re",
-				"ready"
-			],
-			[
-				"anch",
-				"smokeAnchorPoint"
-			],
-			[
-				"anc",
-				"flagAnchorPoint"
-			],
-			[
-				"start",
-				"startNewWave"
-			],
-			[
-				"startnew",
-				"startNewWave"
-			],
-			[
-				"dramau",
-				"dramaUpdate"
-			],
-			[
-				"drama",
-				"dramaUpdate"
-			],
-			[
-				"onk",
-				"OnKeyDown"
-			],
-			[
-				"rainpar",
-				"RainParticles"
-			],
-			[
-				"startw",
-				"startNewWave"
-			],
-			[
-				"randomwa",
-				"randomWaveStartingPosition"
-			],
-			[
-				"sart",
-				"startNewWave"
-			],
-			[
-				"spin",
-				"stunSpin"
-			],
-			[
-				"an",
-				"flagAnchorPoint"
-			],
-			[
-				"u",
-				"update"
-			],
-			[
-				"quit",
-				"on_quit"
-			],
-			[
-				"ocean",
-				"generateOceanMesh"
-			],
-			[
-				"waveco",
-				"testWaveCollision"
-			],
-			[
-				"dramu",
-				"DramaUnit"
-			],
-			[
-				"waveu",
-				"waveUpdate"
-			],
-			[
-				"darmaupd",
-				"dramaUpdate"
-			],
-			[
-				"dramaup",
-				"dramaUpdate"
-			],
-			[
-				"big",
-				"testBigWaveCollision"
-			],
-			[
-				"wav",
-				"waveUpdate"
-			],
-			[
-				"draw",
-				"drawOcean"
-			],
-			[
-				"loop",
-				"LoopRunner"
-			],
-			[
-				"loopr",
-				"LoopRunner"
-			],
-			[
-				"getwo",
-				"getWorldPos"
-			],
-			[
-				"set_an",
-				"set_animationDelta"
-			],
-			[
-				"set_a",
-				"set_animationDelta"
-			],
-			[
-				"component",
-				"startComponents"
-			],
-			[
-				"allChil",
-				"allChildPins"
-			],
-			[
-				"regi",
-				"registerComponent"
-			],
-			[
-				"get_",
-				"get_data"
-			],
-			[
-				"mousemo",
-				"onmousemove"
-			],
-			[
-				"se",
-				"set_data"
-			],
-			[
-				"resue",
-				"resumeStartPose"
-			],
-			[
-				"newa",
-				"newAnimation"
-			],
-			[
-				"pose",
-				"resumeStartPose"
-			],
-			[
-				"resum",
-				"resumeStartPose"
-			],
-			[
-				"onmo",
-				"onmousedown"
-			],
-			[
-				"updatef",
-				"updateFrame"
-			],
-			[
-				"gener",
-				"generateMesh"
-			],
-			[
-				"load",
-				"Load"
-			],
-			[
-				"recre",
-				"recreateEditorState"
-			],
-			[
-				"json",
-				"jsonRepresentation"
-			],
-			[
-				"recreate",
-				"recreateEditorState"
-			],
-			[
-				"save",
-				"SaveAuto"
-			],
-			[
-				"editorst",
-				"getEditorState"
-			],
-			[
-				"wipe",
-				"wipeCurrentScene"
-			],
-			[
-				"getbon",
-				"getAllBonesInScene"
-			],
-			[
-				"saveau",
-				"SaveAuto"
-			],
-			[
-				"childre",
-				"getChildrenAsPolys"
-			],
-			[
-				"getp",
-				"getPoints"
-			],
-			[
-				"drawre",
-				"drawRectBounds"
-			],
-			[
-				"gtp",
-				"getPoints"
-			],
-			[
-				"calcul",
-				"calculateBounds"
-			],
-			[
-				"getgrou",
-				"getGroupParent"
-			],
-			[
-				"getgr",
-				"getGroupParent"
-			],
-			[
-				"recen",
-				"recenter"
-			],
-			[
-				"endd",
-				"endDrawing"
-			],
-			[
-				"getall",
-				"getAllBonesInScene"
-			],
-			[
-				"addsele",
-				"addSelectedLayerToComponentManagerInput"
-			],
-			[
-				"mosue",
-				"onmousedown"
-			],
-			[
-				"skele",
-				"skeleton"
-			],
-			[
-				"group",
-				"groupLayers"
-			],
-			[
-				"key",
-				"onkeydown"
-			],
-			[
-				"onm",
-				"onmousedown"
-			],
-			[
-				"enterp",
-				"enterPlayMode"
 			]
 		],
 		"width": 392.0
 	},
-	"selected_group": 2,
+	"selected_group": 0,
 	"settings":
 	{
 	},

@@ -1,25 +1,175 @@
 
 import luxe.Input;
-import luxe.Vector;
-
-import phoenix.geometry.Geometry;
-import phoenix.geometry.Vertex;
-import phoenix.Batcher;
 
 import snow.modules.opengl.GL;
 import snow.api.buffers.Float32Array;
 
+/*
+	TODO
+	- load figures from file
+	- figure storage
+	- figure drawing
+*/
+
 class Main extends luxe.Game {
+
+	var figures : Map<String,Figure> = new Map<String,Figure>();
+	var scene : Array<Figure>;
 
 	override function config(config:luxe.GameConfig) {
 
 		config.preload.texts.push({id:'assets/polyvert.glsl'});
 		config.preload.texts.push({id:'assets/polyfrag.glsl'});
 
+		config.preload.texts.push({id:'assets/figures.txt'});
+
 		return config;
 
 	}
 
+	override function ready() {
+		var figureList = parseFigureFile( Luxe.resources.text('assets/figures.txt').asset.text );
+		for (f in figureList) {
+			figures[f.name] = f;
+		}
+
+		setupFigureRendering();
+	} //ready
+
+	override function onkeyup( e:KeyEvent ) {
+
+		if(e.keycode == Key.escape) {
+			Luxe.shutdown();
+		}
+
+	} //onkeyup
+
+	override function update(dt:Float) {
+
+	} //update
+
+	override function onrender() {
+		/* draw */
+		//set the viewport
+		GL.viewport(0, 0, Luxe.screen.w, Luxe.screen.h);
+
+		//clear the canvas
+		GL.clearColor(0, 0, 0, 0);
+		GL.clear(GL.COLOR_BUFFER_BIT);
+
+		//draw figures
+		beginFigureRendering();
+		renderFigure( figures["tree"] );
+	}
+
+	/* PARSING */
+	function parseFigureFile(fileStr:String) : Array<Figure> {
+		var figureList = [];
+
+		var lines = fileStr.split("\n");
+		var i = 0;
+
+		while (i < lines.length) {
+			var curLine = lines[i];
+			if (curLine.length <= 0) {
+				//empty line
+				i++;
+			}
+			else if (parseType(curLine) == "figure") {
+				var results = parseFigure(i,lines);
+				figureList.push( results.figure );
+				i = results.i;
+			}
+			else {
+				//unreadable line
+				i++;
+			}
+		}
+
+		return figureList;
+	}
+
+	function parseType(lineStr:String) : String {
+		return parseArguments(lineStr)[0].toLowerCase();
+	}
+
+	function parseArguments(lineStr:String) : Array<String> {
+		return lineStr.split(" ");
+	}
+
+	function parseFigure(i:Int,lines:Array<String>) {
+		var figure : Figure = {};
+
+		figure.name = parseArguments(lines[i])[1];
+		i++;
+
+		var results = parseFigurePath(i,lines);
+		figure.path = results.path;
+		i = results.i;
+
+		return {
+			i: i,
+			figure: figure
+		};
+	}
+
+	function parseFigurePath(i:Int,lines:Array<String>) {		
+		var figureStr = "";
+		while (lines[i].length > 0) {
+			figureStr += lines[i] + "\n";
+			i++;
+		}
+
+		var path = figure( figureStr );
+
+		return {
+			i: i,
+			path: path
+		};
+	}
+
+	var vertexSymbols = "0123456789abcdefghijklmnopqrstuvwxyz";
+	var anchorSymbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	//the core ascii-to-vector algorithm
+	//todo: does it need a more descriptive name?
+	function figure(str:String) : Array<Float> {
+		var path = [];
+	
+		var lines = str.split("\n"); //split string into lines
+		lines = lines.map( function(str) { return StringTools.trim(str); } ); //remove whitespace
+		lines = lines.filter( function(str) { return str.length > 0; } ); //remove empty lines
+
+		//define figure dimensions
+		var height = lines.length;
+		var width = lines[0].length;
+
+		//parse raw grid vertices
+		var vertices = [];
+		for (y in 0 ... height) {
+			var l = lines[y];
+			for (x in 0 ... width) {
+				var char = l.charAt(x);
+				var index = vertexSymbols.indexOf(char); 
+				if ( index != -1 ) {
+					vertices.push( {i:index, x:x, y:y } );
+				}
+			}
+		}
+
+		//sort vertices
+		vertices.sort( function(a:{i:Int,x:Int,y:Int}, b:{i:Int,x:Int,y:Int}):Int { return a.i - b.i; } );
+
+		//make path
+		var multiplier = 10.0;
+		for (i in 0 ... vertices.length) {
+			path.push( vertices[i].x * multiplier );
+			path.push( vertices[i].y * -multiplier );
+		}
+
+		return path;
+	}
+
+	/* RENDERING */
 	var program : GLProgram;
 	var positionAttributeLocation : Int;
 	var positionBuffer : GLBuffer;
@@ -32,77 +182,7 @@ class Main extends luxe.Game {
 	var positionUniformLocation : GLUniformLocation;
 	var scaleUniformLocation : GLUniformLocation;
 
-	var treeFigure = 
-		"
-		.....7......
-		....###.....
-		...#####....
-		...#####....
-		..6#####8...
-		....5#9.....
-		...#####....
-		..#######...
-		..#######...
-		.4#######a..
-		....3#b.....
-		...#####....
-		..#######...
-		..#######...
-		.#########..
-		2#########c.
-		....1#d.....
-		....###.....
-		....###.....
-		....###.....
-		....0#e.....
-		";
-	var treePath = [];
-	var treeSwayFigure =
-		"
-		............
-		...........7
-		............
-		......6.....
-		............
-		.......5.9.8
-		............
-		............
-		............
-		..4.........
-		.....3......
-		.......b..a.
-		............
-		............
-		............
-		2...........
-		....1.d...c.
-		............
-		............
-		............
-		....0.e.....
-		";
-	var treeSwayPath = [];
-	var curTreePath = [];
-
-	var numTrees = 2;
-	var treePositions = [];
-	function randomizeTreePositions() {
-		treePositions = [];
-		for (i in 0 ... numTrees) {
-			var x = -Luxe.screen.w/2 + ( Math.random() * Luxe.screen.w );
-			var y = -Luxe.screen.h/2 + ( Math.random() * Luxe.screen.h );
-			treePositions.push(x);
-			treePositions.push(y);
-		}
-	}
-
-	override function ready() {
-
-		treePath = figureToPath(treeFigure);
-		treeSwayPath = figureToPath(treeSwayFigure);
-		trace(treePath);
-		randomizeTreePositions();
-
+	function setupFigureRendering() {
 		/* setup */
 		Luxe.renderer.should_clear = false;
 		
@@ -164,30 +244,14 @@ class Main extends luxe.Game {
 			positionsArr[i] = positions[i];
 		}
 		GL.bufferData(GL.ARRAY_BUFFER, positionsArr, GL.STATIC_DRAW);
-		
-	} //ready
+	}
 
-	override function onrender() {
-		/* draw */
-		//set the viewport
-		GL.viewport(0, 0, Luxe.screen.w, Luxe.screen.h);
-
-		//clear the canvas
-		GL.clearColor(0, 0, 0, 0);
-		GL.clear(GL.COLOR_BUFFER_BIT);
-
+	function beginFigureRendering() {
 		//tell gl to use our program
 		GL.useProgram(program);
 
-		//set uniforms
+		//set shared uniforms
 		GL.uniform2f(resolutionUniformLocation, Luxe.screen.w, Luxe.screen.h);
-		GL.uniform2f(originUniformLocation, 0, 0);
-		GL.uniform2f(positionUniformLocation, 0, 0);
-		GL.uniform2f(scaleUniformLocation, 1, 1);
-		GL.uniform1f(rotationUniformLocation, 0);
-		GL.uniform4f(colorUniformLocation, 0, 1, 0, 1);
-		GL.uniform1i(pathLengthUniformLocation, cast(curTreePath.length/2,Int));
-		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(curTreePath));
 
 		//use the position attribute with the position buffer
 		GL.enableVertexAttribArray(positionAttributeLocation);
@@ -198,59 +262,22 @@ class Main extends luxe.Game {
 		var stride = 0;
 		var offset = 0;
 		GL.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+	}
 
-		//draw the array
+	function renderFigure(f:Figure) {
+		//set uniforms
+		GL.uniform2f(originUniformLocation, 0, 0);
+		GL.uniform2f(positionUniformLocation, 0, 0);
+		GL.uniform2f(scaleUniformLocation, 1, 1);
+		GL.uniform1f(rotationUniformLocation, 0);
+		GL.uniform4f(colorUniformLocation, 0, 1, 0, 1);
+		GL.uniform1i(pathLengthUniformLocation, cast(f.path.length/2,Int));
+		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(f.path));
+		//draw array
 		var primitiveType = GL.TRIANGLES;
 		var offset = 0;
 		var count = 6;
 		GL.drawArrays(primitiveType, offset, count);
-
-		//draw extra trees
-		var i = 0;
-		while (i < treePositions.length) {
-			GL.uniform2f(positionUniformLocation, treePositions[i+0], treePositions[i+1]);
-			GL.drawArrays(primitiveType, offset, count);
-			i += 2;
-		}
-
-	}
-
-	var vertexSymbols = "0123456789abcdefghijklmnopqrstuvwxyz";
-	function figureToPath(figureStr:String) : Array<Float> {
-		var path = [];
-	
-		var lines = figureStr.split("\n");
-		lines = lines.slice(1,lines.length-1);
-		lines = lines.map( function(str) { return StringTools.trim(str); });
-
-		//define figure dimensions
-		var height = lines.length;
-		var width = lines[0].length;
-
-		//parse raw grid vertices
-		var vertices = [];
-		for (y in 0 ... height) {
-			var l = lines[y];
-			for (x in 0 ... width) {
-				var char = l.charAt(x);
-				var index = vertexSymbols.indexOf(char); 
-				if ( index != -1 ) {
-					vertices.push( {i:index, x:x, y:y } );
-				}
-			}
-		}
-
-		//sort vertices
-		vertices.sort( function(a:{i:Int,x:Int,y:Int}, b:{i:Int,x:Int,y:Int}):Int { return a.i - b.i; } );
-
-		//make path
-		var multiplier = 10.0;
-		for (i in 0 ... vertices.length) {
-			path.push( vertices[i].x * multiplier );
-			path.push( vertices[i].y * -multiplier );
-		}
-
-		return path;
 	}
 
 	function pathToFloat32Array(path:Array<Float>) {
@@ -269,41 +296,12 @@ class Main extends luxe.Game {
 		return pathC;
 	}
 
-	override function onmousedown(e:MouseEvent) {
-		//numTrees *= 2;
-		numTrees += 10;
-		randomizeTreePositions();
-	}
-
-	override function update(dt:Float) {
-		//trace(1.0 / dt);
-
-		Luxe.draw.text({
-				text: "fps " + (1.0 / dt) + "\n" + "trees " + numTrees,
-				immediate: true
-			});
-
-		curTreePath = lerpPath( treePath, treeSwayPath, Math.sin(Luxe.time) );
-	} //update
-
-	/*
-	override function onkeyup( e:KeyEvent ) {
-
-		if(e.keycode == Key.escape) {
-			Luxe.shutdown();
-		}
-
-	} //onkeyup
-
-	override function update(dt:Float) {
-
-	} //update
-
-
-	override function onmousewheel(e:MouseEvent) {
-		Luxe.camera.zoom += e.y * 0.03 * Luxe.camera.zoom;
-		trace(Luxe.camera.zoom);
-	}
-	*/
-
 } //Main
+
+typedef Figure = {
+	@:optional var name : String;
+	@:optional var src : String;
+	@:optional var path : Array<Float>;
+	@:optional var pos : Array<Float>;
+	@:optional var color : Array<Float>;
+}
