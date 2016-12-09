@@ -6,9 +6,11 @@ import snow.api.buffers.Float32Array;
 
 /*
 	TODO
-	- load figures from file
-	- figure storage
-	- figure drawing
+	X load figures from file
+	X figure storage
+	X figure drawing
+	- anchors / levels
+	- animation
 */
 
 class Main extends luxe.Game {
@@ -59,7 +61,10 @@ class Main extends luxe.Game {
 
 		//draw figures
 		beginFigureRendering();
-		renderFigure( figures["tree"] );
+		renderFigure( { src:"tree" } );
+		renderFigure( { src:"tree", pos:[200.0,200.0], color:[0.0,1.0,0.0,1.0] } );
+		renderFigure( { src:"test", pos:[-200.0,-200.0], color:[0.0,0.0,1.0,1.0] } );
+		renderFigure( { path:[0.0,0.0, 30.0,0.0, 60.0,30.0, 30.0,20.0, -10.0,30.0], pos:[-200.0,200.0] } );
 	}
 
 	/* PARSING */
@@ -265,14 +270,18 @@ class Main extends luxe.Game {
 	}
 
 	function renderFigure(f:Figure) {
+		//properties //todo use f.src for other features besides path
+		var path = (f.path != null) ? f.path : figures[f.src].path;
+		var pos = (f.pos != null) ? f.pos : [0.0,0.0];
+		var color = (f.color != null) ? f.color : [1.0,1.0,1.0,1.0];
 		//set uniforms
 		GL.uniform2f(originUniformLocation, 0, 0);
-		GL.uniform2f(positionUniformLocation, 0, 0);
+		GL.uniform2f(positionUniformLocation, pos[0], pos[1]);
 		GL.uniform2f(scaleUniformLocation, 1, 1);
 		GL.uniform1f(rotationUniformLocation, 0);
-		GL.uniform4f(colorUniformLocation, 0, 1, 0, 1);
-		GL.uniform1i(pathLengthUniformLocation, cast(f.path.length/2,Int));
-		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(f.path));
+		GL.uniform4f(colorUniformLocation, color[0], color[1], color[2], color[3]);
+		GL.uniform1i(pathLengthUniformLocation, cast(path.length/2,Int));
+		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(path));
 		//draw array
 		var primitiveType = GL.TRIANGLES;
 		var offset = 0;
