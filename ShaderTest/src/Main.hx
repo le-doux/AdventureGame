@@ -57,6 +57,32 @@ class Main extends luxe.Game {
 		....0#e.....
 		";
 	var treePath = [];
+	var treeSwayFigure =
+		"
+		............
+		...........7
+		............
+		......6.....
+		............
+		.......5.9.8
+		............
+		............
+		............
+		..4.........
+		.....3......
+		.......b..a.
+		............
+		............
+		............
+		2...........
+		....1.d...c.
+		............
+		............
+		............
+		....0.e.....
+		";
+	var treeSwayPath = [];
+	var curTreePath = [];
 
 	var numTrees = 2;
 	var treePositions = [];
@@ -73,6 +99,7 @@ class Main extends luxe.Game {
 	override function ready() {
 
 		treePath = figureToPath(treeFigure);
+		treeSwayPath = figureToPath(treeSwayFigure);
 		trace(treePath);
 		randomizeTreePositions();
 
@@ -159,8 +186,8 @@ class Main extends luxe.Game {
 		GL.uniform2f(scaleUniformLocation, 1, 1);
 		GL.uniform1f(rotationUniformLocation, 0);
 		GL.uniform4f(colorUniformLocation, 0, 1, 0, 1);
-		GL.uniform1i(pathLengthUniformLocation, cast(treePath.length/2,Int));
-		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(treePath));
+		GL.uniform1i(pathLengthUniformLocation, cast(curTreePath.length/2,Int));
+		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(curTreePath));
 
 		//use the position attribute with the position buffer
 		GL.enableVertexAttribArray(positionAttributeLocation);
@@ -234,6 +261,14 @@ class Main extends luxe.Game {
 		return arr;
 	}
 
+	function lerpPath(pathA:Array<Float>, pathB:Array<Float>, t:Float) {
+		var pathC = [];
+		for (i in 0 ... pathA.length) { //path lengths are assumed to be the same
+			pathC.push( pathA[i] + (t*(pathB[i] - pathA[i])) );
+		}
+		return pathC;
+	}
+
 	override function onmousedown(e:MouseEvent) {
 		//numTrees *= 2;
 		numTrees += 10;
@@ -247,6 +282,8 @@ class Main extends luxe.Game {
 				text: "fps " + (1.0 / dt) + "\n" + "trees " + numTrees,
 				immediate: true
 			});
+
+		curTreePath = lerpPath( treePath, treeSwayPath, Math.sin(Luxe.time) );
 	} //update
 
 	/*
