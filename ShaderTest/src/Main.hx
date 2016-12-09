@@ -32,7 +32,49 @@ class Main extends luxe.Game {
 	var positionUniformLocation : GLUniformLocation;
 	var scaleUniformLocation : GLUniformLocation;
 
+	var treeFigure = 
+		"
+		.....7......
+		....###.....
+		...#####....
+		...#####....
+		..6#####8...
+		....5#9.....
+		...#####....
+		..#######...
+		..#######...
+		.4#######a..
+		....3#b.....
+		...#####....
+		..#######...
+		..#######...
+		.#########..
+		2#########c.
+		....1#d.....
+		....###.....
+		....###.....
+		....###.....
+		....0#e.....
+		";
+	var treePath = [];
+
+	var numTrees = 2;
+	var treePositions = [];
+	function randomizeTreePositions() {
+		treePositions = [];
+		for (i in 0 ... numTrees) {
+			var x = -Luxe.screen.w/2 + ( Math.random() * Luxe.screen.w );
+			var y = -Luxe.screen.h/2 + ( Math.random() * Luxe.screen.h );
+			treePositions.push(x);
+			treePositions.push(y);
+		}
+	}
+
 	override function ready() {
+
+		treePath = figureToPath(treeFigure);
+		trace(treePath);
+		randomizeTreePositions();
 
 		Luxe.renderer.should_clear = false;
 
@@ -113,23 +155,12 @@ class Main extends luxe.Game {
 		//set uniforms
 		GL.uniform2f(resolutionUniformLocation, Luxe.screen.w, Luxe.screen.h);
 		GL.uniform2f(originUniformLocation, 0, 0);
-		GL.uniform2f(positionUniformLocation, 0, 200);
+		GL.uniform2f(positionUniformLocation, 0, 0);
 		GL.uniform2f(scaleUniformLocation, 1, 1);
-		GL.uniform1f(rotationUniformLocation, Math.PI * 0.5);
+		GL.uniform1f(rotationUniformLocation, 0);
 		GL.uniform4f(colorUniformLocation, 0, 1, 0, 1);
-		GL.uniform1i(pathLengthUniformLocation, 5);
-		var pathArray = new Float32Array(10);
-		pathArray[0] = 0; //(0,0)
-		pathArray[1] = 0;
-		pathArray[2] = 60; //(60,0)
-		pathArray[3] = 0;
-		pathArray[4] = 80; //(80,40)
-		pathArray[5] = 40;
-		pathArray[6] = 50; //(50,100)
-		pathArray[7] = 100;
-		pathArray[8] = 30; //(50,100)
-		pathArray[9] = 30;
-		GL.uniform2fv(pathUniformLocation, pathArray);
+		GL.uniform1i(pathLengthUniformLocation, cast(treePath.length/2,Int));
+		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(treePath));
 
 		//use the position attribute with the position buffer
 		GL.enableVertexAttribArray(positionAttributeLocation);
@@ -146,7 +177,77 @@ class Main extends luxe.Game {
 		var offset = 0;
 		var count = 6;
 		GL.drawArrays(primitiveType, offset, count);
+
+		//draw extra trees
+		var i = 0;
+		while (i < treePositions.length) {
+			GL.uniform2f(positionUniformLocation, treePositions[i+0], treePositions[i+1]);
+			GL.drawArrays(primitiveType, offset, count);
+			i += 2;
+		}
+
 	}
+
+	var vertexSymbols = "0123456789abcdefghijklmnopqrstuvwxyz";
+	function figureToPath(figureStr:String) : Array<Float> {
+		var path = [];
+	
+		var lines = figureStr.split("\n");
+		lines = lines.slice(1,lines.length-1);
+		lines = lines.map( function(str) { return StringTools.trim(str); });
+
+		//define figure dimensions
+		var height = lines.length;
+		var width = lines[0].length;
+
+		//parse raw grid vertices
+		var vertices = [];
+		for (y in 0 ... height) {
+			var l = lines[y];
+			for (x in 0 ... width) {
+				var char = l.charAt(x);
+				var index = vertexSymbols.indexOf(char); 
+				if ( index != -1 ) {
+					vertices.push( {i:index, x:x, y:y } );
+				}
+			}
+		}
+
+		//sort vertices
+		vertices.sort( function(a:{i:Int,x:Int,y:Int}, b:{i:Int,x:Int,y:Int}):Int { return a.i - b.i; } );
+
+		//make path
+		var multiplier = 10.0;
+		for (i in 0 ... vertices.length) {
+			path.push( vertices[i].x * multiplier );
+			path.push( vertices[i].y * -multiplier );
+		}
+
+		return path;
+	}
+
+	function pathToFloat32Array(path:Array<Float>) {
+		var arr = new Float32Array(path.length);
+		for (i in 0 ... path.length) {
+			arr[i] = path[i];
+		}
+		return arr;
+	}
+
+	override function onmousedown(e:MouseEvent) {
+		//numTrees *= 2;
+		numTrees += 10;
+		randomizeTreePositions();
+	}
+
+	override function update(dt:Float) {
+		//trace(1.0 / dt);
+
+		Luxe.draw.text({
+				text: "fps " + (1.0 / dt) + "\n" + "trees " + numTrees,
+				immediate: true
+			});
+	} //update
 
 	/*
 	override function onkeyup( e:KeyEvent ) {
