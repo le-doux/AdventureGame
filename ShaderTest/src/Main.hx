@@ -13,8 +13,8 @@ class Main extends luxe.Game {
 
 	override function config(config:luxe.GameConfig) {
 
-		config.preload.texts.push({id:'assets/basicvert_2.glsl'});
-		config.preload.texts.push({id:'assets/basicfrag_2.glsl'});
+		config.preload.texts.push({id:'assets/polyvert.glsl'});
+		config.preload.texts.push({id:'assets/polyfrag.glsl'});
 
 		return config;
 
@@ -24,8 +24,9 @@ class Main extends luxe.Game {
 	var positionAttributeLocation : Int;
 	var positionBuffer : GLBuffer;
 	var resolutionUniformLocation : GLUniformLocation;
-	//var pathUniformLocation,pathLengthUniformLocation;
-	//var colorUniformLocation;
+	var pathUniformLocation : GLUniformLocation;
+	var pathLengthUniformLocation : GLUniformLocation;
+	var colorUniformLocation : GLUniformLocation;
 	var rotationUniformLocation : GLUniformLocation;
 	var originUniformLocation : GLUniformLocation;
 	var positionUniformLocation : GLUniformLocation;
@@ -33,34 +34,49 @@ class Main extends luxe.Game {
 
 	override function ready() {
 
+		Luxe.renderer.should_clear = false;
+
 		/* setup */
 		//create vertex shader
 		var vertexShader = GL.createShader(GL.VERTEX_SHADER);
-		GL.shaderSource(vertexShader, Luxe.resources.text('assets/basicvert_2.glsl').asset.text);
+		GL.shaderSource(vertexShader, Luxe.resources.text('assets/polyvert.glsl').asset.text);
 		GL.compileShader(vertexShader);
+		var _compile_log = GL.getShaderInfoLog(vertexShader);
+		trace("vertex shader results: ");
+		trace( _compile_log );
 
 		//create fragment shader
 		var fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
-		GL.shaderSource(fragmentShader, Luxe.resources.text('assets/basicfrag_2.glsl').asset.text);
+		GL.shaderSource(fragmentShader, Luxe.resources.text('assets/polyfrag.glsl').asset.text);
 		GL.compileShader(fragmentShader);
+		_compile_log = GL.getShaderInfoLog(fragmentShader);
+		trace("fragment shader results: ");
+		trace( _compile_log );
 
 		//create shader program
 		program = GL.createProgram();
 		GL.attachShader(program, vertexShader);
 		GL.attachShader(program, fragmentShader);
 		GL.linkProgram(program);
+		if( GL.getProgramParameter(program, GL.LINK_STATUS) == 0) {
+			trace("shader program failed to link");
+		}
 
 		//get uniform locations
-		/*
+		trace("-- uniforms --");
 		resolutionUniformLocation = GL.getUniformLocation(program, "u_resolution");
-		//pathUniformLocation = GL.getUniformLocation(program, "u_path");
-		//pathLengthUniformLocation = GL.getUniformLocation(program, "u_pathLength");
+		trace(resolutionUniformLocation);
+		pathUniformLocation = GL.getUniformLocation(program, "u_path");
+		pathLengthUniformLocation = GL.getUniformLocation(program, "u_pathLength");
 		originUniformLocation = GL.getUniformLocation(program, "u_origin");
+		trace(originUniformLocation);
 		positionUniformLocation = GL.getUniformLocation(program, "u_position");
+		trace(positionUniformLocation);
 		scaleUniformLocation = GL.getUniformLocation(program, "u_scale");
+		trace(scaleUniformLocation);
 		rotationUniformLocation = GL.getUniformLocation(program, "u_rotation");
-		//colorUniformLocation = GL.getUniformLocation(program, "u_color");
-		*/
+		trace(rotationUniformLocation);
+		colorUniformLocation = GL.getUniformLocation(program, "u_color");
 
 		//setup position attribute
 		positionAttributeLocation = GL.getAttribLocation(program, "a_position");
@@ -82,51 +98,38 @@ class Main extends luxe.Game {
 		
 	} //ready
 
-	override function onpostrender() { //hacky
+	override function onrender() {
 		/* draw */
 		//set the viewport
-		//GL.viewport(0, 0, 500,500);
+		GL.viewport(0, 0, Luxe.screen.w, Luxe.screen.h);
 
 		//clear the canvas
-		//GL.clearColor(0, 0, 0, 0);
-		//GL.clear(GL.COLOR_BUFFER_BIT);
+		GL.clearColor(0, 0, 0, 0);
+		GL.clear(GL.COLOR_BUFFER_BIT);
 
 		//tell gl to use our program
 		GL.useProgram(program);
 
 		//set uniforms
-		/*
-		trace(resolutionUniformLocation);
-		var resolution = new Float32Array(2);
-		resolution[0] = 500;
-		resolution[1] = 500;
-		trace(resolution);
-		GL.uniform2fv(resolutionUniformLocation, 500, 500);
-		//GL.uniform2fv(pathUniformLocation, poly.path);
-		//GL.uniform1i(pathLengthUniformLocation, (poly.path.length/2));
-		var origin = new Float32Array(2);
-		origin[0] = 0;
-		origin[1] = 0;
-		GL.uniform2fv(originUniformLocation, origin);
-		var position = new Float32Array(2);
-		position[0] = 0;
-		position[1] = 0;
-		GL.uniform2fv(positionUniformLocation, position);
-		var scale = new Float32Array(2);
-		scale[0] = 1;
-		scale[1] = 1;
-		GL.uniform2fv(scaleUniformLocation, scale);
-		GL.uniform1f(rotationUniformLocation, 0);
-		//GL.uniform4fv(colorUniformLocation, poly.color);
-		*/
-
-		//test uniform
-		var u = GL.getUniformLocation(program, "u_mult");
-		var a = new Float32Array(1);
-		a[0] = 0.5;
-		a[1] = 1.0;
-		GL.uniform2fv(u, a); //2fv doesn't work yet...
-		//GL.uniform2f(u, 0.5, 1.0);
+		GL.uniform2f(resolutionUniformLocation, Luxe.screen.w, Luxe.screen.h);
+		GL.uniform2f(originUniformLocation, 0, 0);
+		GL.uniform2f(positionUniformLocation, 0, 200);
+		GL.uniform2f(scaleUniformLocation, 1, 1);
+		GL.uniform1f(rotationUniformLocation, Math.PI * 0.5);
+		GL.uniform4f(colorUniformLocation, 0, 1, 0, 1);
+		GL.uniform1i(pathLengthUniformLocation, 5);
+		var pathArray = new Float32Array(10);
+		pathArray[0] = 0; //(0,0)
+		pathArray[1] = 0;
+		pathArray[2] = 60; //(60,0)
+		pathArray[3] = 0;
+		pathArray[4] = 80; //(80,40)
+		pathArray[5] = 40;
+		pathArray[6] = 50; //(50,100)
+		pathArray[7] = 100;
+		pathArray[8] = 30; //(50,100)
+		pathArray[9] = 30;
+		GL.uniform2fv(pathUniformLocation, pathArray);
 
 		//use the position attribute with the position buffer
 		GL.enableVertexAttribArray(positionAttributeLocation);
@@ -146,30 +149,6 @@ class Main extends luxe.Game {
 	}
 
 	/*
-	override function config(config:luxe.GameConfig) {
-
-		config.preload.shaders.push({ id:'poly', frag_id:'assets/polyfrag.glsl', vert_id:'assets/polyvert.glsl' });
-
-		return config;
-
-	}
-
-	override function ready() {
-		var g = new Geometry({ batcher:Luxe.renderer.batcher, primitive_type:PrimitiveType.triangles, shader:Luxe.resources.shader("poly") });
-		g.vertices.push( new Vertex(new Vector(0,0)) );
-		g.vertices.push( new Vertex(new Vector(1,0)) );
-		g.vertices.push( new Vertex(new Vector(0,1)) );
-		g.vertices.push( new Vertex(new Vector(1,0)) );
-		g.vertices.push( new Vertex(new Vector(0,1)) );
-		g.vertices.push( new Vertex(new Vector(1,1)) );
-
-		g.shader.set_vector2("u_resolution", Luxe.screen.size);
-		g.shader.set_vector2("u_origin", new Vector(0,0));
-		g.shader.set_vector2("u_position", new Vector(0,0));
-		g.shader.set_vector2("u_scale", new Vector(1,1));
-		g.shader.set_float("u_rotation", 0);
-	} //ready
-
 	override function onkeyup( e:KeyEvent ) {
 
 		if(e.keycode == Key.escape) {

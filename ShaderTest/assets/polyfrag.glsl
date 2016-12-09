@@ -1,19 +1,10 @@
-//uniform vec2 u_path[32];
-//uniform int u_pathLength;
-//uniform vec4 u_color[2];
-vec2 u_path[3];// = [vec2(0,0), vec2(40,0), vec2(40,40)];
-int u_pathLength = 3;
+uniform vec2 u_path[32];
+uniform int u_pathLength;
+uniform vec4 u_color;
 
 varying vec2 localPos;
 
 void main() {
-	
-	//test
-	u_path[0] = vec2(0,0);
-	u_path[1] = vec2(40,0);
-	u_path[2] = vec2(50,40);
-
-
 
 	float crossCount = 0.0;
 
@@ -41,7 +32,8 @@ void main() {
 
 	float inPoly = mod(crossCount,2.0); 
 	//vec4 color = inPoly * (u_color[0] + (u_color[1]-u_color[0])*(localPos.y/-200.0)); //todo make relative to bounding box
-	vec4 color = inPoly * vec4(1.0,0.0,0.0,1.0);
+	//vec4 color = inPoly * vec4(1.0,0.0,0.0,1.0); //red
+	vec4 color = inPoly * u_color;
 
 	gl_FragColor = color;
 
