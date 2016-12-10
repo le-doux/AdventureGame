@@ -40,12 +40,14 @@ import snow.api.buffers.Float32Array;
 
 class Main extends luxe.Game {
 
+	/*
 	var figures : Map<String,Figure> = new Map<String,Figure>();
 	var scene : Array<Figure>;
+	*/
 
 	override function config(config:luxe.GameConfig) {
 		config = Renderer.config( config );
-		config.preload.texts.push({id:'assets/figures.txt'});
+		config.preload.texts.push({id:'assets/figures2.txt'});
 
 		return config;
 
@@ -59,6 +61,9 @@ class Main extends luxe.Game {
 			figures[f.name] = f;
 		}
 		*/
+
+		Parser.parseFigureFile( Luxe.resources.text('assets/figures2.txt').asset.text );
+
 		Renderer.ready();
 	} //ready
 
@@ -80,6 +85,7 @@ class Main extends luxe.Game {
 	}
 
 	/* PARSING */
+	/*
 	function parseFigureFile(fileStr:String) : Array<Figure> {
 		var figureList = [];
 
@@ -202,6 +208,7 @@ class Main extends luxe.Game {
 		}
 		return pathC;
 	}
+	*/
 
 } //Main
 
@@ -216,6 +223,7 @@ typedef Figure = {
 }
 */
 
+/*
 typedef Figure = {
 	@:optional var name : String;
 	@:optional var src : String;
@@ -223,6 +231,7 @@ typedef Figure = {
 	@:optional var pos : Array<Float>;
 	@:optional var colors : Array<Array<Float>>;
 }
+*/
 
 /*
 typedef Figure = {
