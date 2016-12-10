@@ -10,7 +10,10 @@ import snow.api.buffers.Float32Array;
 	X figure storage
 	X figure drawing
 	- anchors / levels
+	X layers
 	- animation
+	- set scale in figure file
+	- standard screen dimensions
 */
 
 class Main extends luxe.Game {
@@ -32,6 +35,7 @@ class Main extends luxe.Game {
 	override function ready() {
 		var figureList = parseFigureFile( Luxe.resources.text('assets/figures.txt').asset.text );
 		for (f in figureList) {
+			trace(f);
 			figures[f.name] = f;
 		}
 
@@ -61,10 +65,13 @@ class Main extends luxe.Game {
 
 		//draw figures
 		beginFigureRendering();
+		/*
 		renderFigure( { src:"tree" } );
 		renderFigure( { src:"tree", pos:[200.0,200.0], color:[0.0,1.0,0.0,1.0] } );
 		renderFigure( { src:"test", pos:[-200.0,-200.0], color:[0.0,0.0,1.0,1.0] } );
 		renderFigure( { path:[0.0,0.0, 30.0,0.0, 60.0,30.0, 30.0,20.0, -10.0,30.0], pos:[-200.0,200.0] } );
+		*/
+		renderFigure( { src:"kid", colors:[[0.0,0.0,1.0,1.0],[1.0,0.0,0.0,1.0]] } );
 	}
 
 	/* PARSING */
@@ -108,9 +115,14 @@ class Main extends luxe.Game {
 		figure.name = parseArguments(lines[i])[1];
 		i++;
 
-		var results = parseFigurePath(i,lines);
-		figure.path = results.path;
-		i = results.i;
+		figure.layers = [];
+		while (i < lines.length && lines[i].length > 0) {
+			trace("figure");
+			trace(lines[i]);
+			var results = parseFigurePath(i,lines);
+			figure.layers.push( results.path );
+			i = results.i;
+		}
 
 		return {
 			i: i,
@@ -120,12 +132,16 @@ class Main extends luxe.Game {
 
 	function parseFigurePath(i:Int,lines:Array<String>) {		
 		var figureStr = "";
-		while (lines[i].length > 0) {
+		while (lines[i].length > 0 && lines[i].charAt(0) != "-") { //"-" is the seperator character //todo more robust parsing (whitespace lines, eof)
+			trace("path");
+			trace(lines[i]);
 			figureStr += lines[i] + "\n";
 			i++;
 		}
 
 		var path = figure( figureStr );
+
+		i++;
 
 		return {
 			i: i,
@@ -271,6 +287,36 @@ class Main extends luxe.Game {
 
 	function renderFigure(f:Figure) {
 		//properties //todo use f.src for other features besides path
+		var layers = (f.layers != null) ? f.layers : figures[f.src].layers;
+		var pos = (f.pos != null) ? f.pos : [0.0,0.0];
+		var colors = (f.colors != null) ? f.colors : [[1.0,1.0,1.0,1.0]];
+
+		//set uniforms
+		GL.uniform2f(originUniformLocation, 0, 0);
+		GL.uniform2f(positionUniformLocation, pos[0], pos[1]);
+		GL.uniform2f(scaleUniformLocation, 1, 1);
+		GL.uniform1f(rotationUniformLocation, 0);
+		//draw array once per layer
+		var primitiveType = GL.TRIANGLES;
+		var offset = 0;
+		var count = 6;
+		for (i in 0 ... layers.length) {
+			var color = colors[colors.length-1];
+			if (colors.length > 1) {
+				color = colors[i];
+			}
+			GL.uniform4f(colorUniformLocation, color[0], color[1], color[2], color[3]);
+
+			var path = layers[i];
+			GL.uniform1i(pathLengthUniformLocation, cast(path.length/2,Int));
+			GL.uniform2fv(pathUniformLocation, pathToFloat32Array(path));
+
+			GL.drawArrays(primitiveType, offset, count);
+		}
+
+		//old version - kept for reference
+		/*
+		//properties //todo use f.src for other features besides path
 		var path = (f.path != null) ? f.path : figures[f.src].path;
 		var pos = (f.pos != null) ? f.pos : [0.0,0.0];
 		var color = (f.color != null) ? f.color : [1.0,1.0,1.0,1.0];
@@ -287,6 +333,7 @@ class Main extends luxe.Game {
 		var offset = 0;
 		var count = 6;
 		GL.drawArrays(primitiveType, offset, count);
+		*/
 	}
 
 	function pathToFloat32Array(path:Array<Float>) {
@@ -310,7 +357,7 @@ class Main extends luxe.Game {
 typedef Figure = {
 	@:optional var name : String;
 	@:optional var src : String;
-	@:optional var path : Array<Float>;
+	@:optional var layers : Array<Array<Float>>;
 	@:optional var pos : Array<Float>;
-	@:optional var color : Array<Float>;
+	@:optional var colors : Array<Array<Float>>;
 }
