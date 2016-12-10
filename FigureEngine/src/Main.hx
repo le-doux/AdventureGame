@@ -14,6 +14,28 @@ import snow.api.buffers.Float32Array;
 	- animation
 	- set scale in figure file
 	- standard screen dimensions
+
+	questions
+	- how do I associate colors and other properties w/ specific layers in the file format
+	- can I name a layer?
+	- do I still want to keep a "single-poly" figure option
+		- if so, how do I break up layers?
+			- nested figures?
+			- should I really associate colors and paths directly as one?
+	- when do I resolve (palette) colors?
+		- do I borrow my vex properties?
+	- worried the route I'm going may make me run into problems w/ more complex characters (like the protag)
+		- more polygons
+		- more animations than one
+		- more complex animations
+		- recycle my vex work here?
+		- can I make the two formats play nice?
+		- is this even a worthwhile route?
+		- can't I use what I already made?
+
+	take stock after
+	- anchors are finished
+	- two frame morph animations are finished
 */
 
 class Main extends luxe.Game {
@@ -22,10 +44,7 @@ class Main extends luxe.Game {
 	var scene : Array<Figure>;
 
 	override function config(config:luxe.GameConfig) {
-
-		config.preload.texts.push({id:'assets/polyvert.glsl'});
-		config.preload.texts.push({id:'assets/polyfrag.glsl'});
-
+		config = Renderer.config( config );
 		config.preload.texts.push({id:'assets/figures.txt'});
 
 		return config;
@@ -33,13 +52,14 @@ class Main extends luxe.Game {
 	}
 
 	override function ready() {
+		/*
 		var figureList = parseFigureFile( Luxe.resources.text('assets/figures.txt').asset.text );
 		for (f in figureList) {
 			trace(f);
 			figures[f.name] = f;
 		}
-
-		setupFigureRendering();
+		*/
+		Renderer.ready();
 	} //ready
 
 	override function onkeyup( e:KeyEvent ) {
@@ -51,27 +71,12 @@ class Main extends luxe.Game {
 	} //onkeyup
 
 	override function update(dt:Float) {
-
+		Renderer.addpoly( {path:[0,0, 100,0, 100,100]} );
+		Renderer.addpoly( {path:[50,50, 150,50, 150,150, 50,150],color:[1.0,0.0,0.0,1.0]} );
 	} //update
 
 	override function onrender() {
-		/* draw */
-		//set the viewport
-		GL.viewport(0, 0, Luxe.screen.w, Luxe.screen.h);
-
-		//clear the canvas
-		GL.clearColor(0, 0, 0, 0);
-		GL.clear(GL.COLOR_BUFFER_BIT);
-
-		//draw figures
-		beginFigureRendering();
-		/*
-		renderFigure( { src:"tree" } );
-		renderFigure( { src:"tree", pos:[200.0,200.0], color:[0.0,1.0,0.0,1.0] } );
-		renderFigure( { src:"test", pos:[-200.0,-200.0], color:[0.0,0.0,1.0,1.0] } );
-		renderFigure( { path:[0.0,0.0, 30.0,0.0, 60.0,30.0, 30.0,20.0, -10.0,30.0], pos:[-200.0,200.0] } );
-		*/
-		renderFigure( { src:"kid", colors:[[0.0,0.0,1.0,1.0],[1.0,0.0,0.0,1.0]] } );
+		Renderer.onrender();
 	}
 
 	/* PARSING */
@@ -190,160 +195,6 @@ class Main extends luxe.Game {
 		return path;
 	}
 
-	/* RENDERING */
-	var program : GLProgram;
-	var positionAttributeLocation : Int;
-	var positionBuffer : GLBuffer;
-	var resolutionUniformLocation : GLUniformLocation;
-	var pathUniformLocation : GLUniformLocation;
-	var pathLengthUniformLocation : GLUniformLocation;
-	var colorUniformLocation : GLUniformLocation;
-	var rotationUniformLocation : GLUniformLocation;
-	var originUniformLocation : GLUniformLocation;
-	var positionUniformLocation : GLUniformLocation;
-	var scaleUniformLocation : GLUniformLocation;
-
-	function setupFigureRendering() {
-		/* setup */
-		Luxe.renderer.should_clear = false;
-		
-		//create vertex shader
-		var vertexShader = GL.createShader(GL.VERTEX_SHADER);
-		GL.shaderSource(vertexShader, Luxe.resources.text('assets/polyvert.glsl').asset.text);
-		GL.compileShader(vertexShader);
-		var _compile_log = GL.getShaderInfoLog(vertexShader);
-		trace("vertex shader results: ");
-		trace( _compile_log );
-
-		//create fragment shader
-		var fragmentShader = GL.createShader(GL.FRAGMENT_SHADER);
-		GL.shaderSource(fragmentShader, Luxe.resources.text('assets/polyfrag.glsl').asset.text);
-		GL.compileShader(fragmentShader);
-		_compile_log = GL.getShaderInfoLog(fragmentShader);
-		trace("fragment shader results: ");
-		trace( _compile_log );
-
-		//create shader program
-		program = GL.createProgram();
-		GL.attachShader(program, vertexShader);
-		GL.attachShader(program, fragmentShader);
-		GL.linkProgram(program);
-		if( GL.getProgramParameter(program, GL.LINK_STATUS) == 0) {
-			trace("shader program failed to link");
-		}
-
-		//get uniform locations
-		trace("-- uniforms --");
-		resolutionUniformLocation = GL.getUniformLocation(program, "u_resolution");
-		trace(resolutionUniformLocation);
-		pathUniformLocation = GL.getUniformLocation(program, "u_path");
-		pathLengthUniformLocation = GL.getUniformLocation(program, "u_pathLength");
-		originUniformLocation = GL.getUniformLocation(program, "u_origin");
-		trace(originUniformLocation);
-		positionUniformLocation = GL.getUniformLocation(program, "u_position");
-		trace(positionUniformLocation);
-		scaleUniformLocation = GL.getUniformLocation(program, "u_scale");
-		trace(scaleUniformLocation);
-		rotationUniformLocation = GL.getUniformLocation(program, "u_rotation");
-		trace(rotationUniformLocation);
-		colorUniformLocation = GL.getUniformLocation(program, "u_color");
-
-		//setup position attribute
-		positionAttributeLocation = GL.getAttribLocation(program, "a_position");
-		positionBuffer = GL.createBuffer();
-		GL.bindBuffer(GL.ARRAY_BUFFER, positionBuffer);
-		var positions = [
-			0.0, 0.0,
-			1.0, 1.0,
-			1.0, 0.0,
-			0.0, 0.0,
-			1.0, 1.0,
-			0.0, 1.0
-		];
-		var positionsArr = new Float32Array( positions.length );
-		for (i in 0 ... positions.length) {
-			positionsArr[i] = positions[i];
-		}
-		GL.bufferData(GL.ARRAY_BUFFER, positionsArr, GL.STATIC_DRAW);
-	}
-
-	function beginFigureRendering() {
-		//tell gl to use our program
-		GL.useProgram(program);
-
-		//set shared uniforms
-		GL.uniform2f(resolutionUniformLocation, Luxe.screen.w, Luxe.screen.h);
-
-		//use the position attribute with the position buffer
-		GL.enableVertexAttribArray(positionAttributeLocation);
-		GL.bindBuffer(GL.ARRAY_BUFFER, positionBuffer);
-		var size = 2;
-		var type = GL.FLOAT;
-		var normalize = false;
-		var stride = 0;
-		var offset = 0;
-		GL.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
-	}
-
-	function renderFigure(f:Figure) {
-		//properties //todo use f.src for other features besides path
-		var layers = (f.layers != null) ? f.layers : figures[f.src].layers;
-		var pos = (f.pos != null) ? f.pos : [0.0,0.0];
-		var colors = (f.colors != null) ? f.colors : [[1.0,1.0,1.0,1.0]];
-
-		//set uniforms
-		GL.uniform2f(originUniformLocation, 0, 0);
-		GL.uniform2f(positionUniformLocation, pos[0], pos[1]);
-		GL.uniform2f(scaleUniformLocation, 1, 1);
-		GL.uniform1f(rotationUniformLocation, 0);
-		//draw array once per layer
-		var primitiveType = GL.TRIANGLES;
-		var offset = 0;
-		var count = 6;
-		for (i in 0 ... layers.length) {
-			var color = colors[colors.length-1];
-			if (colors.length > 1) {
-				color = colors[i];
-			}
-			GL.uniform4f(colorUniformLocation, color[0], color[1], color[2], color[3]);
-
-			var path = layers[i];
-			GL.uniform1i(pathLengthUniformLocation, cast(path.length/2,Int));
-			GL.uniform2fv(pathUniformLocation, pathToFloat32Array(path));
-
-			GL.drawArrays(primitiveType, offset, count);
-		}
-
-		//old version - kept for reference
-		/*
-		//properties //todo use f.src for other features besides path
-		var path = (f.path != null) ? f.path : figures[f.src].path;
-		var pos = (f.pos != null) ? f.pos : [0.0,0.0];
-		var color = (f.color != null) ? f.color : [1.0,1.0,1.0,1.0];
-		//set uniforms
-		GL.uniform2f(originUniformLocation, 0, 0);
-		GL.uniform2f(positionUniformLocation, pos[0], pos[1]);
-		GL.uniform2f(scaleUniformLocation, 1, 1);
-		GL.uniform1f(rotationUniformLocation, 0);
-		GL.uniform4f(colorUniformLocation, color[0], color[1], color[2], color[3]);
-		GL.uniform1i(pathLengthUniformLocation, cast(path.length/2,Int));
-		GL.uniform2fv(pathUniformLocation, pathToFloat32Array(path));
-		//draw array
-		var primitiveType = GL.TRIANGLES;
-		var offset = 0;
-		var count = 6;
-		GL.drawArrays(primitiveType, offset, count);
-		*/
-	}
-
-	function pathToFloat32Array(path:Array<Float>) {
-		var arr = new Float32Array(path.length);
-		for (i in 0 ... path.length) {
-			arr[i] = path[i];
-		}
-		return arr;
-	}
-
 	function lerpPath(pathA:Array<Float>, pathB:Array<Float>, t:Float) {
 		var pathC = [];
 		for (i in 0 ... pathA.length) { //path lengths are assumed to be the same
@@ -354,6 +205,17 @@ class Main extends luxe.Game {
 
 } //Main
 
+/*
+old versions
+typedef Figure = {
+	@:optional var name : String;
+	@:optional var src : String;
+	@:optional var path : Array<Float>;
+	@:optional var pos : Array<Float>;
+	@:optional var color : Array<Float>;
+}
+*/
+
 typedef Figure = {
 	@:optional var name : String;
 	@:optional var src : String;
@@ -361,3 +223,19 @@ typedef Figure = {
 	@:optional var pos : Array<Float>;
 	@:optional var colors : Array<Array<Float>>;
 }
+
+/*
+typedef Figure = {
+	@:optional var name : String;
+	@:optional var src : String; //for figures that reference other figures
+	@:optional var path : Array<Float>; //for single-poly, "leaf" figures
+	@:optional var pos : Array<Float>;
+	@:optional var color : Array<Float>; //todo: need multiple colors for gradients???
+	@:optional var layers : Array<Figure>; //for multi-poly figures
+	@:optional var flipIndex : Int; //for animated figures
+}
+*/
+//todo lerp figures (recursive!!!)
+
+//Figure as Figure and Layer and Frame... can that work?
+//"anchors" could be there own layer/figures too, just ones that use "src" + a "pos" offset
