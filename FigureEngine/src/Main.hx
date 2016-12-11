@@ -4,6 +4,8 @@ import luxe.Input;
 import snow.modules.opengl.GL;
 import snow.api.buffers.Float32Array;
 
+import Parser.Figure;
+
 /*
 	TODO
 	X load figures from file
@@ -11,8 +13,8 @@ import snow.api.buffers.Float32Array;
 	X figure drawing
 	- anchors / levels
 	X layers
-	- animation
-	- set scale in figure file
+	X animation
+	X set scale in figure file
 	- standard screen dimensions
 
 	questions
@@ -36,14 +38,14 @@ import snow.api.buffers.Float32Array;
 	take stock after
 	- anchors are finished
 	- two frame morph animations are finished
+
+	//todo transformation matrix?
 */
 
 class Main extends luxe.Game {
 
-	/*
 	var figures : Map<String,Figure> = new Map<String,Figure>();
 	var scene : Array<Figure>;
-	*/
 
 	override function config(config:luxe.GameConfig) {
 		config = Renderer.config( config );
@@ -62,7 +64,9 @@ class Main extends luxe.Game {
 		}
 		*/
 
-		Parser.parseFigureFile( Luxe.resources.text('assets/figures2.txt').asset.text );
+		for ( f in Parser.parseFigureFile( Luxe.resources.text('assets/figures2.txt').asset.text ) ) {
+			figures[ f.name ] = f;
+		}
 
 		Renderer.ready();
 	} //ready
@@ -76,175 +80,122 @@ class Main extends luxe.Game {
 	} //onkeyup
 
 	override function update(dt:Float) {
+		/*
 		Renderer.addpoly( {path:[0,0, 100,0, 100,100]} );
 		Renderer.addpoly( {path:[50,50, 150,50, 150,150, 50,150],color:[1.0,0.0,0.0,1.0]} );
+		drawFigure( figures["tree"] );
+		drawFigure( { src:"tree", pos:[200,200] } );
+		drawFigure( { src:"tree", pos:[-400,200], color:[1,0,1,1] } );
+		drawFigure( figures["kid"] );
+		*/
+
+		drawFigure( { src:"kid", morph:( 0.5 + 0.5*Math.sin(Luxe.time*4) ) } );
+		drawFigure( { src:"tree", pos:[200,200], morph:( 0.5 + 0.5*Math.sin(Luxe.time*4) ) } );
+		drawFigure( { src:"tree", pos:[-200,-200], morph:( 0.5 + 0.5*Math.sin(Luxe.time*4) ) } );
 	} //update
 
 	override function onrender() {
 		Renderer.onrender();
 	}
 
-	/* PARSING */
-	/*
-	function parseFigureFile(fileStr:String) : Array<Figure> {
-		var figureList = [];
-
-		var lines = fileStr.split("\n");
-		var i = 0;
-
-		while (i < lines.length) {
-			var curLine = lines[i];
-			if (curLine.length <= 0) {
-				//empty line
-				i++;
+	function drawFigure(figure:Figure, ?parent:Figure) {
+		if (figure.path != null) {
+			var poly : Renderer.Polygon = {};
+			poly.path = figure.path;
+			//
+			if (parent != null){ //this works for layers, but not src, where the "parent" should take precedent
+				if (parent.origin != null) poly.origin = parent.origin;
+				if (parent.pos != null) poly.pos = parent.pos;
+				if (parent.scale != null) poly.scale = parent.scale;
+				if (parent.rot != null) poly.rot = parent.rot;
+				if (parent.color != null) poly.color = parent.color;
 			}
-			else if (parseType(curLine) == "figure") {
-				var results = parseFigure(i,lines);
-				figureList.push( results.figure );
-				i = results.i;
-			}
-			else {
-				//unreadable line
-				i++;
-			}
+			//
+			if (figure.origin != null) poly.origin = figure.origin;
+			if (figure.pos != null) poly.pos = figure.pos;
+			if (figure.scale != null) poly.scale = figure.scale;
+			if (figure.rot != null) poly.rot = figure.rot;
+			if (figure.color != null) poly.color = figure.color;
+			//
+			Renderer.addpoly( poly );
 		}
 
-		return figureList;
-	}
-
-	function parseType(lineStr:String) : String {
-		return parseArguments(lineStr)[0].toLowerCase();
-	}
-
-	function parseArguments(lineStr:String) : Array<String> {
-		return lineStr.split(" ");
-	}
-
-	function parseFigure(i:Int,lines:Array<String>) {
-		var figure : Figure = {};
-
-		figure.name = parseArguments(lines[i])[1];
-		i++;
-
-		figure.layers = [];
-		while (i < lines.length && lines[i].length > 0) {
-			trace("figure");
-			trace(lines[i]);
-			var results = parseFigurePath(i,lines);
-			figure.layers.push( results.path );
-			i = results.i;
+		if (figure.src != null) {
+			var srcFig = figures[figure.src];
+			var fig : Figure = {};
+			fig.name = srcFig.name;
+			fig.path = srcFig.path;
+			fig.layers = srcFig.layers;
+			fig.flip = srcFig.flip;
+			fig.color = (figure.color != null) ? figure.color : srcFig.color;
+			fig.origin = (figure.origin != null) ? figure.origin : srcFig.origin;
+			fig.pos = (figure.pos != null) ? figure.pos : srcFig.pos;
+			fig.scale = (figure.scale != null) ? figure.scale : srcFig.scale;
+			fig.rot = (figure.rot != null) ? figure.rot : srcFig.rot;
+			fig.morph = (figure.morph != null) ? figure.morph : srcFig.morph;
+			//todo do something here to move parent attributes into child
+			drawFigure( fig );
 		}
 
+		if (figure.flip != null) {
+			//animated layers
+			for (i in 0 ... figure.flip) {
+				var a = figure.layers[i];
+				var b = figure.layers[i+figure.flip];
+				var c = lerpFigure(a, b, figure.morph);
+				drawFigure( c, figure );
+			}
+		}
+		else if (figure.layers != null) {
+			//non-animated layers
+			for (l in figure.layers) {
+				drawFigure( l, figure );
+			}
+		}
+	}
+
+	function lerpFloats(a:Null<Array<Float>>, b:Null<Array<Float>>, t:Float) : Null<Array<Float>> {
+		if (a == null && b == null) return null;
+		if (a == null) return b;
+		if (b == null) return a;
+
+		var c = [];
+		for (i in 0 ... a.length) {
+			c.push( a[i] + t*( b[i]-a[i] ) );
+		}
+		return c;
+	}
+
+	function lerpFloat(a:Null<Float>, b:Null<Float>, t:Float) : Null<Float> {
+		if (a == null && b == null) return null;
+		if (a == null) return b;
+		if (b == null) return a;
+		return a + t*(b-a);
+	}
+
+	function lerpFigures(a:Null<Array<Figure>>, b:Null<Array<Figure>>, t:Float) : Null<Array<Figure>> {
+		if (a == null && b == null) return null;
+		if (a == null) return b;
+		if (b == null) return a;
+
+		var c = [];
+		for (i in 0 ... a.length) {
+			c.push( lerpFigure(a[i],b[i],t) );
+		}
+		return c;
+	}
+
+	function lerpFigure(a:Figure, b:Figure, t:Float) : Figure {
 		return {
-			i: i,
-			figure: figure
+			name: a.name,
+			src: a.src,
+			path: lerpFloats( a.path, b.path, t ),
+			origin: lerpFloats( a.origin, b.origin, t ),
+			scale: lerpFloats( a.scale, b.scale, t ),
+			rot: lerpFloat( a.rot, b.rot, t ),
+			color: lerpFloats( a.color, b.color, t ),
+			layers: lerpFigures( a.layers, b.layers, t )
 		};
 	}
-
-	function parseFigurePath(i:Int,lines:Array<String>) {		
-		var figureStr = "";
-		while (lines[i].length > 0 && lines[i].charAt(0) != "-") { //"-" is the seperator character //todo more robust parsing (whitespace lines, eof)
-			trace("path");
-			trace(lines[i]);
-			figureStr += lines[i] + "\n";
-			i++;
-		}
-
-		var path = figure( figureStr );
-
-		i++;
-
-		return {
-			i: i,
-			path: path
-		};
-	}
-
-	var vertexSymbols = "0123456789abcdefghijklmnopqrstuvwxyz";
-	var anchorSymbols = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	//the core ascii-to-vector algorithm
-	//todo: does it need a more descriptive name?
-	function figure(str:String) : Array<Float> {
-		var path = [];
-	
-		var lines = str.split("\n"); //split string into lines
-		lines = lines.map( function(str) { return StringTools.trim(str); } ); //remove whitespace
-		lines = lines.filter( function(str) { return str.length > 0; } ); //remove empty lines
-
-		//define figure dimensions
-		var height = lines.length;
-		var width = lines[0].length;
-
-		//parse raw grid vertices
-		var vertices = [];
-		for (y in 0 ... height) {
-			var l = lines[y];
-			for (x in 0 ... width) {
-				var char = l.charAt(x);
-				var index = vertexSymbols.indexOf(char); 
-				if ( index != -1 ) {
-					vertices.push( {i:index, x:x, y:y } );
-				}
-			}
-		}
-
-		//sort vertices
-		vertices.sort( function(a:{i:Int,x:Int,y:Int}, b:{i:Int,x:Int,y:Int}):Int { return a.i - b.i; } );
-
-		//make path
-		var multiplier = 10.0;
-		for (i in 0 ... vertices.length) {
-			path.push( vertices[i].x * multiplier );
-			path.push( vertices[i].y * -multiplier );
-		}
-
-		return path;
-	}
-
-	function lerpPath(pathA:Array<Float>, pathB:Array<Float>, t:Float) {
-		var pathC = [];
-		for (i in 0 ... pathA.length) { //path lengths are assumed to be the same
-			pathC.push( pathA[i] + (t*(pathB[i] - pathA[i])) );
-		}
-		return pathC;
-	}
-	*/
 
 } //Main
-
-/*
-old versions
-typedef Figure = {
-	@:optional var name : String;
-	@:optional var src : String;
-	@:optional var path : Array<Float>;
-	@:optional var pos : Array<Float>;
-	@:optional var color : Array<Float>;
-}
-*/
-
-/*
-typedef Figure = {
-	@:optional var name : String;
-	@:optional var src : String;
-	@:optional var layers : Array<Array<Float>>;
-	@:optional var pos : Array<Float>;
-	@:optional var colors : Array<Array<Float>>;
-}
-*/
-
-/*
-typedef Figure = {
-	@:optional var name : String;
-	@:optional var src : String; //for figures that reference other figures
-	@:optional var path : Array<Float>; //for single-poly, "leaf" figures
-	@:optional var pos : Array<Float>;
-	@:optional var color : Array<Float>; //todo: need multiple colors for gradients???
-	@:optional var layers : Array<Figure>; //for multi-poly figures
-	@:optional var flipIndex : Int; //for animated figures
-}
-*/
-//todo lerp figures (recursive!!!)
-
-//Figure as Figure and Layer and Frame... can that work?
-//"anchors" could be there own layer/figures too, just ones that use "src" + a "pos" offset
