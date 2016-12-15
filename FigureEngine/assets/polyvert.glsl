@@ -18,6 +18,7 @@ uniform float u_rotation;
 //mat3 u_transform = mat3(1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0); //todo replace w/ uniform
 
 uniform mat3 u_transform;
+//uniform mat4 u_transform;
 
 varying vec2 localPos;
 
@@ -74,6 +75,6 @@ void main(void) {
 	screenPos = screenPos / u_resolution;
 
 	//final position
-	gl_Position = vec4( screenPos, 1.0,1.0 );
+	gl_Position = vec4( screenPos, 0.0,1.0 );
 
 }

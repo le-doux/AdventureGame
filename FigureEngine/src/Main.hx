@@ -72,6 +72,8 @@ class Main extends luxe.Game {
 
 	}
 
+	var testPoly : PolygonEntity;
+
 	override function ready() {
 		/*
 		var figureList = parseFigureFile( Luxe.resources.text('assets/figures.txt').asset.text );
@@ -86,6 +88,10 @@ class Main extends luxe.Game {
 		}
 
 		Renderer.ready();
+
+		testPoly = new PolygonEntity({});
+		testPoly.path = [50,50, 150,50, 150,150, 50,150];
+		testPoly.color = [1.0,0.0,0.0,1.0];
 	} //ready
 
 	override function onkeyup( e:KeyEvent ) {
@@ -98,7 +104,13 @@ class Main extends luxe.Game {
 
 	override function update(dt:Float) {
 		Renderer.addpoly( {path:[0,0, 100,0, 100,100]} );
-		Renderer.addpoly( {path:[50,50, 150,50, 150,150, 50,150],color:[1.0,0.0,0.0,1.0],/*origin:[100,100],*/pos:[200,200],rot:Math.abs(Math.PI * 2 * Math.sin(Luxe.time))} );
+
+
+		testPoly.rotation_z = Math.abs(Math.PI * 2 * Math.sin(Luxe.time*0.3));
+		testPoly.pos = new luxe.Vector( Math.cos(Luxe.time*0.3)*300, 0, 0);
+
+		//Renderer.addpoly( {path:[50,50, 150,50, 150,150, 50,150],color:[1.0,0.0,0.0,1.0],/*origin:[100,100],*/pos:[200,200]/*,rot:Math.abs(Math.PI * 2 * Math.sin(Luxe.time))*/} );
+		
 		/*
 		drawFigure( figures["tree"] );
 		drawFigure( { src:"tree", pos:[200,200] } );
@@ -130,6 +142,7 @@ class Main extends luxe.Game {
 		Renderer.onrender();
 	}
 
+	/*
 	function drawFigure(figure:Figure, ?parent:Figure) {
 		if (figure.path != null) {
 			var poly : Renderer.Polygon = {};
@@ -185,6 +198,7 @@ class Main extends luxe.Game {
 			}
 		}
 	}
+	*/
 
 	function lerpFloats(a:Null<Array<Float>>, b:Null<Array<Float>>, t:Float) : Null<Array<Float>> {
 		if (a == null && b == null) return null;
@@ -231,3 +245,25 @@ class Main extends luxe.Game {
 	}
 
 } //Main
+
+class PolygonEntity extends luxe.Entity {
+	public var color : Array<Float>;
+	public var path : Array<Float>;
+	public var rotation_z (default,set) : Float;
+
+	override function update(dt:Float) {
+		var mat4 = transform.world.matrix;
+		var mat3 = [mat4.M11, mat4.M21, mat4.M41,  mat4.M12, mat4.M22, mat4.M42,  mat4.M14, mat4.M24, mat4.M44];
+		trace(mat3);
+		Renderer.addpoly({ path:path, color:color, transform:mat3 });
+	}
+
+	public function set_rotation_z(radians:Float) : Float {
+		rotation_z = radians;
+		var rotE = new luxe.Vector(0,0,rotation_z);
+		var rotQ = new luxe.Quaternion();
+		rotQ.setFromEuler(rotE);
+		rotation = rotQ.clone();
+		return rotation_z;
+	}
+}

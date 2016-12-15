@@ -127,10 +127,13 @@ class Renderer {
 
 	static function renderpoly(poly:Polygon) {
 		//property defaults
+		/*
 		var origin = (poly.origin != null) ? poly.origin : [0.0,0.0];
 		var pos = (poly.pos != null) ? poly.pos : [0.0,0.0];
 		var scale = (poly.scale != null) ? poly.scale : [1.0,1.0];
 		var rot = (poly.rot != null) ? poly.rot : 0.0;
+		*/
+		var transform = (poly.transform != null) ? poly.transform : [1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0];
 
 		var color = (poly.color != null) ? poly.color : [1.0,1.0,1.0,1.0];
 		var path = (poly.path != null) ? poly.path : [0.0,0.0, 0.0,0.0, 0.0,0.0]; //no good default here
@@ -143,33 +146,7 @@ class Renderer {
 		GL.uniform1f(rotationUniformLocation, rot);
 		*/
 
-		// matrix test
 		/*
-		var originM = (new Mat3()).makeTranslation( -origin[0], -origin[1] );
-		var scaleM = (new Mat3()).makeScale( scale[0], scale[1] );
-		var rotateM = (new Mat3()).makeRotation( rot );
-		var posM = (new Mat3()).makeTranslation( pos[0], pos[1] );
-		var transM = originM.mult( scaleM ).mult( posM ).mult( rotateM );
-		trace(transM.elements);
-		GL.uniformMatrix3fv(transformUniformLocation, false, makeFloat32Array(transM.elements));
-		*/
-
-		//entity test 0
-		/*
-		var e = new luxe.Entity({});
-		e.pos = new luxe.Vector(0,200);
-		var rotE = new luxe.Vector(0,0,Math.PI*0.25);
-		var rotQ = new luxe.Quaternion();
-		rotQ.setFromEuler(rotE);
-		e.rotation = rotQ.clone();
-		//convert 4x4 matrix to 3x3
-		var mat4 = e.transform.world.matrix;
-		var mat3 = [mat4.M11, mat4.M12, mat4.M14,  mat4.M21, mat4.M22, mat4.M24,  mat4.M41, mat4.M42, mat4.M44];
-		trace("!!!");
-		trace(mat3);
-		GL.uniformMatrix3fv(transformUniformLocation, false, makeFloat32Array(mat3));
-		*/
-
 		//entity test 1
 		var e = new luxe.Entity({});
 		e.origin = new luxe.Vector(origin[0],origin[1]);
@@ -182,12 +159,27 @@ class Renderer {
 		//convert 4x4 matrix to 3x3
 		var mat4 = e.transform.world.matrix;
 		trace(mat4);
-		//var mat3 = [mat4.M11, mat4.M12, mat4.M14,  mat4.M21, mat4.M22, mat4.M24,  mat4.M41, mat4.M42, mat4.M44];
-		var mat3 = [mat4.M11, mat4.M21, mat4.M41,  mat4.M12, mat4.M22, mat4.M42,  mat4.M14, mat4.M24, mat4.M44];
-		//todo: log bug matrix notation is reversed in print vs access
-		trace(mat3);
-		GL.uniformMatrix3fv(transformUniformLocation, false, makeFloat32Array(mat3));
 
+		//this is the way it should be
+		var mat3 = [mat4.M11, mat4.M12, mat4.M14,  mat4.M21, mat4.M22, mat4.M24,  mat4.M41, mat4.M42, mat4.M44];
+		GL.uniformMatrix3fv(transformUniformLocation, false, makeFloat32Array(mat3));
+		*/
+		
+		//this is the reverse hacked version
+		//var mat3 = [mat4.M11, mat4.M21, mat4.M41,  mat4.M12, mat4.M22, mat4.M42,  mat4.M14, mat4.M24, mat4.M44];
+
+		//trace(mat3);
+
+		/*
+		//attempt to use mat4 directly
+		trace(mat4.elements);
+		trace(mat4.flattenToArray());
+		GL.uniformMatrix4fv(transformUniformLocation, false, mat4.float32array()); //makeFloat32Array(mat4.elements));
+		*/
+
+
+
+		GL.uniformMatrix3fv(transformUniformLocation, false, makeFloat32Array(transform));
 		//
 		GL.uniform4f(colorUniformLocation, color[0], color[1], color[2], color[3]);
 		GL.uniform1i(pathLengthUniformLocation, cast(path.length/2,Int));
@@ -212,12 +204,20 @@ class Renderer {
 	}
 }
 
+/*
 typedef Polygon = {
 	@:optional var path : Array<Float>;
 	@:optional var origin : Array<Float>;
 	@:optional var pos : Array<Float>;
 	@:optional var scale : Array<Float>;
 	@:optional var rot : Float;
+	@:optional var color : Array<Float>;
+}
+*/
+
+typedef Polygon = {
+	@:optional var path : Array<Float>;
+	@:optional var transform : Array<Float>;
 	@:optional var color : Array<Float>;
 }
 
