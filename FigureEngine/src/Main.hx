@@ -37,9 +37,26 @@ import Parser.Figure;
 
 	take stock after
 	- anchors are finished
-	- two frame morph animations are finished
+	X two frame morph animations are finished
 
 	//todo transformation matrix?
+
+
+	things I like about the new format:
+	- editable in text editor
+	- visible outside my programs
+	- 2 frame morph
+	- limitations
+	- easy to size things relative to each other
+	- can edit on phone
+	- simple layers model
+	things I don't like
+	- can't really see what things look like until you render them in the game
+	- very slow iteration / editing loop
+	- the grid feels inflexible
+	- doesn't support more complex animations
+	- no parent-child relationships among polygons
+	- can't edit on phone _very well_
 */
 
 class Main extends luxe.Game {
@@ -80,18 +97,33 @@ class Main extends luxe.Game {
 	} //onkeyup
 
 	override function update(dt:Float) {
-		/*
 		Renderer.addpoly( {path:[0,0, 100,0, 100,100]} );
-		Renderer.addpoly( {path:[50,50, 150,50, 150,150, 50,150],color:[1.0,0.0,0.0,1.0]} );
+		Renderer.addpoly( {path:[50,50, 150,50, 150,150, 50,150],color:[1.0,0.0,0.0,1.0],/*origin:[100,100],*/pos:[200,200],rot:Math.abs(Math.PI * 2 * Math.sin(Luxe.time))} );
+		/*
 		drawFigure( figures["tree"] );
 		drawFigure( { src:"tree", pos:[200,200] } );
 		drawFigure( { src:"tree", pos:[-400,200], color:[1,0,1,1] } );
 		drawFigure( figures["kid"] );
 		*/
 
+		/*
 		drawFigure( { src:"kid", morph:( 0.5 + 0.5*Math.sin(Luxe.time*4) ) } );
 		drawFigure( { src:"tree", pos:[200,200], morph:( 0.5 + 0.5*Math.sin(Luxe.time*4) ) } );
-		drawFigure( { src:"tree", pos:[-200,-200], morph:( 0.5 + 0.5*Math.sin(Luxe.time*4) ) } );
+		drawFigure( { src:"tree", pos:[-200,-200], color:[1,0,0,1], morph:( 0.5 + 0.5*Math.sin(Luxe.time*4) ) } );
+		*/
+
+		/*
+		var e = new luxe.Entity({});
+		e.pos = new luxe.Vector(0,200);
+		var rotE = new luxe.Vector(0,0,Math.PI*0.25);
+		var rotQ = new luxe.Quaternion();
+		rotQ.setFromEuler(rotE);
+		e.rotation = rotQ.clone();
+		//e.rotation = new luxe.Quaternion(0,0,1,Math.PI*0.25);
+		trace("-- entity --");
+		trace(e.transform.world.matrix);
+		trace(e.transform.local.matrix);
+		*/
 	} //update
 
 	override function onrender() {
