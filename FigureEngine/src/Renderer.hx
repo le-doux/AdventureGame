@@ -1,5 +1,6 @@
 import snow.modules.opengl.GL;
 import snow.api.buffers.Float32Array;
+import snow.api.buffers.Int32Array;
 
 class Renderer {
 	static var renderList : Array<Polygon> = [];
@@ -17,6 +18,9 @@ class Renderer {
 	static var positionUniformLocation : GLUniformLocation;
 	static var scaleUniformLocation : GLUniformLocation;
 	static var transformUniformLocation : GLUniformLocation;
+
+
+	static var testUniformLocation : GLUniformLocation;
 
 	public static function config(config:luxe.GameConfig) : luxe.GameConfig {
 		config.preload.texts.push({id:'assets/polyvert.glsl'});
@@ -74,6 +78,8 @@ class Renderer {
 		transformUniformLocation = GL.getUniformLocation(program, "u_transform");
 		trace(transformUniformLocation);
 
+		testUniformLocation = GL.getUniformLocation(program, "u_test");
+
 		//setup position attribute
 		positionAttributeLocation = GL.getAttribLocation(program, "a_position");
 		positionBuffer = GL.createBuffer();
@@ -107,6 +113,8 @@ class Renderer {
 
 		//set shared uniforms
 		GL.uniform2f(resolutionUniformLocation, Luxe.screen.w, Luxe.screen.h);
+
+		GL.uniform4iv(testUniformLocation, makeInt32Array([1,0,1,0,0,0,0,1]));
 
 		//use the position attribute with the position buffer
 		GL.enableVertexAttribArray(positionAttributeLocation);
@@ -197,6 +205,14 @@ class Renderer {
 
 	static function makeFloat32Array(arr:Array<Float>) {
 		var buf = new Float32Array(arr.length);
+		for (i in 0 ... arr.length) {
+			buf[i] = arr[i];
+		}
+		return buf;
+	}
+
+	static function makeInt32Array(arr:Array<Int>) {
+		var buf = new Int32Array(arr.length);
 		for (i in 0 ... arr.length) {
 			buf[i] = arr[i];
 		}

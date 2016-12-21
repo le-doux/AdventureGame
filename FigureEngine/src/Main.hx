@@ -6,6 +6,13 @@ import snow.api.buffers.Float32Array;
 
 import Parser.Figure;
 
+import phoenix.Shader;
+import phoenix.geometry.Geometry;
+import phoenix.geometry.Vertex;
+import phoenix.Batcher;
+import luxe.Vector;
+import luxe.Color;
+
 /*
 	TODO
 	X load figures from file
@@ -64,9 +71,15 @@ class Main extends luxe.Game {
 	var figures : Map<String,Figure> = new Map<String,Figure>();
 	var scene : Array<Figure>;
 
+	var geoTest : Geometry;
+
 	override function config(config:luxe.GameConfig) {
+		/*
 		config = Renderer.config( config );
 		config.preload.texts.push({id:'assets/figures2.txt'});
+		*/
+
+		config.preload.shaders.push({id:'polyshader',vert_id:'assets/polyvertLuxe.glsl',frag_id:'assets/polyfragLuxe.glsl'}); //,frag_id:'assets/polyfrag.glsl'});
 
 		return config;
 
@@ -75,23 +88,61 @@ class Main extends luxe.Game {
 	var testPoly : PolygonEntity;
 
 	override function ready() {
+
+		geoTest = new Geometry({
+			shader: Luxe.resources.shader('polyshader'),
+			//color: new Color(1,0,0), //why doesn't this work? //this is likely a bug
+			batcher: Luxe.renderer.batcher,
+			primitive_type: PrimitiveType.triangles
+		});
+
 		/*
-		var figureList = parseFigureFile( Luxe.resources.text('assets/figures.txt').asset.text );
-		for (f in figureList) {
-			trace(f);
-			figures[f.name] = f;
-		}
+			0.0, 0.0,
+			1.0, 1.0,
+			1.0, 0.0,
+			0.0, 0.0,
+			1.0, 1.0,
+			0.0, 1.0
 		*/
 
+		geoTest.add( new Vertex( new Vector(0,0) ) );
+		geoTest.add( new Vertex( new Vector(1,1) ) );
+		geoTest.add( new Vertex( new Vector(1,0) ) );
+		geoTest.add( new Vertex( new Vector(0,0) ) );
+		geoTest.add( new Vertex( new Vector(1,1) ) );
+		geoTest.add( new Vertex( new Vector(0,1) ) );
+
+		/*
+		geoTest.add( new Vertex( new Vector(0,0) ) );
+		geoTest.add( new Vertex( new Vector(50,50) ) );
+		geoTest.add( new Vertex( new Vector(50,0) ) );
+		geoTest.add( new Vertex( new Vector(0,0) ) );
+		geoTest.add( new Vertex( new Vector(50,50) ) );
+		geoTest.add( new Vertex( new Vector(0,50) ) );
+		*/
+
+		geoTest.color = new Color(1,0,0); //but this does?
+
+		//geoTest.shader.set_vector2( 'u_resolution', Luxe.screen.size );
+		var path : Array<Float> = [0,0, 50,0, 50,50, 25,35, 0,50];
+		trace(path.length/2);
+		geoTest.shader.set_int( 'u_pathLength', cast(path.length/2, Int) );
+		geoTest.shader.set_vector2_arr( 'u_path', makeFloat32Array(path) );
+
+		/*
 		for ( f in Parser.parseFigureFile( Luxe.resources.text('assets/figures2.txt').asset.text ) ) {
 			figures[ f.name ] = f;
 		}
 
 		Renderer.ready();
+		*/
 
+		/*
 		testPoly = new PolygonEntity({});
 		testPoly.path = [50,50, 150,50, 150,150, 50,150];
 		testPoly.color = [1.0,0.0,0.0,1.0];
+		testPoly.origin = new luxe.Vector(100,100);
+		*/
 	} //ready
 
 	override function onkeyup( e:KeyEvent ) {
@@ -103,12 +154,24 @@ class Main extends luxe.Game {
 	} //onkeyup
 
 	override function update(dt:Float) {
+
+		// shader test
+		//geoTest.shader.set
+
+
+
+		// custom renderer test
+		/*
 		Renderer.addpoly( {path:[0,0, 100,0, 100,100]} );
 
 
 		testPoly.rotation_z = Math.abs(Math.PI * 2 * Math.sin(Luxe.time*0.3));
 		testPoly.pos = new luxe.Vector( Math.cos(Luxe.time*0.3)*300, 0, 0);
+		*/
 
+
+
+		// old figure test
 		//Renderer.addpoly( {path:[50,50, 150,50, 150,150, 50,150],color:[1.0,0.0,0.0,1.0],/*origin:[100,100],*/pos:[200,200]/*,rot:Math.abs(Math.PI * 2 * Math.sin(Luxe.time))*/} );
 		
 		/*
@@ -139,7 +202,7 @@ class Main extends luxe.Game {
 	} //update
 
 	override function onrender() {
-		Renderer.onrender();
+		//Renderer.onrender();
 	}
 
 	/*
@@ -244,6 +307,22 @@ class Main extends luxe.Game {
 		};
 	}
 
+	function makeFloat32Array(arr:Array<Float>) {
+		var buf = new Float32Array(arr.length);
+		for (i in 0 ... arr.length) {
+			buf[i] = arr[i];
+		}
+		return buf;
+	}
+
+	function makePaddedFloat32Array(arr:Array<Float>) {
+		var buf = new Float32Array(32);
+		for (i in 0 ... arr.length) {
+			buf[i] = arr[i];
+		}
+		return buf;
+	}
+
 } //Main
 
 class PolygonEntity extends luxe.Entity {
@@ -253,8 +332,9 @@ class PolygonEntity extends luxe.Entity {
 
 	override function update(dt:Float) {
 		var mat4 = transform.world.matrix;
-		var mat3 = [mat4.M11, mat4.M21, mat4.M41,  mat4.M12, mat4.M22, mat4.M42,  mat4.M14, mat4.M24, mat4.M44];
-		trace(mat3);
+		//var mat3 = [mat4.M11, mat4.M21, mat4.M41,  mat4.M12, mat4.M22, mat4.M42,  mat4.M14, mat4.M24, mat4.M44];
+		var mat3 = [mat4.M11, mat4.M12, mat4.M14,  mat4.M21, mat4.M22, mat4.M24,  mat4.M41, mat4.M42, mat4.M44];
+		//trace(mat3);
 		Renderer.addpoly({ path:path, color:color, transform:mat3 });
 	}
 

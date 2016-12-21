@@ -10,13 +10,14 @@ uniform vec2 u_resolution;
 uniform vec2 u_path[32];
 uniform int u_pathLength;
 
+/*
 uniform vec2 u_origin;
 uniform vec2 u_position;
 uniform vec2 u_scale;
 uniform float u_rotation;
+*/
 
 //mat3 u_transform = mat3(1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0); //todo replace w/ uniform
-
 uniform mat3 u_transform;
 //uniform mat4 u_transform;
 
