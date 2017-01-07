@@ -139,6 +139,8 @@ class Main extends luxe.Game {
 	//flags
 	var isEditingId = false;
 	var isGuiOn = true;
+	var isPaletteVisible = false;
+	var paletteUpTimer : snow.api.Timer;
 
 	//multi-level palette experiment
 	var palOffset = 0;
@@ -234,6 +236,10 @@ class Main extends luxe.Game {
 				palOffset = 8;
 			else
 				palOffset = 0;
+
+			if (paletteUpTimer != null) paletteUpTimer.stop();
+			isPaletteVisible = true;
+			paletteUpTimer = Luxe.timer.schedule( 0.5, function() { isPaletteVisible = false; }, false );
 		}
 
 		// TODO new version of undo redo
@@ -267,6 +273,10 @@ class Main extends luxe.Game {
 		if (n != null && n > 0 && n < 9) {
 			var palIndex = (n - 1) + palOffset;
 			Editor.curPalIndex = palIndex;
+
+			if (paletteUpTimer != null) paletteUpTimer.stop();
+			isPaletteVisible = true;
+			paletteUpTimer = Luxe.timer.schedule( 1.0, function() { isPaletteVisible = false; }, false );
 		} 
 	}
 
@@ -309,6 +319,38 @@ class Main extends luxe.Game {
 
 		// DRAW ORIGIN
 		EditingTools.drawWorldOrigin( Editor.batcher.uiWorld );
+
+		//draw palette
+		if (isPaletteVisible) {
+			var cW = Luxe.screen.w / 8;
+			var cH = 50;
+			for (i in 0 ... 8) {
+				var palIndex = palOffset + i;
+				var isSelectedColor = (palIndex == Editor.curPalIndex);
+				Luxe.draw.box({
+						x: i * cW,
+						y: Luxe.screen.h - (cH * (isSelectedColor ? 1.5 : 1.0)),
+						w: cW,
+						h: (cH * (isSelectedColor ? 1.5 : 1.0)),
+						color: Palette.Colors[ palIndex ],
+						batcher: Editor.batcher.uiScreen,
+						immediate: true,
+						depth:10
+					});
+				if (isSelectedColor) {
+					Luxe.draw.rectangle({
+							x: (i * cW) + 1,
+							y: Luxe.screen.h - (cH * 1.5),
+							w: cW - 2,
+							h: (cH * 1.5),
+							color: new Color(1,1,1),
+							batcher: Editor.batcher.uiScreen,
+							immediate: true,
+							depth:11
+						});
+				}
+			}
+		}
 
 	} //update
 
