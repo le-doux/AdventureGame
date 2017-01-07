@@ -138,7 +138,9 @@ class Main extends luxe.Game {
 
 	//flags
 	var isEditingId = false;
+	var isGuiOn = true;
 
+	//multi-level palette experiment
 	var palOffset = 0;
 
 	// todo shader-rendering
@@ -235,6 +237,13 @@ class Main extends luxe.Game {
 		}
 
 		// TODO new version of undo redo
+
+		// toggle GUI
+		if (e.keycode == Key.key_h && e.mod.lalt) {
+			isGuiOn = !isGuiOn;
+			Editor.batcher.uiScreen.enabled = isGuiOn;
+			Editor.batcher.uiWorld.enabled = isGuiOn;
+		}
 	}
 
 	override function onkeyup( e:KeyEvent ) {
