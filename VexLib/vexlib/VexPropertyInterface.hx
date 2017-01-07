@@ -236,6 +236,7 @@ class VexPropertyInterface {
 		if (visual != null) {
 			if (type == "poly") {
 
+				//mesh triangulization approach
 				visual.geometry = new Geometry({
 						primitive_type: PrimitiveType.triangles,
 						batcher: batch
@@ -244,6 +245,46 @@ class VexPropertyInterface {
 				var mesh = VexTools.pathToMesh( path );
 
 				visual.geometry = VexTools.addTrianglesToGeometry( visual.geometry, mesh );
+
+
+				// todo shader-rendering
+				/*				
+				trace( Luxe.resources.shader("polyshader") );
+
+				if ( visual.geometry == null ) {
+					visual.geometry = new Geometry({
+						primitive_type: PrimitiveType.triangles,
+						batcher: batch,
+						shader: Luxe.resources.shader("polyshader")
+					});
+
+					visual.geometry.add( new Vertex( new Vector(0,0) ) );
+					visual.geometry.add( new Vertex( new Vector(1,1) ) );
+					visual.geometry.add( new Vertex( new Vector(1,0) ) );
+					visual.geometry.add( new Vertex( new Vector(0,0) ) );
+					visual.geometry.add( new Vertex( new Vector(1,1) ) );
+					visual.geometry.add( new Vertex( new Vector(0,1) ) );
+					
+					// hack test
+					// visual.geometry.add( new Vertex( new Vector(0,0) ) );
+					// visual.geometry.add( new Vertex( new Vector(100,100) ) );
+					// visual.geometry.add( new Vertex( new Vector(100,0) ) );
+					// visual.geometry.add( new Vertex( new Vector(0,0) ) );
+					// visual.geometry.add( new Vertex( new Vector(100,100) ) );
+					// visual.geometry.add( new Vertex( new Vector(0,100) ) );
+				}
+
+				var pathFloatArray = [];
+				for (v in path.toPath()) {
+					pathFloatArray.push( v.x );
+					pathFloatArray.push( v.y );
+				}
+
+				trace( pathFloatArray );
+
+				visual.geometry.shader.set_int( "u_pathLength", cast(pathFloatArray.length/2, Int) );
+				visual.geometry.shader.set_vector2_arr( "u_path", VexTools.makeFloat32Array( pathFloatArray ) ); 
+				*/
 
 			}
 			else if (type == "line") { //best name? other options: stroke, outline

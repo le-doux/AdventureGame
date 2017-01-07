@@ -81,7 +81,7 @@ class DrawState extends State {
 				drawingPath.push( drawingPath[0].clone() ); //add final point for looped line
 
 			//create and select vex
-			var vex = Vex.Create( EditingTools.setPathProperties( drawingPath, false /*isCentered*/, 
+			var vex = Vex.Create( EditingTools.setPathProperties( drawingPath, true /*isCentered*/, 
 								{
 									type: currentTool,
 									id: "poly" + count,

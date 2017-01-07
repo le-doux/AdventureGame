@@ -10,6 +10,8 @@ import luxe.utils.Maths;
 import phoenix.geometry.Geometry;
 import luxe.States;
 
+//import luxe.GameConfig; // todo shader-rendering
+
 import vexlib.Vex;
 import vexlib.Palette;
 import vexlib.VexPropertyInterface;
@@ -139,7 +141,18 @@ class Main extends luxe.Game {
 
 	var palOffset = 0;
 
+	// todo shader-rendering
+	/*
+	override function config(config:GameConfig) {
+		//todo hide in parent class
+		//todo move into vexlib somehow
+		config.preload.shaders.push({id:'polyshader',vert_id:'assets/shaders/polyvert.glsl',frag_id:'assets/shaders/polyfrag.glsl'});
+		return config;
+	}
+	*/
+
 	override function ready() {
+
 		Editor.setup();
 
 		machine = new States( {name:"editor_state_machine"} );

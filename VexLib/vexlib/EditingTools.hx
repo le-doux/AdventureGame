@@ -207,6 +207,7 @@ class EditingTools {
 		in the local space
 	*/
 	public static function setPathProperties(path:Array<Vector>, isCentered:Bool, ?properties:VexJsonFormat) : VexJsonFormat {
+
 		//find desired pos
 		var pos = new Vector(0,0);
 		if (isCentered) {
@@ -225,7 +226,25 @@ class EditingTools {
 		properties.pos = pos;
 		properties.path = path;
 
+		if (properties == null) properties = {};
+		properties.path = path;
+
 		return properties;
+
+
+
+		// todo shader-rendering
+		/*
+		var pos = new Vector(0,0);
+		if (isCentered) {
+			pos = VexTools.findCenter(path);
+		}
+		else {
+			pos = VexTools.findTopLeft(path);
+		}
+		properties.pos = pos;
+		properties.origin = pos;
+		*/
 	}
 
 	/* TODO !!!! (do this in VexTools)
@@ -599,12 +618,14 @@ class EditingTools {
 		if (e.keycode == Key.up && e.mod.meta) {
 			for (sel in multiselection) {
 				sel.properties.scale = sel.scale.add( new Vector(0.1,0.1) );
+				trace(sel.scale);
 			}
 			return true;
 		}
 		if (e.keycode == Key.down && e.mod.meta) {
 			for (sel in multiselection) {
 				sel.properties.scale = sel.scale.subtract( new Vector(0.1,0.1) );
+				trace(sel.scale);
 			}
 			return true;
 		}

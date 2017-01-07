@@ -5,7 +5,15 @@
     version : '1.0.0',
     author : 'Adam Le Doux',
 
+    app : {
+      codepaths:['./']
+    },
+
     build : {
+      flags : [
+        "-resource vexlib/shaders/polyvert.glsl@polyvert.glsl",
+        "-resource vexlib/shaders/polyfrag.glsl@polyfrag.glsl"
+      ],
       dependencies : {
         luxe : '*',
         poly2trihx : '*',

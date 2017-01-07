@@ -7,6 +7,7 @@ import luxe.Color;
 import luxe.utils.Maths;
 import phoenix.geometry.Vertex;
 import phoenix.geometry.Geometry;
+//import snow.api.buffers.Float32Array; // todo shader-rendering
 
 /*
 	Generally useful methods for manipulating parts of the vex format
@@ -440,5 +441,16 @@ class VexTools {
 	}
 
 	//TODO Vex.isPointInside 
+
+	// todo shader-rendering
+	/*
+	public static function makeFloat32Array(arr:Array<Float>) {
+		var buf = new Float32Array(arr.length);
+		for (i in 0 ... arr.length) {
+			buf[i] = arr[i];
+		}
+		return buf;
+	}
+	*/
 
 }
