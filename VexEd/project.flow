@@ -13,7 +13,10 @@
     build : {
       dependencies : {
         luxe : '*',
-        vexlib : '*'
+        vexlib : '*',
+        gif : '*',
+        gifcapture : '*',
+        luxe_gifcapture : '*'
       }
     },
 

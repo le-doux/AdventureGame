@@ -344,6 +344,10 @@ class Animation {
 	}
 
 	public function setKeyframe(keyframe:KeyframeFormat) {
+		if (keyframes == null) {
+			trace("WARNING --- keyframes not initialized");
+			return;
+		}
 		var findFrameResults = findKeyframe(keyframe.t.toFloat()); //TODO toFloat() surely not necessary?
 		if (findFrameResults.frame != null) {
 			if (keyframe.props.pos != null) findFrameResults.frame.props.pos = keyframe.props.pos;

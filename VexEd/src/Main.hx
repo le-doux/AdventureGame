@@ -10,6 +10,10 @@ import luxe.utils.Maths;
 import phoenix.geometry.Geometry;
 import luxe.States;
 
+// gif capture
+import luxe.gifcapture.LuxeGifCapture;
+import dialogs.Dialogs;
+
 //import luxe.GameConfig; // todo shader-rendering
 
 import vexlib.Vex;
@@ -23,6 +27,23 @@ import vexlib.EditingTools;
 import Command;
 
 /*
+VIGNETTE TODOs
+- auto-saving
+- animate a grouped object
+- built in gif recording
+- looping / ping-ponging animation in editor
+- reset base pose bug (2x)
+	Called from vexlib.Vex::resetToBasePose vexlib/Vex.hx line 51
+	Called from luxe.Entity::get_scale luxe/Entity.hx line 1162
+	Error : Null Object Reference
+- remember some settings (e.g. what file is open)
+- gif library sizing bug
+- what causes this? (animation? gif?)
+	2017-01-08 14:49:47.174 luxe_empty[4206:131375] IMKClient Stall detected, *please Report* your user scenario attaching a spindump (or sysdiagnose) that captures the problem - (imkxpc_presentFunctionRowItemTextInputViewWithEndpoint:reply:) block performed very slowly (1.81 secs).
+*/
+
+
+/*
 	PIGEON TODOS
 	X isPointInside bug
 	- cmd-n (new)
@@ -33,6 +54,7 @@ import Command;
 	X switch colors 0-7, 8-15
 	- change default animation speed
 	- show color palete in other modes beside draw
+	- weird resizing behavior
 */
 
 /*
@@ -155,6 +177,10 @@ class Main extends luxe.Game {
 	}
 	*/
 
+	// GIF capture
+    var capture: LuxeGifCapture;
+
+
 	override function ready() {
 
 		Editor.setup();
@@ -164,6 +190,26 @@ class Main extends luxe.Game {
 		machine.add( new EditState({name:"edit"}) );
 		machine.add( new AnimateState({name:"animate"}) );
 		machine.set("draw");
+
+		// GIF capture
+        capture = new LuxeGifCapture({
+            width: Std.int(Luxe.screen.w/4),
+            height: Std.int(Luxe.screen.h/4),
+            fps: 50, 
+            max_time: 5,
+            quality: GifQuality.Worst,
+            repeat: GifRepeat.Infinite,
+            oncomplete: function(_bytes:haxe.io.Bytes) {
+
+                var path = Dialogs.save('Save GIF');
+                if(path != '') {
+                    sys.io.File.saveBytes(path, _bytes);
+                } else {
+                    trace('No path chosen, file not saved!');
+                }
+
+            }
+        });
 	} //ready
 
 	override function onkeydown( e:KeyEvent ) {
@@ -249,6 +295,17 @@ class Main extends luxe.Game {
 			isGuiOn = !isGuiOn;
 			Editor.batcher.uiScreen.enabled = isGuiOn;
 			Editor.batcher.uiWorld.enabled = isGuiOn;
+		}
+
+		// GIF capture
+		if (e.keycode == Key.key_r && e.mod.lalt) {
+				if(capture.state == CaptureState.Paused) {
+                    capture.record();
+                    trace('recording: active');
+                } else if(capture.state == CaptureState.Recording) {
+	                trace('recording: committed');
+	                capture.commit();
+                }
 		}
 	}
 
