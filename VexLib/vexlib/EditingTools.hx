@@ -557,21 +557,28 @@ class EditingTools {
 
 	// TODO group functions return selection data, which is differnent from everything else... can I make it all match somehow?
 	// Maybe everything can return {selection,results}
-	public static function keydownGroupVex(multiselection:Array<Vex>, root:Vex, e:KeyEvent) : Array<Vex> {
+	public static function keydownGroupVex(multiselection:Array<Vex>, root:Vex, e:KeyEvent, ?id:String) {
 		//group selected elements
 		if (e.keycode == Key.key_g && e.mod.meta) {
 			if (multiselection.length > 1) {
 				var g = groupVex( multiselection );
 				//add group to scene
 				g.parent = root;
+				if (id != null) g.properties.id = id;
 
 				trace(g);
 
-				return [g];
+				return {
+					selection: [g],
+					success: true
+				};
 			}
 		}
 
-		return multiselection;
+		return {
+			selection: multiselection,
+			success: false
+		};
 
 	}
 

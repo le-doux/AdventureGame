@@ -29,9 +29,10 @@ import Command;
 /*
 VIGNETTE TODOs
 - auto-saving
-- animate a grouped object
-- built in gif recording
+X animate a grouped object
+X built in gif recording
 - looping / ping-ponging animation in editor
+- more control over animation time (less than 1 sec, more than 10 sec)
 - reset base pose bug (2x)
 	Called from vexlib.Vex::resetToBasePose vexlib/Vex.hx line 51
 	Called from luxe.Entity::get_scale luxe/Entity.hx line 1162
@@ -40,6 +41,8 @@ VIGNETTE TODOs
 - gif library sizing bug
 - what causes this? (animation? gif?)
 	2017-01-08 14:49:47.174 luxe_empty[4206:131375] IMKClient Stall detected, *please Report* your user scenario attaching a spindump (or sysdiagnose) that captures the problem - (imkxpc_presentFunctionRowItemTextInputViewWithEndpoint:reply:) block performed very slowly (1.81 secs).
+- "nameless" animation
+	- force an ordering
 */
 
 
@@ -366,7 +369,8 @@ class Main extends luxe.Game {
 		//id
 		if (Editor.selection != null) {
 			Luxe.draw.text({
-					text: "id: " + Editor.selection.properties.id,
+					//text: "id: " + Editor.selection.properties.id,
+					text: "id: " + Editor.selection.getTreeId(),
 					point_size: 16,
 					batcher: Editor.batcher.uiScreen,
 					pos: new Vector(0,20),

@@ -228,4 +228,22 @@ class Vex extends Visual {
 		}
 		return super.set_depth(_v);
 	}
+
+	// TODO create anon, path-based id
+	public function getTreeId() : String {
+		if (parent == null) return "@";
+		var index = cast( parent, Vex ).getVexChildren().indexOf( this );
+		return cast( parent, Vex ).getTreeId() + ">" + index;
+	}
+
+	public function getChildFromTreeId( treeId : String) {
+		var child = this;
+		var treeId = treeId.substring(1); // cut off "@"
+		var indicesStr = treeId.split(">");
+		for (s in indicesStr) {
+			var i = Std.parseInt( s );
+			child = child.getVexChildren()[i];
+		}
+		return child;
+	}
 }

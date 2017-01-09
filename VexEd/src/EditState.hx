@@ -6,6 +6,8 @@ import vexlib.EditingTools;
 
 class EditState extends State {
 
+	var groupCount = 0;
+
 	override function update(dt:Float) {
 		EditingTools.drawVexBounds( Editor.multiselection, Editor.batcher.uiWorld );
 	}
@@ -22,7 +24,11 @@ class EditState extends State {
 		EditingTools.keydownFillColorVex( Editor.multiselection, "pal(" + Editor.curPalIndex + ")", e );
 
 		//group selected elements
-		Editor.multiselection = EditingTools.keydownGroupVex( Editor.multiselection, Editor.scene.root, e );
+		var groupResults = EditingTools.keydownGroupVex( Editor.multiselection, Editor.scene.root, e, "group" + groupCount );
+		if (groupResults.success) { //todo make uneccessary by adding anonymouse animation
+			groupCount++;
+			Editor.multiselection = groupResults.selection;
+		}
 
 		//ungroup selected group
 		Editor.multiselection = EditingTools.keydownUngroupVex( Editor.multiselection, e ).selection;
