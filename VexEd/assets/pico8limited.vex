@@ -1,0 +1,7 @@
+{
+	"type" : "palette",
+	"id" : "pico8limited",
+	"colors" : [
+		"#000000", "#FFF1E8", "#1D2B53", "#29ADFF", "#83769C", "#FF77A8", "#FFCCAA", "#5F574F"
+	]
+}

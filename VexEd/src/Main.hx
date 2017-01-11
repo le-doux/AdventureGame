@@ -42,7 +42,20 @@ X built in gif recording
 - what causes this? (animation? gif?)
 	2017-01-08 14:49:47.174 luxe_empty[4206:131375] IMKClient Stall detected, *please Report* your user scenario attaching a spindump (or sysdiagnose) that captures the problem - (imkxpc_presentFunctionRowItemTextInputViewWithEndpoint:reply:) block performed very slowly (1.81 secs).
 - "nameless" animation
-	- force an ordering
+	- in progress: force an ordering
+- re-enable sketch mode ( **** HIGH PRIORITY **** )
+X go back to 8 color palette
+- need a plaette creation / testing tool
+- delete multiple just-drawn polygons without reselecting (stack)
+- marquee selection?
+- point in polygon-path editor
+- less crashy error handling for things like missing names, etc
+	- missing names in animations
+	- don't crash on "repeated edge points while drawing"
+- luxe cause my fan to go crazy when I leave it running for any amount of time :(
+- bug: grouped objects z-order goes to the back for some reaosn
+- test higher res gif capture
+	- high res gif capture is SUPER slow
 */
 
 
@@ -168,7 +181,7 @@ class Main extends luxe.Game {
 	var paletteUpTimer : snow.api.Timer;
 
 	//multi-level palette experiment
-	var palOffset = 0;
+	//var palOffset = 0;
 
 	// todo shader-rendering
 	/*
@@ -196,11 +209,11 @@ class Main extends luxe.Game {
 
 		// GIF capture
         capture = new LuxeGifCapture({
-            width: Std.int(Luxe.screen.w/4),
-            height: Std.int(Luxe.screen.h/4),
+            width: Std.int(Luxe.screen.w/2), //original 4
+            height: Std.int(Luxe.screen.h/2), //original 4
             fps: 50, 
-            max_time: 5,
-            quality: GifQuality.Worst,
+            max_time: 10, //original 5
+            quality: GifQuality.Mid, //original Worst
             repeat: GifRepeat.Infinite,
             oncomplete: function(_bytes:haxe.io.Bytes) {
 
@@ -279,7 +292,7 @@ class Main extends luxe.Game {
 		// copy/paste
 		EditingTools.keydownCopyPasteVex( Editor.selection, Editor.scene.root, e );
 
-		//toggle pal offset
+/*		//toggle pal offset
 		if (e.keycode == Key.key_c && e.mod.lshift) {
 			if (palOffset == 0)
 				palOffset = 8;
@@ -290,7 +303,7 @@ class Main extends luxe.Game {
 			isPaletteVisible = true;
 			paletteUpTimer = Luxe.timer.schedule( 0.5, function() { isPaletteVisible = false; }, false );
 		}
-
+*/
 		// TODO new version of undo redo
 
 		// toggle GUI
@@ -331,7 +344,8 @@ class Main extends luxe.Game {
 		//change current color
 		var n = Std.parseInt(e.text);
 		if (n != null && n > 0 && n < 9) {
-			var palIndex = (n - 1) + palOffset;
+			//var palIndex = (n - 1) + palOffset;
+			var palIndex = (n - 1);
 			Editor.curPalIndex = palIndex;
 
 			if (paletteUpTimer != null) paletteUpTimer.stop();
@@ -369,8 +383,8 @@ class Main extends luxe.Game {
 		//id
 		if (Editor.selection != null) {
 			Luxe.draw.text({
-					//text: "id: " + Editor.selection.properties.id,
-					text: "id: " + Editor.selection.getTreeId(),
+					text: "id: " + Editor.selection.properties.id,
+					//text: "id: " + Editor.selection.getTreeId(),
 					point_size: 16,
 					batcher: Editor.batcher.uiScreen,
 					pos: new Vector(0,20),
@@ -386,7 +400,8 @@ class Main extends luxe.Game {
 			var cW = Luxe.screen.w / 8;
 			var cH = 50;
 			for (i in 0 ... 8) {
-				var palIndex = palOffset + i;
+				//var palIndex = palOffset + i;
+				var palIndex = i;
 				var isSelectedColor = (palIndex == Editor.curPalIndex);
 				Luxe.draw.box({
 						x: i * cW,
