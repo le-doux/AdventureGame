@@ -16,6 +16,12 @@ class AnimateState extends State {
 	var isTranslatingSelection = false;
 	var animationPreviewDuration = 5.0;
 
+	//playback mode
+	var playbackModes = ["once", "loop", "ping pong"];
+	var playbackModeIndex = 0;
+	var isPlayingAnimation = false;
+
+
 	override function onkeydown( e:KeyEvent ) {
 		//open animation
 		//TODO overload key_o instead
@@ -38,13 +44,35 @@ class AnimateState extends State {
 			if (animationPreviewDuration < 1) animationPreviewDuration = 1;
 		}
 
+		//change playback mode
+		if (e.keycode == Key.key_l && e.mod.meta) {
+			playbackModeIndex = (playbackModeIndex + 1) % playbackModes.length;
+		}
+
 		//play animation
 		if (e.keycode == Key.key_p && e.mod.meta) {
-			Editor.scene.root.playAnimation(curAnimation.id, animationPreviewDuration)
-					.onComplete(function() {
-							trace("animation complete!");
-							Editor.scene.root.resetToBasePose();
-						});
+			if (!isPlayingAnimation) {
+				if ( playbackModeIndex == 0 ) { // once
+					Editor.scene.root.playAnimation(curAnimation.id, animationPreviewDuration)
+						.onComplete(function() {
+								trace("animation complete!");
+								Editor.scene.root.resetToBasePose();
+								isPlayingAnimation = false;
+							});
+				}
+				else if ( playbackModeIndex == 1 ) { // loop
+					Editor.scene.root.playAnimation(curAnimation.id, animationPreviewDuration).repeat();
+				}
+				else if ( playbackModeIndex == 2 ) { // ping pong
+					Editor.scene.root.playAnimation(curAnimation.id, animationPreviewDuration).reflect().repeat();
+				}
+				isPlayingAnimation = true;
+			}
+			else {
+				Editor.scene.root.stopAnimation();
+				Editor.scene.root.resetToBasePose();
+				isPlayingAnimation = false;
+			}
 		}
 
 		if (curAnimation != null) { //TODO should I ensure that curAnimation is never null?
@@ -216,6 +244,13 @@ class AnimateState extends State {
 				point_size: 16,
 				batcher: Editor.batcher.uiScreen,
 				pos: new Vector(0,40),
+				immediate: true
+			});
+		Luxe.draw.text({
+				text: "playback : " + playbackModes[ playbackModeIndex ],
+				point_size: 16,
+				batcher: Editor.batcher.uiScreen,
+				pos: new Vector(0,60),
 				immediate: true
 			});
 

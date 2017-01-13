@@ -53,6 +53,8 @@ X go back to 8 color palette
 	- missing names in animations
 	- don't crash on "repeated edge points while drawing"
 	- crashes when you don't open something if you hit ctrl-o on accident
+	- null object reference on Vex::playAnimation (animation not on object yet)
+	- opening the wrong type of file crashes
 - luxe cause my fan to go crazy when I leave it running for any amount of time :(
 - bug: grouped objects z-order goes to the back for some reaosn
 - test higher res gif capture
