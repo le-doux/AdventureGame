@@ -52,10 +52,16 @@ X go back to 8 color palette
 - less crashy error handling for things like missing names, etc
 	- missing names in animations
 	- don't crash on "repeated edge points while drawing"
+	- crashes when you don't open something if you hit ctrl-o on accident
 - luxe cause my fan to go crazy when I leave it running for any amount of time :(
 - bug: grouped objects z-order goes to the back for some reaosn
 - test higher res gif capture
 	- high res gif capture is SUPER slow
+- need a grid to see what that you're zooming out when you have nothing drawn yet
+- now it's crashing all the time while capturing GIFs... (good lord this is taking forever and slowing me down...)
+	- also slows computer to a crawl and makes app slow and crashy after it's done
+		- resetBasePos somehow causes the crash?
+- it shouldn't be easier to kill and relaunch the app than it is to start a new drawing
 */
 
 
@@ -209,11 +215,11 @@ class Main extends luxe.Game {
 
 		// GIF capture
         capture = new LuxeGifCapture({
-            width: Std.int(Luxe.screen.w/2), //original 4
-            height: Std.int(Luxe.screen.h/2), //original 4
+            width: Std.int(Luxe.screen.w/4), //original 4
+            height: Std.int(Luxe.screen.h/4), //original 4
             fps: 50, 
-            max_time: 10, //original 5
-            quality: GifQuality.Mid, //original Worst
+            max_time: 5, //original 5
+            quality: GifQuality.Worst, //original Worst
             repeat: GifRepeat.Infinite,
             oncomplete: function(_bytes:haxe.io.Bytes) {
 
