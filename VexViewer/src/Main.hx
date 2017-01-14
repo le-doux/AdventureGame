@@ -9,6 +9,7 @@ import phoenix.Batcher;
 import luxe.resource.Resource.JSONResource;
 
 class Main extends luxe.Game {
+	/*
 	var palettes = [
 		{
 			src: "default_pal.vex",
@@ -19,7 +20,23 @@ class Main extends luxe.Game {
 			name: "alt"
 		}
 	];
+	*/
+	var palettes = [
+		{
+			src: "bluescale.vex",
+			name: "bluescale"
+		},
+		{
+			src: "greenscale.vex",
+			name: "greenscale"
+		},
+		{
+			src: "pico8limited.vex",
+			name: "pico8limited"
+		}
+	];
 
+	/*
 	var images = [ 
 		{
 			src: "shroom.vex",
@@ -53,6 +70,93 @@ class Main extends luxe.Game {
 					src: "guy_surprise.vex",
 					name: "surprise",
 					time: 0.5,
+					wait: 0.5
+				}
+			]
+		}
+	];
+	*/
+	var images = [ 
+		{
+			src: "kid3_withBreath.vex",
+			pos: new Vector(0,0),
+			bgIndex: 0,
+			animations: [
+				{
+					src: "kid_shiver_anim_withBreath.vex",
+					name: "shiver",
+					time: 3.0,
+					wait: 0.5
+				}
+			]
+		},
+		{
+			src: "kid_ponytail5.vex",
+			pos: new Vector(0,100),
+			bgIndex: 0,
+			animations: [
+				{
+					src: "kid_ponytail_idle1.vex",
+					name: "ponytail_idle",
+					time: 2.0,
+					wait: 0.5
+				}
+			]
+		},
+		{
+			src: "kidsitting1.vex",
+			pos: new Vector(0,100),
+			bgIndex: 1,
+			animations: [
+				{
+					src: "kidsitting_bored_anim.vex",
+					name: "bored",
+					time: 3.0,
+					wait: 0.5
+				}
+			]
+		},
+		{
+			src: "kid_lunch_2.vex",
+			pos: new Vector(0,100),
+			bgIndex: 0,
+			animations: [
+				{
+					src: "kid_lunch_neutral_anim.vex",
+					name: "lunch_idle",
+					time: 3.0,
+					wait: 0.5
+				}
+			]
+		},
+		{
+			src: "player_winter_4.vex",
+			pos: new Vector(0,100),
+			bgIndex: 0,
+			animations: [
+				{
+					src: "player_winter_idle_anim0.vex",
+					name: "idle",
+					time: 2.0,
+					wait: 0.5
+				},
+				{
+					src: "player_winter_walk_anim1.vex",
+					name: "walk",
+					time: 2.0,
+					wait: 0.5
+				}
+			]
+		},
+		{
+			src: "busdriver4.vex",
+			pos: new Vector(0,200),
+			bgIndex: 6,
+			animations: [
+				{
+					src: "busdriver_ohboy_anim2.vex",
+					name: "ohboy",
+					time: 3.0,
 					wait: 0.5
 				}
 			]
@@ -153,7 +257,7 @@ class Main extends luxe.Game {
 
 	override function onmousewheel(e:MouseEvent) {
 		/* ZOOMING */
-		Luxe.camera.zoom += e.yrel * 0.03 * Luxe.camera.zoom;
+		Luxe.camera.zoom += e.y_rel * 0.03 * Luxe.camera.zoom;
 	}
 
 	function loadPalettes() {
@@ -166,7 +270,7 @@ class Main extends luxe.Game {
 					Palette.Load(json, name);
 					if (i == 0) {
 						Palette.Init(name);
-						Luxe.renderer.clear_color = Palette.Colors[2];
+						Luxe.renderer.clear_color = Palette.Colors[0];
 					}
 				});
 		}
@@ -186,8 +290,9 @@ class Main extends luxe.Game {
 					root.stopAnimation();
 					root.destroy();
 				}
-				root = new Vex(json);
+				root = Vex.Create( json ); //new Vex(json);
 				root.pos = img.pos;
+				Luxe.renderer.clear_color = Palette.Colors[ img.bgIndex ];
 				curAnim = 0;
 
 				for (i in 0 ... img.animations.length) {
@@ -201,6 +306,7 @@ class Main extends luxe.Game {
 							if (i == 0) root.playAnimation(anim.name, anim.time).delay(anim.wait).repeat();
 						});
 				}
+
 			});
 		
 	}

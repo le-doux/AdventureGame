@@ -13,6 +13,14 @@ class EditState extends State {
 	}
 
 	override function onkeydown(e:KeyEvent) {
+		// open/save
+		var open = EditingTools.keydownOpenVex( Editor.scene.root, e );
+		if (open.success) {
+			Editor.scene.root = open.root;
+			Editor.selection = null;
+		}
+		EditingTools.keydownSaveVex( Editor.scene.root, e );
+
 		//z order
 		EditingTools.keydownChangeDepthVex( Editor.multiselection, e );
 

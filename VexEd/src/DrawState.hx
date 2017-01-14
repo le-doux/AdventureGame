@@ -46,6 +46,14 @@ class DrawState extends State {
 	}
 
 	override function onkeydown(e:KeyEvent) {
+		// open/save
+		var open = EditingTools.keydownOpenVex( Editor.scene.root, e );
+		if (open.success) {
+			Editor.scene.root = open.root;
+			Editor.selection = null;
+		}
+		EditingTools.keydownSaveVex( Editor.scene.root, e );
+
 		//delete selected element
 		Editor.multiselection = EditingTools.keydownDeleteVex( Editor.multiselection, e ).selection;
 

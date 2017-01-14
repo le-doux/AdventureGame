@@ -1,0 +1,103 @@
+{
+	"tracks": [
+		{
+			"select": "group0",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"scale": "1,1",
+						"pos": "-0.254918498838014,-170.295290054746"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "rpony",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-135"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "lpony",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "25"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "poly16",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-5"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "poly17",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "5"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "poly13",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"pos": "20.1468268480549,-29.6007580345609"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "poly8",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"scale": "1,1",
+						"pos": "60.7351617364282,66.3599548509909"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "group1",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"pos": "-2.62505849358021,-78.4714389570413"
+					},
+					"t": "1"
+				}
+			]
+		}
+	],
+	"id": "newAnimation"
+}

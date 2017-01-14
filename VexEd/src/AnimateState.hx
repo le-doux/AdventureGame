@@ -70,7 +70,7 @@ class AnimateState extends State {
 			}
 			else {
 				Editor.scene.root.stopAnimation();
-				Editor.scene.root.resetToBasePose();
+				//Editor.scene.root.resetToBasePose(); // prob not necessary (test?)
 				isPlayingAnimation = false;
 			}
 		}

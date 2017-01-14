@@ -55,6 +55,7 @@ X go back to 8 color palette
 	- crashes when you don't open something if you hit ctrl-o on accident
 	- null object reference on Vex::playAnimation (animation not on object yet)
 	- opening the wrong type of file crashes
+	- crash in deserialize when opening an animation (could it be because of you need the animation to be compiled in??)
 - luxe cause my fan to go crazy when I leave it running for any amount of time :(
 - bug: grouped objects z-order goes to the back for some reaosn
 - test higher res gif capture
@@ -64,6 +65,17 @@ X go back to 8 color palette
 	- also slows computer to a crawl and makes app slow and crashy after it's done
 		- resetBasePos somehow causes the crash?
 - it shouldn't be easier to kill and relaunch the app than it is to start a new drawing
+- aliasing in animation is a pain - copied objects should get new names
+- for some reason a non-existant object got added to my animation...
+- make level editor a mode in VexEd
+- update poly count on loading old vex to try to avoid name collisions
+- pick animation curve in animation preview mode
+- save animation settings from animation preview mode in model
+- create level editor state
+- visualize commands for each hotkey in each mode
+- GUI?
+- move states into Lib?
+- find a good macOS GIF tool
 */
 
 
@@ -73,11 +85,11 @@ X go back to 8 color palette
 	- cmd-n (new)
 	- cmd-a (select all)
 	- auto save work so far
-	- need animation without naming everything in local storage
+	X need animation without naming everything in local storage
 	X need to fix sub-selction in groups
 	X switch colors 0-7, 8-15
-	- change default animation speed
-	- show color palete in other modes beside draw
+	X change default animation speed
+	X show color palete in other modes beside draw
 	- weird resizing behavior
 */
 
@@ -179,7 +191,7 @@ class Main extends luxe.Game {
 
 	//states
 	var machine : States;
-	var states = ["draw","edit","animate"];
+	var states = ["draw","edit","animate","stage"];
 	var stateIndex = 0;
 
 	//flags
@@ -213,6 +225,7 @@ class Main extends luxe.Game {
 		machine.add( new DrawState({name:"draw"}) );
 		machine.add( new EditState({name:"edit"}) );
 		machine.add( new AnimateState({name:"animate"}) );
+		machine.add( new StageState({name:"stage"}));
 		machine.set("draw");
 
 		// GIF capture
@@ -277,6 +290,7 @@ class Main extends luxe.Game {
 			Palette.SwapNext(1);
 		}
 
+		/*
 		// open/save
 		var open = EditingTools.keydownOpenVex( Editor.scene.root, e );
 		if (open.success) {
@@ -284,6 +298,7 @@ class Main extends luxe.Game {
 			Editor.selection = null;
 		}
 		EditingTools.keydownSaveVex( Editor.scene.root, e );
+		*/
 
 		//import ref
 		var reference = EditingTools.keydownImportVexReference( Editor.scene.root, e );

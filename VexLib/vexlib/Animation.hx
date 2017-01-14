@@ -200,15 +200,22 @@ class Animation {
 		if (json.select != null) select = json.select;
 
 		if (select != null) {
+			trace("search for vex!!");
 			vex = root.find(select)[0];
 		}
 		else {
+			trace("vex is root!");
 			vex = root;
 		}
 
 		trace("new anim!!!");
-		trace(root.properties.id);
-		trace(vex.properties.id);
+		//trace(root.properties.id);
+		//trace(vex.properties.id); //commented out because it was causing crashes. todo: why???
+
+		if (vex == null) {
+			trace("VEX IS NULL");
+			trace(select);
+		}
 		
 		if (json.type != null) type = json.type;
 		if (json.id != null) id = json.id;

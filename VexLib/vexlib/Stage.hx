@@ -35,7 +35,7 @@ class Stage {
 		}
 		else {
 			//empty stage
-			scenery = new Vex({
+			scenery = Vex.Create({
 					type: "group",
 					origin: "0,0",
 					pos: "0,0"
@@ -62,7 +62,7 @@ class Stage {
 		trace("STAAAAGE BG");
 
 		if (json.scenery != null) {
-			scenery = new Vex(json.scenery);
+			scenery = Vex.Create( json.scenery );
 		}
 	}
 
