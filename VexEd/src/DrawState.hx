@@ -54,6 +54,17 @@ class DrawState extends State {
 		}
 		EditingTools.keydownSaveVex( Editor.scene.root, e );
 
+		// new clears the current drawing
+		// TODO move into VexTools
+		if (e.keycode == Key.key_n && e.mod.meta) {
+			Editor.scene.root.destroy();
+			Editor.scene.root = Vex.Create({
+				type: "group",
+				origin: "0,0",
+				pos: "0,0"
+			});
+		}
+
 		//delete selected element
 		Editor.multiselection = EditingTools.keydownDeleteVex( Editor.multiselection, e ).selection;
 

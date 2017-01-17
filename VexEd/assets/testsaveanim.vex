@@ -1,0 +1,23 @@
+{
+	"tracks": [
+		{
+			"select": "poly4",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "40"
+					},
+					"t": "0.498697916666667"
+				},
+				{
+					"props": {
+						"pos": "176.75,-174.5"
+					},
+					"t": "1"
+				}
+			]
+		}
+	],
+	"id": "newAnimation"
+}

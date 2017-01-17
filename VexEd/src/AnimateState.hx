@@ -24,8 +24,7 @@ class AnimateState extends State {
 
 	override function onkeydown( e:KeyEvent ) {
 		//open animation
-		//TODO overload key_o instead
-		if (e.keycode == Key.key_a && e.mod.meta) {
+		if (e.keycode == Key.key_o && e.mod.meta) {
 			//load file
 			curAnimation = Editor.scene.root.addAnimation( EditingTools.openJson() );
 		}
@@ -77,8 +76,8 @@ class AnimateState extends State {
 
 		if (curAnimation != null) { //TODO should I ensure that curAnimation is never null?
 
-			//export animation //TODO overload cmd+s
-			if (e.keycode == Key.key_e && e.mod.meta) {
+			//export animation
+			if (e.keycode == Key.key_s && e.mod.meta) {
 				var json = curAnimation.serialize();
 				EditingTools.saveJson( json );
 			}
