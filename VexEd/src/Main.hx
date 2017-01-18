@@ -75,7 +75,33 @@ X go back to 8 color palette
 - visualize commands for each hotkey in each mode
 - GUI?
 - move states into Lib?
-- find a good macOS GIF tool
+X find a good macOS GIF tool
+- how do I make holes in polygons for windows and things?
+- double save dialog bug
+- save dialogs with mode name
+- add dialog in editor
+- exits in editor
+- animation modes: attached, time, default, playback-mode, loop
+- play mode in editor
+- ?crazy idea: "stretchable" environments (terrain?)
+	- another solution: "tiled" screens
+- problem with depth in grouped vex
+- need to copy "player" for new prototype
+- need to decide on some palette stuff
+- is it just me or are these tools not structured enough?
+- experiment with software rendering of polygons
+- need to be able to move things around in stage edit mode
+- still need a better idea of what fits on a screen
+	- non enlarging border
+	- viewable in every mode
+- what about terrain? should it be part of the level editor?
+- how do we handle talking to people who are near each other?
+- I need a better way to reuse drawn components from scene to scene
+- I need a better way to work with multiple scenes from the same editor
+- maybe something more constrained but more amenable to computational manipulation would be good?
+	- would like to be able to select the snow and have it do things with the vertices
+- looks pretty decent but everything is pretty labor intensive...
+- ad hoc animation in the level editor itself would be nice
 */
 
 
