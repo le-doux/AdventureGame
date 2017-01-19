@@ -1,13 +1,13 @@
 {
 
   project : {
-    name : 'vexplay',
+    name : 'vignette0',
     version : '1.0.0',
-    author : 'luxeengine',
+    author : 'ledoux',
 
     app : {
-      name : 'vexplay',
-      package : 'org.luxeengine.vexplay'
+      name : 'vignette0',
+      package : 'org.ledoux.vignette0'
     },
 
     build : {

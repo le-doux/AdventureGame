@@ -32,6 +32,11 @@ VIGNETTE NEXT UP
 - load levels in player
 - exits and dialog
 - default animation(s)
+- add background setting to stage editor mode
+
+- maybe I need some kind of built in "layers" concept (background, foreground, player, etc)
+- need to know the size of "screen" in the editor
+	- or need a way to set default camera zoom?
 
 VIGNETTE TODOs
 - auto-saving

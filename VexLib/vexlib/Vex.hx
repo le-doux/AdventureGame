@@ -221,10 +221,10 @@ class Vex extends Visual {
 		return animations.get(name);
 	}
 
-	//probably hacky and dumb -- please revisit later you doofus
+	// ok, still hacky - but at least now it just sets the minimum depth...
 	override function set_depth(_v:Float) {
 		for (c in getVexChildren()) {
-			c.depth = _v;
+			c.depth = _v + c.depth;
 		}
 		return super.set_depth(_v);
 	}

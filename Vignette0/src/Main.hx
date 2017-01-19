@@ -17,141 +17,32 @@ import vexlib.VexPropertyInterface;
 import vexlib.Stage;
 import vexlib.Font;
 
+import luxe.GameConfig;
+
 /*
-	Next set of priorities
-	- make a game with the tools I have
-		- ideas
-		- script?
-		- make
-		- release it?
-	- refactor the existing code base (functionalize it)
-		- extract functions from
-			x VexPropertyInterface
-			X Vex
-			- drawing app
-			- stage creation app
-			- game
-			- other apps? other classes?
-		- rename: Vex, VexPropertyInterface, vexlib others?
-			- "*Format" -> "*Properties"
-		- rethink animation format (skeletons? pins?)
-		- globals for Game, Editor
-		- editor as collection of modes/states that act on root Vex
-		- remove some dependencies from non-vexlib projects
-		- centralized source for multiple cameras, batchers, setting them up
-		- simplify or remove "commands" from editor (re-do undo stack)
-		- parse, serialize in VexTools
-		- move more Vex logic into VexPropertyInterface (keep Vex as simple as possible)
-	- catalog todos and reorganize them
-	- improve my editing tools based on my experience making tiny game
 
-
-	//TODO buy a new iphone charging cord (I guess I do have one in the car)
-
-	What next?
-	- options:
-		- graphics glitches
-		- responsive-ness of touch controls
-		- improving usability of tools
-		* make a tiny game
-			- requires: exits, ?dialog, ?choices
-			- need a script too
-		X test on phone
-		- big refactor of code-base
-		X exits
-		 X in play mode
-		 X in editor
-
-	THINGS I WANT
-	- phone app for vector editing (dropbox hookup?)
-	- copy/pasting with real clipboard
-	- reduce reliance on grouping
-		- skeletons?
-		- make grouping better?
-	- bring in bezier curve & "noodle" limb experiments
-	- JSON pretty-printing for vex
-
-	TODO
-	X dialog boxes
-	X pull tabs
-	X helper size boxes in level editor
-	- scale in level editor
-	- parallax in level editor
-	- drawing in level editor
-	- clipboard support in editors
-	- pull out a bunch of generic editor code into the lib
-	X move path code into stage class
-	X background color in stage class
-	- move description code out of main
-		- this is a harder problem than it looks
-	X figure out world-space to UI-space transformation
-		X ideal-screen-space to screen-space
-	X bouncy arrows
-	- stop immediate interaction with on-screen objects after leaving a dialog box
-	- make transition between bouncy-arrow and player-swiped-arrow smoother
-	- try everything on mobile
-	- maybe think about: pull camera up when entering dialog box mode
-		- think about: what's a good way to handle targeted camera positions and character positions in dialog mode
-	- exits
-		- are exits components?
-		- are they attached to vex? or the scene?
-		- what about left/right edge exits?
-		- do we distinguish between up exits and down exits? (don't currently with dialog)
-		- in general, how do we handle attached-to-level vs attached-to-vex and what is the relationship between the two modes?
-			- need: generic pull-tab class, overall pull-tab handler in the game
-				- tabs have an ?orientation, and position, and ?priority
-				- only one can be drawn at a time (the game is responsible for doint that)
-				- on pull, various things can be activated
-					- components seem like a good way to specify this
-					- what is a good way to have components all pile on the same pulltab?
-					- need a callback function blah blah
-				- this way, whatever editor/viewer it is can decide how / how-not to render the pull tabs (level editor vs level player)
-	- readabilty of next arrows
-	- trigger animations and other things on dialog / pull tab pull (generic pull tab thing?)
-		- animation registration component
-	- reconsider text update speed
-	- camera that tracks interactables in the scene?
-	- what's the actual framerate on the text?
-	- movement still feels unresponsive, especially on tablet
-	- lots of flickering going when animations are triggered
-
-	TODO
-	X re-implement ability for sudden stop
-	- ? return coasting to universal joystick (haha oh boy, but it might simplify some things) [maybe later]
-	- make y-axis pulling crisper somehow
-	X make y-axis "lock" zone smaller than x-axis (probably except for when an interactive thing is there)
-		- do I need to make swipe motions relative to the angle of the terrain?
-
-	BACKLOG
-	- walking particles
-	- test different max swiping speeds
-	- handle conflicting input types
-	- can we constrain the window size?
-	- animation queue? (this sort of works now but could be _much_ more robust / better designed)
-	- stateful player redesign
-	- EDITOR: hard to delete animation keyframes
-		- more animation stuff
-		- blending
-		- composite-ing of multiple animations at once
-	- TODOs consolidate into one file?
-	- make this code not ugly anymore
-	- figure out a more reliable way to load assets
-	- better way to handle vex depth and internal, relative depth
-
-	BUGS
-	- flashing avatar at start of swipe action (what's the cause?)
-	- flicker when switching from between animations (hello, stop)
-	- BUG loading ref objects has a race condition?
-
+TODO VIGNETTE 0
+X load scene
+X load player
+X move player
+X fix zoom level
+- fix jitter bug
+X fix z-order bug(s)
+	X player behind stuff
+	X re-ordering player messes up player order...
+- improve color palette
+	X background
+	- everything else
+- animate player
+X preload assets
 */
 
 class Settings {
-	public static var IDEAL_SCREEN_SIZE_W : Float = 800;
-	public static var IDEAL_SCREEN_SIZE_H : Float = 450;
-	/*
+	// public static var IDEAL_SCREEN_SIZE_W : Float = 800;
+	// public static var IDEAL_SCREEN_SIZE_H : Float = 450;	
 	public static var IDEAL_SCREEN_SIZE_W : Float = 1600;
 	public static var IDEAL_SCREEN_SIZE_H : Float = 900;
-	*/
+	
 
 	public static function IdealScreenSize() : Vector {
 		return new Vector(IDEAL_SCREEN_SIZE_W, IDEAL_SCREEN_SIZE_H);
@@ -201,11 +92,11 @@ class Globals {
 
 class Main extends luxe.Game {
 	/* PALETTE */
-	//public var paletteSrc = "assets/testpal2.vex";
-	public var paletteSrc = "assets/testpal.vex";
+	public var paletteSrc = "assets/bluescale.vex";
 
 	/* PLAYER */
-	public var playerSrc = "assets/girl.vex";
+	//public var playerSrc = "assets/girl.vex";
+	public var playerSrc = "assets/player_winter_4.vex";
 	public var player : Vex;
 	public var playerProps = {
 		//stagePos : 300.0,
@@ -229,7 +120,7 @@ class Main extends luxe.Game {
 	var maxScrollSpeed = Settings.IDEAL_SCREEN_SIZE_W * 2.0;
 
 	/* STAGE */
-	public var stageSrc = "assets/stage2.vex";
+	public var stageSrc = "assets/bus_out_stage1.vex";
 	public var stage : Stage;
 
 	/* CAMERA */
@@ -319,6 +210,21 @@ class Main extends luxe.Game {
 		y:0
 	};
 
+	override function config(config:GameConfig) {
+		config.window.title = 'vignette 0';
+		config.window.width = cast( Settings.IDEAL_SCREEN_SIZE_W, Int );
+		config.window.height = cast( Settings.IDEAL_SCREEN_SIZE_H, Int );
+		config.window.fullscreen = false;
+
+		config.preload.jsons.push({ id: stageSrc });
+		config.preload.jsons.push({ id: playerSrc });
+		config.preload.jsons.push({ id: paletteSrc });
+		config.preload.jsons.push({ id: fontSrc });
+
+		return config;
+
+	} //config
+
 	override function ready() {
 
 		Luxe.fixed_timestep = false;
@@ -336,12 +242,8 @@ class Main extends luxe.Game {
 
 		/* PALETTE */
 		Palette.StartBlank(); //rename
-		var loadPalette = Luxe.resources.load_json( paletteSrc );
-		loadPalette.then(function(jsonRes : JSONResource) {
-			var json = jsonRes.asset.json;
-			Palette.Load(json);
-			Palette.Swap("test");
-		});
+		Palette.Load( Luxe.resources.json( paletteSrc ).asset.json );
+		Palette.Swap("bluescale");
 
 		/* PARALLAX */
 		bg1_cam = new Camera({name:"bg1_cam"});
@@ -359,152 +261,15 @@ class Main extends luxe.Game {
 		fg2_cam.size_mode = luxe.Camera.SizeMode.fit;
 		fg2_batch = Luxe.renderer.create_batcher({name:"fg2_batch", layer:10, camera:fg2_cam.view});
 
-		//foreground test
-		/*
-		Luxe.draw.box({
-				x : 1500, y : -2000,
-				w : 100, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-		Luxe.draw.box({
-				x : 1800, y : -2000,
-				w : 50, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-		Luxe.draw.box({
-				x : 2400, y : -2000,
-				w : 100, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-		Luxe.draw.box({
-				x : 3000, y : -2000,
-				w : 120, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-		*/
-		Luxe.draw.box({
-				x : 3500, y : -2000,
-				w : 50, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-		Luxe.draw.box({
-				x : 3800, y : -2000,
-				w : 150, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-		Luxe.draw.box({
-				x : 4400, y : -2000,
-				w : 60, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-		Luxe.draw.box({
-				x : 5000, y : -2000,
-				w : 100, h : 4000,
-				color : Palette.Colors[6],
-				batcher : fg2_batch
-			});
-
 		/* PLAYER */
-		var loadPlayer = Luxe.resources.load_json( playerSrc );
-		loadPlayer.then(function(jsonRes : JSONResource) {
-			var json = jsonRes.asset.json;
-			player = new Vex(json);
-			player.properties.scale = new Vector(0.3,0.3);
-			
-			var loadPlayerAnim = Luxe.resources.load_json( "assets/walkanim0.vex" );
-			loadPlayerAnim.then(function(jsonRes : JSONResource) {
-				var json = jsonRes.asset.json;
-				player.addAnimation(json);
-			});
-
-			//todo learn to use parcels to load these in bulk?
-			var loadPlayerAnim2 = Luxe.resources.load_json( "assets/waitanim1_half.vex" );
-			loadPlayerAnim2.then(function(jsonRes : JSONResource) {
-				var json = jsonRes.asset.json;
-				player.addAnimation(json);
-				playerProps.isWaiting = true;
-				player.playAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
-			});
-			
-			var loadPlayerAnim3 = Luxe.resources.load_json( "assets/stopanim2.vex" );
-			loadPlayerAnim3.then(function(jsonRes : JSONResource) {
-				var json = jsonRes.asset.json;
-				player.addAnimation(json);
-			});
-
-			var loadPlayerAnim4 = Luxe.resources.load_json( "assets/boredanim1.vex" );
-			loadPlayerAnim4.then(function(jsonRes : JSONResource) {
-				var json = jsonRes.asset.json;
-				player.addAnimation(json);
-			});
-
-			var loadPlayerAnim5 = Luxe.resources.load_json( "assets/helloanim2.vex" );
-			loadPlayerAnim5.then(function(jsonRes : JSONResource) {
-				var json = jsonRes.asset.json;
-				player.addAnimation(json);
-			});
-
-
-			//todo this is here because Description and Exit will throw a fit if it's not
-			//I need a better non-nested way to do this? a second "ready" function?
-			Description.player = player;
-			Exit.player = player;
-
-			//this nesting is bullshit --- isn't there some kind of package thing in luxe?
-			/* NEW STAGE */
-			trace(stageSrc);
-			var loadStage = Luxe.resources.load_json( stageSrc );
-			loadStage.then(function(jsonRes : JSONResource) {
-				trace("%%%%%%%%%%%%%%%%%%");
-				trace("stage loaded!");
-				var json : StageFormat = jsonRes.asset.json;
-				stage = new Stage(json);
-				Luxe.renderer.clear_color = stage.background; //Palette.Colors[0]; //hack
-				trace("stage loaded!");
-			});
-
-		});
+		player = Vex.Create( Luxe.resources.json( playerSrc ).asset.json );
+		player.depth = 100;
+		Description.player = player;
+		Exit.player = player;
 
 		/* STAGE */
-		/*
-		var loadStage = Luxe.resources.load_json( stageSrc );
-		loadStage.then(function(jsonRes : JSONResource) {
-			var json : StageFormat = jsonRes.asset.json;
-			Luxe.renderer.clear_color = json.background;
-			path = json.path;
-
-			var setSrc : String = json.set;
-
-			var loadSet = Luxe.resources.load_json( setSrc );
-			loadSet.then(function(jsonRes : JSONResource) {
-				var json = jsonRes.asset.json;
-				set = new Vex(json);
-				//set.depth = 0; //TODO this IS broken...
-
-				// PARALLAX //yo this is pretty hacky and doesn't handle children
-				var bg1 = set.find("bg1")[0];
-				Luxe.renderer.batcher.remove(bg1.geometry);
-				bg1_batch.add(bg1.geometry);
-
-				var bg2 = set.find("bg2")[0];
-				Luxe.renderer.batcher.remove(bg2.geometry);
-				bg2_batch.add(bg2.geometry);
-
-				
-				//var fg2 = set.find("fg2")[0];
-				//Luxe.renderer.batcher.remove(fg2.geometry);
-				//fg2_batch.add(fg2.geometry);
-				
-			});
-		});
-		*/
+		stage = new Stage( Luxe.resources.json( stageSrc ).asset.json );
+		Luxe.renderer.clear_color = stage.background;
 
 		/* UI BATCHER */
 		uiCam = new Camera({name:"uiCam"});
@@ -522,13 +287,7 @@ class Main extends luxe.Game {
 
 		/* DIALOG BOX*/
 		//load the system font (aka the default font I made)
-		var loadFont = Luxe.resources.load_json( fontSrc );
-		loadFont.then(function(jsonRes : JSONResource) {
-			var json = jsonRes.asset.json;
-			font = new Font(json);
-			trace("font loaded! " + font.id);
-			//isWaiting = true;
-		});
+		font = new Font( Luxe.resources.json( fontSrc ).asset.json );
 		textBoxWidth = (charWidth * charactersPerLine) + (textBoxPadX*2);
 		textBoxHeight = (charHeight * linesPerPage) + (textBoxPadY*2);
 		textBoxX = (Settings.IDEAL_SCREEN_SIZE_W - textBoxWidth)/2; // = 70
@@ -804,16 +563,16 @@ class Main extends luxe.Game {
 			else if ( !playerProps.isWaiting && (absSpeed == 0 || playerIsMovingBlockedDirection()) ) {
 				trace("play wait anim!");
 				playerProps.isWaiting = true;
-				player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
+				//player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
 				waitCounter = 0; //counter to trakc when to play boredom animation (kick foot)
 			}
 			//walk animation
 			if (absSpeed > 0 && !playerIsMovingBlockedDirection()) {
 				var maxPlayerSpeedPercent = absSpeed / maxScrollSpeed;
 				var walkAnimSpeed = 0.5 + ( 1.0 * maxPlayerSpeedPercent );
-				var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
-				if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
-				player.getAnimation("walk").t = nextWalkT;				
+				// var nextWalkT = player.getAnimation("walk").t + ( walkAnimSpeed * dt );
+				// if (nextWalkT > 1.0) nextWalkT = 0; //there's a better smoother way to loop this than a hard cut off, but I'm too lazy
+				// player.getAnimation("walk").t = nextWalkT;				
 			}
 
 			if (playerProps.isWaiting) {
@@ -823,7 +582,7 @@ class Main extends luxe.Game {
 				var animWaitTime = 10;
 				if (waitCounter > animWaitTime) {
 					//HACK this animation takes advantage of accidentally being able to composite animations --- formalize this somehow?
-					player.playAnimation("bored", animTime).ease(luxe.tween.easing.Quad.easeInOut);
+					//player.playAnimation("bored", animTime).ease(luxe.tween.easing.Quad.easeInOut);
 
 					//below line is necessary if not using compositing hack (but I am --- keeping this as a note)
 					//player.queueAnimation("wait", 1.0).ease(luxe.tween.easing.Quad.easeInOut).reflect().repeat();
@@ -892,7 +651,7 @@ class Main extends luxe.Game {
 					player.resetToBasePose(); //this might overwrite things too often
 					player.scale.x = oldFacingScaleX; //hack
 
-					player.playAnimation("stop", animTime);
+					//player.playAnimation("stop", animTime);
 				}
 			}
 
@@ -1081,8 +840,8 @@ class Main extends luxe.Game {
 			var tweenNextChar = null;
 			if (font.exists(nextChar)) { //skip undefined characters
 				var json = font.get(nextChar);
-				json.batcher = uiScreenBatcher; //hacky way to force characters to draw on the ui layer
-				var v = new Vex(json); //TODO define font.getVex
+				//json.batcher = uiScreenBatcher; //hacky way to force characters to draw on the ui layer
+				var v = Vex.Create(json, { batcher:uiScreenBatcher } ); //TODO define font.getVex
 				//scale character
 				v.scale.x = charWidthScale;
 				v.scale.y = charHeightScale;
