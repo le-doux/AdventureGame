@@ -1,0 +1,29 @@
+{
+	"tracks": [
+		{
+			"select": "torso",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "25"
+					},
+					"t": "0.522135416666667"
+				},
+				{
+					"props": {
+						"rot": "-5"
+					},
+					"t": "0.776041666666667"
+				},
+				{
+					"props": {
+						"rot": "0"
+					},
+					"t": "1"
+				}
+			]
+		}
+	],
+	"id": "newAnimation"
+}

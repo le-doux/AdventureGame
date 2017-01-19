@@ -1,0 +1,26 @@
+{
+
+  project : {
+    name : 'vexplay',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'vexplay',
+      package : 'org.luxeengine.vexplay'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        vexlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

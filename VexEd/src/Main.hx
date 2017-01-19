@@ -27,6 +27,12 @@ import vexlib.EditingTools;
 import Command;
 
 /*
+VIGNETTE NEXT UP
+- new "player"
+- load levels in player
+- exits and dialog
+- default animation(s)
+
 VIGNETTE TODOs
 - auto-saving
 X animate a grouped object

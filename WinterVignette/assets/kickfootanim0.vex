@@ -1,0 +1,119 @@
+{
+	"tracks": [
+		{
+			"select": "lleg",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "5"
+					},
+					"t": "0.27734375"
+				},
+				{
+					"props": {
+						"rot": "-40"
+					},
+					"t": "0.71875"
+				},
+				{
+					"props": {
+						"rot": "-1.77635683940025e-15"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "llowerleg",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "50"
+					},
+					"t": "0.27734375"
+				},
+				{
+					"props": {
+						"rot": "2.66453525910038e-15"
+					},
+					"t": "0.71875"
+				}
+			]
+		},
+		{
+			"select": "larm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "-10"
+					},
+					"t": "0"
+				},
+				{
+					"props": {
+						"rot": "0"
+					},
+					"t": "0.540364583333333"
+				},
+				{
+					"props": {
+						"rot": "-10"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "rarm",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "10"
+					},
+					"t": "0"
+				},
+				{
+					"props": {
+						"rot": "0"
+					},
+					"t": "0.540364583333333"
+				},
+				{
+					"props": {
+						"rot": "10"
+					},
+					"t": "1"
+				}
+			]
+		},
+		{
+			"select": "lfoot",
+			"type": "animation",
+			"keyframes": [
+				{
+					"props": {
+						"rot": "3.44484629294755"
+					},
+					"t": "0.27734375"
+				},
+				{
+					"props": {
+						"rot": "-25"
+					},
+					"t": "0.71875"
+				},
+				{
+					"props": {
+						"rot": "-1.77635683940025e-15"
+					},
+					"t": "1"
+				}
+			]
+		}
+	],
+	"id": "kick"
+}
