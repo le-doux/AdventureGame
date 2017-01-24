@@ -35,6 +35,10 @@ X fix z-order bug(s)
 	- everything else
 - animate player
 X preload assets
+- animate other characters
+- dialog
+- scene exits and entrances
+- test on phone
 */
 
 class Settings {
@@ -212,8 +216,8 @@ class Main extends luxe.Game {
 
 	override function config(config:GameConfig) {
 		config.window.title = 'vignette 0';
-		config.window.width = cast( Settings.IDEAL_SCREEN_SIZE_W, Int );
-		config.window.height = cast( Settings.IDEAL_SCREEN_SIZE_H, Int );
+		config.window.width = cast( Settings.IDEAL_SCREEN_SIZE_W / 2, Int );
+		config.window.height = cast( Settings.IDEAL_SCREEN_SIZE_H / 2, Int );
 		config.window.fullscreen = false;
 
 		config.preload.jsons.push({ id: stageSrc });
@@ -625,7 +629,18 @@ class Main extends luxe.Game {
 			playerProps.blocked.right = stage.edgeCollisionRight( playerProps.stagePos );
 			//update world pos
 			playerProps.stagePos = stage.clampToStage( playerProps.stagePos );
-			player.pos = stage.worldPos( playerProps.stagePos );
+			//player.pos = stage.worldPos( playerProps.stagePos );
+
+			// jitter test
+			player.pos.add( new Vector(playerProps.velocity.x * dt, 0) );
+			var vexList = [];
+			vexList.push( player );
+			while (vexList.length > 0) { // hack to stop jittering - force al transform to update
+				vexList[0].transform.clean_check();
+				vexList.concat( vexList[0].getVexChildren() );
+				vexList.remove( vexList[0] );
+			}
+
 
 			//blocked stop animation
 			var curBlocked = playerProps.blocked.left || playerProps.blocked.right;
@@ -693,7 +708,7 @@ class Main extends luxe.Game {
 				cameraProps.edgeSpring.velocityX = 0; //edge case protection
 			}
 			//keep camera attached to player
-			//x
+/*			//x
 			Luxe.camera.center.x = player.pos.x + cameraProps.offsetX;
 			//y
 			var yOffsetToPutPlayerCloserToScreenBottom = Settings.IDEAL_SCREEN_SIZE_H * 0.25; //75; //TODO rename this?
@@ -704,7 +719,11 @@ class Main extends luxe.Game {
 			//curCamCenterY += camCenterYDist * 0.8 * dt; //float towards correct y pos [this didn't work how I wanted]
 			curCamCenterY = camCenterYGoal;
 			//Luxe.camera.center.y = curCamCenterY + pullDelta; // * 0.5); //what's the 0.5 for? I forgot
-			Luxe.camera.center.y = curCamCenterY;
+			Luxe.camera.center.y = curCamCenterY;*/
+
+			// jitter test -- is camera complexity causing the jerkiness? doesn't look like it; maybe player movement?
+			Luxe.camera.center.x = player.pos.x;
+			Luxe.camera.center.y = player.pos.y;
 
 			//zoom stuff
 			if (!joystick.isDown() && Math.abs(playerProps.velocity.x) <= 0) {

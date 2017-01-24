@@ -4,7 +4,23 @@
 		"selected_items":
 		[
 			[
-				"d",
+				"re",
+				"p· resources\tluxe.Resources"
+			],
+			[
+				"palet",
+				"paletteSrc"
+			],
+			[
+				"id",
+				"p· IDEAL_SCREEN_SIZE_H\tFloat"
+			],
+			[
+				"i",
+				"p· IDEAL_SCREEN_SIZE_W\tFloat"
+			],
+			[
+				"de",
 				"p· depth\tFloat"
 			],
 			[
@@ -41,10 +57,6 @@
 			],
 			[
 				"palete",
-				"paletteUpTimer"
-			],
-			[
-				"palet",
 				"paletteUpTimer"
 			],
 			[
@@ -380,20 +392,12 @@
 				"p· y_rel\tInt"
 			],
 			[
-				"de",
-				"m· destroy\t "
-			],
-			[
 				"Ex",
 				"Exit"
 			],
 			[
 				"Exi",
 				"ExitOptions"
-			],
-			[
-				"re",
-				"m· repeat\tluxe.tween.actuators.IGenericActuator"
 			],
 			[
 				"bouncy",
@@ -510,132 +514,60 @@
 			[
 				"p",
 				"player"
-			],
-			[
-				"Desc",
-				"Description"
 			]
 		]
 	},
 	"buffers":
 	[
 		{
-			"file": "VexEd/project.flow",
+			"file": "vignette0.flow",
 			"settings":
 			{
-				"buffer_size": 396,
+				"buffer_size": 319,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "VexEd/src/Main.hx",
+			"file": "src/Main.hx",
 			"settings":
 			{
-				"buffer_size": 16650,
+				"buffer_size": 37858,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "VexLib/vexlib/EditingTools.hx",
+			"file": "/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/Palette.hx",
 			"settings":
 			{
-				"buffer_size": 19070,
-				"encoding": "UTF-8",
-				"line_ending": "Unix",
-				"name": "class Editing {"
+				"buffer_size": 2105,
+				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "VexEd/src/DrawState.hx",
+			"file": "assets/bus_out_stage1.vex",
 			"settings":
 			{
-				"buffer_size": 3131,
-				"encoding": "UTF-8",
-				"line_ending": "Unix",
-				"name": "import luxe.States;"
-			}
-		},
-		{
-			"file": "VexEd/src/EditState.hx",
-			"settings":
-			{
-				"buffer_size": 2541,
+				"buffer_size": 15558,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "VexEd/src/AnimateState.hx",
+			"file": "src/ScrollInputHandler.hx",
 			"settings":
 			{
-				"buffer_size": 8577,
-				"encoding": "UTF-8",
+				"buffer_size": 1748,
 				"line_ending": "Unix"
 			}
 		},
 		{
-			"file": "VexEd/src/StageState.hx",
+			"file": "src/UniversalJoystick.hx",
 			"settings":
 			{
-				"buffer_size": 3741,
-				"encoding": "UTF-8",
+				"buffer_size": 9349,
 				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "VexLib/vexlib/Stage.hx",
-			"settings":
-			{
-				"buffer_size": 3675,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "VexStage/src/Main.hx",
-			"settings":
-			{
-				"buffer_size": 11325,
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "VexLib/vexlib/VexTools.hx",
-			"settings":
-			{
-				"buffer_size": 12629,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "VexLib/vexlib/Vex.hx",
-			"settings":
-			{
-				"buffer_size": 6651,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "VexLib/vexlib/VexPropertyInterface.hx",
-			"settings":
-			{
-				"buffer_size": 10616,
-				"encoding": "UTF-8",
-				"line_ending": "Unix"
-			}
-		},
-		{
-			"file": "VexLib/vexlib/Editor.hx",
-			"settings":
-			{
-				"buffer_size": 2096,
-				"encoding": "UTF-8",
-				"line_ending": "Unix",
-				"name": "package vexlib;"
 			}
 		}
 	],
@@ -816,8 +748,7 @@
 	},
 	"file_history":
 	[
-		"/Users/adamrossledoux/Desktop/desert_tilemap_test.tmx",
-		"/Users/adamrossledoux/Desktop/desert_tilemap_test2.tmx",
+		"/Users/adamrossledoux/Code/Haxe/FlappyWitch/src/Main.hx",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexEd/assets/testsaveanim.vex",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexEd/assets/stage_test_0.vex",
 		"/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/Animation.hx",
@@ -943,7 +874,8 @@
 		"/usr/local/Cellar/glew/1.11.0/lib/libGLEW.a",
 		"/Users/adamrossledoux/Code/C++/Boat/src/Flag.cpp",
 		"/Users/adamrossledoux/Code/C++/Boat/src/Lightbeam.cpp",
-		"/Users/adamrossledoux/Code/C++/Boat/src/RainParticles.cpp"
+		"/Users/adamrossledoux/Code/C++/Boat/src/RainParticles.cpp",
+		"/Users/adamrossledoux/Code/C++/Boat/src/SplashParticles.cpp"
 	],
 	"find":
 	{
@@ -967,6 +899,11 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"player.scale",
+			"queueAnimation",
+			"player.playanimation",
+			"palette",
+			"new vex",
 			"paloffset",
 			"gif capture",
 			"keyframes",
@@ -1089,12 +1026,7 @@
 			"\":",
 			"typeof",
 			"this.emojione",
-			"actionButtons",
-			"isEditing",
-			"speedmult",
-			"trace",
-			"setFromJson",
-			"getJson"
+			"actionButtons"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1179,24 +1111,24 @@
 	"groups":
 	[
 		{
-			"selected": 1,
+			"selected": 0,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "VexEd/project.flow",
+					"file": "vignette0.flow",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 396,
+						"buffer_size": 319,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								342,
-								342
+								99,
+								99
 							]
 						],
 						"settings":
@@ -1209,34 +1141,33 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
 					"buffer": 1,
-					"file": "VexEd/src/Main.hx",
+					"file": "src/Main.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 16650,
+						"buffer_size": 37858,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								811,
-								811
+								5429,
+								5384
 							]
 						],
 						"settings":
 						{
-							"history_list_is_closing": true,
 							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 0.0,
-						"translation.y": 293.0,
+						"translation.x": 3.0,
+						"translation.y": 612.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 1,
@@ -1244,58 +1175,85 @@
 				},
 				{
 					"buffer": 2,
-					"file": "VexLib/vexlib/EditingTools.hx",
+					"file": "/Users/adamrossledoux/Code/Haxe/AdventureGame/VexLib/vexlib/Palette.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 19070,
+						"buffer_size": 2105,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								12667,
-								12667
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"auto_name": "class Editing {",
 							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 6666.0,
+						"translation.y": 525.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "assets/bus_out_stage1.vex",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15558,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								15554,
+								15554
+							]
+						],
+						"settings":
+						{
+							"syntax": "Packages/Text/Plain text.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 5215.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 2,
 					"type": "text"
 				},
 				{
-					"buffer": 3,
-					"file": "VexEd/src/DrawState.hx",
+					"buffer": 4,
+					"file": "src/ScrollInputHandler.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3131,
+						"buffer_size": 1748,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								128,
-								109
+								0,
+								0
 							]
 						],
 						"settings":
 						{
-							"auto_name": "import luxe.States;",
 							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 15.0,
+						"translation.x": 0.0,
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
@@ -1303,20 +1261,20 @@
 					"type": "text"
 				},
 				{
-					"buffer": 4,
-					"file": "VexEd/src/EditState.hx",
+					"buffer": 5,
+					"file": "src/UniversalJoystick.hx",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 2541,
+						"buffer_size": 9349,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								465,
-								465
+								0,
+								0
 							]
 						],
 						"settings":
@@ -1329,273 +1287,6 @@
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
-					"type": "text"
-				},
-				{
-					"buffer": 5,
-					"file": "VexEd/src/AnimateState.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 8577,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2335,
-								2335
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 916.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 6,
-					"type": "text"
-				},
-				{
-					"buffer": 6,
-					"file": "VexEd/src/StageState.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3741,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3665,
-								3633
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 1632.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 8,
-					"type": "text"
-				},
-				{
-					"buffer": 7,
-					"file": "VexLib/vexlib/Stage.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 3675,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1534,
-								1534
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 627.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 12,
-					"type": "text"
-				}
-			]
-		},
-		{
-			"selected": 3,
-			"sheets":
-			[
-				{
-					"buffer": 8,
-					"file": "VexStage/src/Main.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 11325,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								3918,
-								3918
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 1819.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 10,
-					"type": "text"
-				},
-				{
-					"buffer": 9,
-					"file": "VexLib/vexlib/VexTools.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 12629,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								12442,
-								12442
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 16.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 11,
-					"type": "text"
-				},
-				{
-					"buffer": 2,
-					"file": "VexLib/vexlib/EditingTools.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 19070,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								12263,
-								12263
-							]
-						],
-						"settings":
-						{
-							"auto_name": "class Editing {",
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage"
-						},
-						"translation.x": 0.0,
-						"translation.y": 6294.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 9,
-					"type": "text"
-				},
-				{
-					"buffer": 10,
-					"file": "VexLib/vexlib/Vex.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 6651,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5991,
-								5991
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 3021.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				},
-				{
-					"buffer": 11,
-					"file": "VexLib/vexlib/VexPropertyInterface.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 10616,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								6674,
-								6674
-							]
-						],
-						"settings":
-						{
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 3553.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 13,
-					"type": "text"
-				},
-				{
-					"buffer": 12,
-					"file": "VexLib/vexlib/Editor.hx",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2096,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								1942,
-								1942
-							]
-						],
-						"settings":
-						{
-							"auto_name": "package vexlib;",
-							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 702.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 7,
 					"type": "text"
 				}
 			]
@@ -1618,18 +1309,11 @@
 				0,
 				1,
 				1
-			],
-			[
-				1,
-				0,
-				2,
-				1
 			]
 		],
 		"cols":
 		[
 			0.0,
-			0.0390625,
 			1.0
 		],
 		"rows":
@@ -1652,10 +1336,10 @@
 		"height": 100.0
 	},
 	"pinned_build_system": "Packages/sublime_flow/flow.sublime-build",
-	"project": "adventuregame.sublime-project",
+	"project": "vignette0.sublime-project",
 	"replace":
 	{
-		"height": 64.0
+		"height": 42.0
 	},
 	"save_all_on_build": true,
 	"select_file":
@@ -1678,13 +1362,17 @@
 	},
 	"select_symbol":
 	{
-		"height": 83.0,
-		"last_filter": "set_d",
+		"height": 87.0,
+		"last_filter": "read",
 		"selected_items":
 		[
 			[
-				"set_d",
-				"set_depth"
+				"read",
+				"ready"
+			],
+			[
+				"up",
+				"update"
 			],
 			[
 				"keydi",
@@ -1895,10 +1583,6 @@
 				"onmousewheel"
 			],
 			[
-				"read",
-				"ready"
-			],
-			[
 				"isar",
 				"isArrowVisible"
 			],
@@ -1913,10 +1597,6 @@
 			[
 				"nextp",
 				"nextDialogPage"
-			],
-			[
-				"up",
-				"update"
 			],
 			[
 				"nextpage",
@@ -2193,11 +1873,15 @@
 			[
 				"add",
 				"addStrokeToIllustration"
+			],
+			[
+				"updat",
+				"update"
 			]
 		],
 		"width": 392.0
 	},
-	"selected_group": 1,
+	"selected_group": 0,
 	"settings":
 	{
 	},
