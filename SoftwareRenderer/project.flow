@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'renderer',
+    version : '1.0.0',
+    author : 'ledoux',
+
+    app : {
+      name : 'renderer',
+      package : 'org.ledoux.renderer'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

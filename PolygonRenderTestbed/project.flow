@@ -1,0 +1,26 @@
+{
+
+  project : {
+    name : 'rendertest',
+    version : '1.0.0',
+    author : 'luxeengine',
+
+    app : {
+      name : 'rendertest',
+      package : 'org.luxeengine.rendertest'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+        vexlib : '*'
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

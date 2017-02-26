@@ -1,0 +1,65 @@
+scene {
+	#name: some dialog here,
+	#just_a_kid: another line of dialog,
+	................
+	................
+	...............3
+	.....1....2.....
+	0...............
+	,
+	................
+	................
+	...............3
+	.....1....2.....
+	0...............
+	,
+	................
+	................
+	...............3
+	.....1....2.....
+	0...............
+	,
+	#more_dialog I guess If I want it to be
+	@1: #just_a_kid
+	@3: >scene2
+	@ %80 {
+		>scene,
+		&drawing1
+	}
+}
+
+scene2 {
+	
+}
+
+&drawing1 {
+	........
+	..2..3..
+	........
+	.1....4.
+}
+
+
+
+----
+
+
+
+#kid_dialog : Hi, I'm a kid
+
+#lady_dialog : Ugggggh
+
+>scene1 {
+	path: 10,10, 500,100, 200,300;
+	@50 : #lady_dialog;
+	@80 : >scene2;
+}
+
+>scene2 {
+	path: 0,0 300,200, 500,60
+	@20 : >scene1
+	@100 : {
+		#kid_dialog,
+		drawing: none, placeholder, #drawingId
+	}
+}

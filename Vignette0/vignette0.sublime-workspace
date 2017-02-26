@@ -4,6 +4,10 @@
 		"selected_items":
 		[
 			[
+				"chi",
+				"m· getVexChildren\tArray<vexlib.Vex>"
+			],
+			[
 				"re",
 				"p· resources\tluxe.Resources"
 			],
@@ -510,10 +514,6 @@
 			[
 				"isDesc",
 				"isDescriptionMode"
-			],
-			[
-				"p",
-				"player"
 			]
 		]
 	},
@@ -532,7 +532,7 @@
 			"file": "src/Main.hx",
 			"settings":
 			{
-				"buffer_size": 37858,
+				"buffer_size": 38495,
 				"encoding": "UTF-8",
 				"line_ending": "Unix"
 			}
@@ -900,6 +900,8 @@
 		"find_history":
 		[
 			"player.scale",
+			"scale.x =",
+			"player.scale",
 			"queueAnimation",
 			"player.playanimation",
 			"palette",
@@ -1024,9 +1026,7 @@
 			"\":([a-zA-Z_]+):\"",
 			"\":*:\"",
 			"\":",
-			"typeof",
-			"this.emojione",
-			"actionButtons"
+			"typeof"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -1111,7 +1111,7 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 1,
 			"sheets":
 			[
 				{
@@ -1127,8 +1127,8 @@
 						"selection":
 						[
 							[
-								99,
-								99
+								164,
+								164
 							]
 						],
 						"settings":
@@ -1141,7 +1141,7 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 0,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
@@ -1150,15 +1150,15 @@
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 37858,
+						"buffer_size": 38495,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								5429,
-								5384
+								20467,
+								20467
 							]
 						],
 						"settings":
@@ -1166,11 +1166,11 @@
 							"syntax": "Packages/sublime_haxe/Haxe.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": 3.0,
-						"translation.y": 612.0,
+						"translation.x": 0.0,
+						"translation.y": 9773.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 0,
 					"type": "text"
 				},
 				{
@@ -1363,9 +1363,13 @@
 	"select_symbol":
 	{
 		"height": 87.0,
-		"last_filter": "read",
+		"last_filter": "conf",
 		"selected_items":
 		[
+			[
+				"conf",
+				"config"
+			],
 			[
 				"read",
 				"ready"
@@ -1873,10 +1877,6 @@
 			[
 				"add",
 				"addStrokeToIllustration"
-			],
-			[
-				"updat",
-				"update"
 			]
 		],
 		"width": 392.0
