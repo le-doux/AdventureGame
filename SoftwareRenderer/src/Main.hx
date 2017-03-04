@@ -9,6 +9,36 @@ import luxe.Vector;
 import luxe.Color;
 import snow.api.buffers.Uint8Array;
 import snow.api.buffers.ArrayBufferView;
+import snow.api.buffers.ArrayBuffer;
+import snow.api.buffers.TypedArrayType;
+
+using cpp.NativeArray;
+
+typedef Polygon = Array<Float>;
+typedef RGBA = {
+	public var r : Int; 
+	public var g : Int; 
+	public var b : Int; 
+	public var a : Int;
+};
+
+/*
+areas for optimization:
+- blitting
+- avoiding redrawing uneccessary pixels
+- span calculation
+
+questions
+- how does it run on iOS?
+- how many polygons do I need?
+- how much redrawing do I need?
+- can it even be fast enough in principle?
+- how will zoom and pan impact perf? (force redraw everything?)
+- what level of resolution degradation am I willing to have?
+
+issues:
+- memory leak of some kind (creating and destroying texture???)
+*/
 
 class Main extends luxe.Game {
 
@@ -20,8 +50,13 @@ class Main extends luxe.Game {
 	var winHeight = 600;
 
 	var renderVisual : Visual;
-	//var renderTexture : Texture; //currently every texture is temporary
+	var renderTexture : Texture; //currently every texture is temporary
 	var renderPixels : Uint8Array;
+
+	//test
+	// var clearData : Array<Float> = [];
+	// var clearView : ArrayBufferView;
+	var clearBuf : ArrayBuffer;
 
 	override function config(config:GameConfig) {
 
@@ -32,15 +67,64 @@ class Main extends luxe.Game {
 	}
 
 
+	var polygons : Array<Polygon> = [];
+	var polygonsAnim : Array<Polygon> = [];
+	var polyColors : Array<RGBA> = [];
+
+
 	override function ready() {
 
 		renderPixels = new Uint8Array( texWidth * texHeight * 4 );
 
+		renderTexture = new Texture({ id:"renderTexture", width: texWidth, height: texHeight, pixels: renderPixels, filter_min: FilterType.nearest, filter_mag: FilterType.nearest });
+
 		renderVisual = new Visual({ size: new Vector(winWidth,winHeight) });
+		renderVisual.texture = renderTexture;
 
 		luxe.tween.Actuate.tween( lerp, 1.0, {factor:1.0} ).ease( luxe.tween.easing.Cubic.easeInOut ).reflect().repeat();
 
+		// for ( i in 0 ... texWidth * texHeight * 4 ) clearData.push(0);
+
+		var bLen = texWidth * texHeight * 4 * 1;
+		clearBuf = new ArrayBuffer( bLen ); // 1 byte per element
+		var i = 0;
+		while (i < bLen)
+		{
+			clearBuf[i] = cast 100;
+			i++;
+		}
+
+		for (i in 0 ... 4) {
+			addRandomPoly();
+		}
+
 	} //ready
+
+	function addRandomPoly() {
+		var poly = [];
+		var polyAnim = [];
+		var center = new Vector( Luxe.utils.random.float(100,700), Luxe.utils.random.float(100,500) );
+		var count = Luxe.utils.random.int(3,10);
+		for (i in 0 ... count ) {
+			var p = cast(i,Float) / count;
+			var rad = p * 2 * 3.1415;
+			var normal = new Vector( Math.cos(rad), Math.sin(rad) );
+			var point = Vector.Add( center, Vector.Multiply( normal, Luxe.utils.random.float(30,80) ) );
+			poly.push( point.x );
+			poly.push( point.y );
+			polyAnim.push( point.x + Luxe.utils.random.float(-10,10) );
+			polyAnim.push( point.y + Luxe.utils.random.float(-10,10) );
+		}
+		// close the loop
+		poly.push( poly[0] );
+		poly.push( poly[1] );
+		polyAnim.push( poly[0] );
+		polyAnim.push( poly[1] );
+
+		polygons.push( poly );
+		polygonsAnim.push( polyAnim );
+		polyColors.push( {r:Luxe.utils.random.int(100,255),g:Luxe.utils.random.int(100,255),b:Luxe.utils.random.int(100,255),a:255} );
+	}
 
 	override function onkeyup( e:KeyEvent ) {
 
@@ -48,13 +132,54 @@ class Main extends luxe.Game {
 			Luxe.shutdown();
 		}
 
+		if (e.keycode == Key.space) {
+			for (i in 0 ... polygons.length) {
+				addRandomPoly();
+			}
+		}
+
 	} //onkeyup
 
-	var polyTest : Array<Float> = [ 400,200, 500,300, 300,300, 400,270, 400,200 ];
-	var polyTest2 : Array<Float> = [ 400,100, 300,260, 300,400, 200,250, 400,100 ];
+	override function onmousedown(e:MouseEvent) {
+		for (i in 0 ... polygons.length) {
+			addRandomPoly();
+		}
+	}
+
+	// var polyTest : Array<Float> = [ 400,200, 500,300, 300,300, 400,270, 400,200 ];
+	// var polyTest2 : Array<Float> = [ 400,100, 300,260, 300,400, 200,250, 400,100 ];
+
+	var polyTest : Array<Float> = [ 400,0, 800,600, 0,600, 400,0 ];
+	var polyTest2 : Array<Float> = [ 400,20, 780,580, 100,500, 400,20 ];
+	
 	var lerp = {
 		factor : 0.0
 	};
+
+	//fps tracking
+	var fps = 60.0;
+	var fpsSamples = [];
+	var fpsSampleTime = 0.0;
+	function trackFps(dt:Float) {
+		//fps tracking
+		fpsSamples.push( 1.0 / dt );
+		fpsSampleTime += dt;
+		if (fpsSampleTime >= 1.0) {
+			fps = 0.0;
+			for (s in fpsSamples) {
+				fps += s;
+			}
+			fps /= fpsSamples.length;
+			fps = Math.floor( fps );
+			fpsSampleTime = 0.0;
+			fpsSamples = [];
+		}
+
+		Luxe.draw.text({
+				text: "fps " + fps + "\n" + "polys " + polygons.length,
+				immediate: true
+			});
+	}
 
 	override function update(dt:Float) {
 		// set a random pixel every frame
@@ -67,15 +192,30 @@ class Main extends luxe.Game {
 		// 		);
 
 		//trace(lerp.factor);
-		var curPoly = lerpPolygon(polyTest,polyTest2,lerp.factor);
-		var polyBounds = getPolyBounds(curPoly);
+		// var curPoly = lerpPolygon(polyTest,polyTest2,lerp.factor);
+		// var polyBounds = getPolyBounds(curPoly);
 
-		// clear window
-		for (x in 0 ... winWidth) {
-			for (y in 0 ... winHeight) {
-				setPixel( x, y, 0, 0, 0, 0 );
-			}
-		}
+		// clear window - slow
+		// for (x in 0 ... winWidth) {
+		// 	for (y in 0 ... winHeight) {
+		// 		setPixel( x, y, 0, 0, 0, 0 );
+		// 	}
+		// }
+
+		// renderPixels = new Uint8Array( texWidth * texHeight * 4 ); //clear pixels - faster
+
+		// save blit for later
+		var bLen = texWidth * texHeight * 4 * 1;
+		// var b = new ArrayBuffer( bLen ); // 1 byte per element
+		renderPixels.buffer.blit(0,clearBuf,0,bLen);
+
+		// clear attempt 3 (blitting?) -- abysmally slow --
+		// var clearData : Array<Float> = [];
+		// for (i in 0 ... texWidth * texHeight * 4) {
+		// 	clearData.push( 0 );
+		// }
+		// renderPixels.set( clearData );
+
 
 		// draw poly - per pixel version
 		// for (x in polyBounds.minX ... polyBounds.maxX) {
@@ -90,18 +230,46 @@ class Main extends luxe.Game {
 		// }
 
 		// draw poly - span version
-		for (y in polyBounds.minY ... polyBounds.maxY) {
-			var spans = spansInScanline( y, curPoly );
-			for (s in spans) {
-				for (x in s.start ... s.end) {
-					setPixel( x, y, 255, 0, 0, 255 );
-				}
-			}
+		//var r = Luxe.utils.random.int(200,255);
+		// for (y in polyBounds.minY ... polyBounds.maxY) {
+		// 	var spans = spansInScanline( y, curPoly );
+		// 	for (s in spans) {
+		// 		// for (x in s.start ... s.end) {
+		// 		// 	setPixel( x, y, 255, 0, 0, 255 );
+		// 		// }
+		// 		// --- attempt at blit is actually slower ? ---
+		// 		setSpan( s, y, 255, 0, 0, 255 );
+		// 	}
+		// }
+
+
+		/* ----- THE LATEST ------ */
+
+		// var curPoly = lerpPolygon(polyTest,polyTest2,lerp.factor);
+		// var polyBounds = getPolyBounds(curPoly);
+		// drawPolygon( curPoly, 255,0,0,255 );
+
+		for (i in 0 ... polygons.length) {
+			var curPoly = lerpPolygon( polygons[i], polygonsAnim[i], lerp.factor );
+			drawPolygon( curPoly, polyColors[i].r,polyColors[i].g,polyColors[i].b,polyColors[i].a );
 		}
 
 		updateTexture();
 
+
+		trackFps(dt);
+
 	} //update
+
+	function drawPolygon( poly:Polygon, r:Int, g:Int, b:Int, a:Int ) {
+		var polyBounds = getPolyBounds( poly );
+		for (y in polyBounds.minY ... polyBounds.maxY) {
+			var spans = spansInScanline( y, poly );
+			for (s in spans) {
+				setSpan( s, y, r, g, b, a );
+			}
+		}
+	}
 
 	function lerpPolygon( poly1:Array<Float>, poly2:Array<Float>, t:Float ) {
 		var poly3 = [];
@@ -218,10 +386,6 @@ class Main extends luxe.Game {
 		return spans;
 	}
 
-	function drawPolygon() {
-		// todo
-	}
-
 	function setPixel( x:Int, y:Int, r:Int, g:Int, b:Int, a:Int ) {
 		// set a single pixel's color
 		var pixelSize = 4;
@@ -237,9 +401,46 @@ class Main extends luxe.Game {
 		renderPixels.buffer[ pixelStartIndex + alphaOffset ] = cast( a ); // a
 	}
 
+	function setSpan( span:{start:Int,end:Int}, y:Int, r:Int, g:Int, b:Int, a:Int ) {
+		var pixelSize = 4;
+		var rowSize = texWidth * pixelSize; // todo: I'll worry about efficiency later
+		var pixelStartIndex = (y*rowSize) + (span.start*pixelSize);
+
+		var pixelBuf = new ArrayBuffer( pixelSize );
+		pixelBuf[0] = cast r;
+		pixelBuf[1] = cast g;
+		pixelBuf[2] = cast b;
+		pixelBuf[3] = cast a;
+
+		var spanLen = (span.end - span.start);
+		var spanByteLen = spanLen * pixelSize * 1;
+		var buf = new ArrayBuffer( spanByteLen );
+
+		var i = 0;
+		while (i < spanByteLen) {
+			// buf[i+0] = cast r;
+			// buf[i+1] = cast g;
+			// buf[i+2] = cast b;
+			// buf[i+3] = cast a;
+			buf.blit(i,pixelBuf,0,4); //yup that's a little bit faster
+			i += pixelSize;
+		}
+		renderPixels.buffer.blit( pixelStartIndex, buf, 0, spanByteLen );
+
+		// var data : Array<Float> = [];
+		// for (x in span.start ... span.end) {
+		// 	data = data.concat( [r,g,b,a] );
+		// }
+		// //trace(data);
+		// renderPixels.set( data, pixelStartIndex );
+	}
+
 	function updateTexture() {
 		// todo: is it really a good idea to create and discard a new texture every frame?
-		renderVisual.texture = new Texture({ id:"renderTexture", width: texWidth, height: texHeight, pixels: renderPixels, filter_min: FilterType.nearest, filter_mag: FilterType.nearest });
+		renderTexture.invalidate();
+		renderTexture = new Texture({ id:"renderTexture", width: texWidth, height: texHeight, pixels: renderPixels, filter_min: FilterType.nearest, filter_mag: FilterType.nearest });
+		renderVisual.texture = renderTexture;
+
 	}
 
 } //Main
