@@ -1,0 +1,25 @@
+{
+
+  project : {
+    name : 'hybridrenderer',
+    version : '1.0.0',
+    author : 'ledoux',
+
+    app : {
+      name : 'hybridrenderer',
+      package : 'org.ledoux.hybridrenderer'
+    },
+
+    build : {
+      dependencies : {
+        luxe : '*',
+      }
+    },
+
+    files : {
+      assets : 'assets/'
+    }
+
+  }
+
+}

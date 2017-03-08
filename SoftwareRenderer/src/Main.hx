@@ -37,7 +37,7 @@ questions
 - what level of resolution degradation am I willing to have?
 
 issues:
-- memory leak of some kind (creating and destroying texture???)
+- memory leak of some kind (creating and destroying texture???) [FIXED]
 */
 
 class Main extends luxe.Game {
