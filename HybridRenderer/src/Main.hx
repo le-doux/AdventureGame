@@ -40,16 +40,23 @@ X test pan & zoom
 	- needs explicit control over what's re-rendered (but with sane defaults)
 	- consider local-space vs world-space (may want to be able to rotate quads)
 		- does scale of the visual/geo impact the rendering resolution of the path/poly?
+	- what data structures do we use on the rendering side?
 - test zoom that triggers redraw
 	- can we do it async?
 	- can we do it by targetting a goal zoom?
 	- can we do it based on which elements are visible?
+- texture sharing perf tests
 
 PERF
-mac debug perf bounds: 256 - 512 quads
+mac debug perf bounds: 256 - 512 quads (each with their own texture)
 mac ship perf bounds: 512 - 1024 quads
+
+SHARED TEXTURE (1) PERF
+mac debug perf bounds: 1024 - 2048 quads (sharing 1 texture)
+mac ship perf bounds: 1024 - 2048 quads
 */
 
+typedef PixelBuffer = Uint8Array;
 typedef Polygon = Array<Float>;
 typedef Bounds = {
 	public var left : Int;
@@ -58,19 +65,29 @@ typedef Bounds = {
 	public var bottom : Int;
 };
 typedef RGBA = {
-	public var r : Int; 
-	public var g : Int; 
-	public var b : Int; 
+	public var r : Int;
+	public var g : Int;
+	public var b : Int;
 	public var a : Int;
 };
 
 class Main extends luxe.Game {
 
-	// var polyTest : Array<Float> = [ 400,200, 500,300, 300,300, 400,270, 400,200 ];
+	// first animation test
+	var polyTest : Array<Float> = [ 400,200, 500,300, 300,300, 400,270, 400,200 ];
+	var polyTest2 : Array<Float> = [ 400,100, 300,260, 300,400, 200,250, 400,100 ];
+	var polyTestVisual : Visual;
+	var lerp = {
+		factor : 0.0
+	};
+
 	// var polyTest : Array<Float> = [ 10,10, 100,10, 100,100, 10,100, 10,10 ];
 	// var polyTest : Array<Float> = [ 10,10, 10,100, 100,100, 10,10 ];
 
 	var polyVisuals : Array<Visual> = [];
+
+	//texture test
+	var sharedTexture : Texture;
 
 	override function config(config:GameConfig) {
 
@@ -81,10 +98,29 @@ class Main extends luxe.Game {
 	}
 
 	override function ready() {
+		// shared texture test
+		// var bounds = getPolyBounds( polyTest );
+		// var pixels = pixelsFromBounds( bounds );
+		// pixels = drawPolygonIntoBuffer( pixels, bounds, polyTest, 255, 0, 255, 255 );
+		// var width = bounds.right - bounds.left;
+		// var height = bounds.bottom - bounds.top;
+		// sharedTexture = textureFromPixels( width, height, pixels );
+
 		for (i in 0 ... 4) {
 			polyVisuals.push( makeRandomPoly() );
 		}
+
+		polyTestVisual = makePolygonVisual( polyTest, {r:255,g:0,b:0,a:255} );
+		luxe.tween.Actuate.tween( lerp, 1.0, {factor:1.0} ).ease( luxe.tween.easing.Cubic.easeInOut ).reflect().repeat();
 	} //ready
+
+	function lerpPolygon( poly1:Array<Float>, poly2:Array<Float>, t:Float ) {
+		var poly3 = [];
+		for (i in 0 ... poly1.length) {
+			poly3.push( poly1[i] + ( ( poly2[i] - poly1[i] ) * t ) );
+		}
+		return poly3;
+	}
 
 	function makePolygonVisual( poly:Polygon, color:RGBA ) {
 		// geometry version -- failed why??
@@ -101,9 +137,12 @@ class Main extends luxe.Game {
 		var width = bounds.right - bounds.left;
 		var height = bounds.bottom - bounds.top;
 		var visual = new Visual( { pos: new Vector(bounds.left, bounds.top), size: new Vector(width,height), color: new Color(1,1,1) } );
-		var pixels = pixelsFromBounds( bounds );
-		pixels = drawPolygonIntoBuffer( pixels, bounds, poly, color.r, color.g, color.b, color.a );
-		visual.texture = textureFromPixels( width, height, pixels );
+		var pixels = pixelBufferFromBounds( bounds );
+		pixels = drawPolygonIntoPixelBuffer( pixels, bounds, poly, color.r, color.g, color.b, color.a );
+		visual.texture = textureFromPixelBuffer( width, height, pixels );
+
+		// shared texture test
+		// visual.texture = sharedTexture;
 
 		return visual;
 	}
@@ -201,6 +240,11 @@ class Main extends luxe.Game {
 	}
 
 	override function update(dt:Float) {
+
+		// destroy and recreate the polygon every frame (probs bad)
+		polyTestVisual.destroy();
+		polyTestVisual = makePolygonVisual( lerpPolygon( polyTest, polyTest2, lerp.factor ), {r:255,g:0,b:0,a:255} );
+
 		trackFps(dt);
 	} //update
 
@@ -251,14 +295,14 @@ class Main extends luxe.Game {
 		return geo;
 	}
 
-	function pixelsFromBounds(b:Bounds) {
+	function pixelBufferFromBounds(b:Bounds) {
 		var width = b.right - b.left;
 		var height = b.bottom - b.top;
-		return new Uint8Array( width * height * 4 );
+		return new PixelBuffer( width * height * 4 );
 	}
 
 	// TODO - optimize with span rendering
-	function drawPolygonIntoBuffer( pixels:Uint8Array, bounds:Bounds, polygon:Polygon, r:Int, g:Int, b:Int, a:Int ) {
+	function drawPolygonIntoPixelBuffer( pixels:PixelBuffer, bounds:Bounds, polygon:Polygon, r:Int, g:Int, b:Int, a:Int ) {
 		var width = bounds.right - bounds.left;
 		// var height = bounds.bottom - bounds.top;
 		var pixelSize = 4;
@@ -332,7 +376,7 @@ class Main extends luxe.Game {
 		return (hitCount % 2) == 1;
 	}
 
-	function textureFromPixels( width:Int, height:Int, pixels:Uint8Array ) {
+	function textureFromPixelBuffer( width:Int, height:Int, pixels:PixelBuffer ) {
 		return new Texture({ id:"tex" + Luxe.utils.uniqueid(), width: width, height: height, pixels: pixels, filter_min: FilterType.nearest, filter_mag: FilterType.nearest });
 	}
 
