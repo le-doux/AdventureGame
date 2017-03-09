@@ -17,6 +17,9 @@ import snow.api.buffers.ArrayBufferView;
 import snow.api.buffers.ArrayBuffer;
 import snow.api.buffers.TypedArrayType;
 
+using cpp.NativeArray; //for blit
+
+
 /*
 HYBRID RENDERER
 - create quads
@@ -122,6 +125,7 @@ class Main extends luxe.Game {
 		return poly3;
 	}
 
+	var globalDepthCounter = 0;
 	function makePolygonVisual( poly:Polygon, color:RGBA ) {
 		// geometry version -- failed why??
 		// var bounds = getPolyBounds( polyTest );
@@ -137,13 +141,40 @@ class Main extends luxe.Game {
 		var width = bounds.right - bounds.left;
 		var height = bounds.bottom - bounds.top;
 		var visual = new Visual( { pos: new Vector(bounds.left, bounds.top), size: new Vector(width,height), color: new Color(1,1,1) } );
+		
+		//hack to stop z-fighting
+		visual.depth = globalDepthCounter;
+		globalDepthCounter++;
+		
+		// trace( visual.geometry.vertices );
+		// var visual = new Visual( {no_geometry:true} );
+		// visual.geometry = quadFromBounds( bounds );
 		var pixels = pixelBufferFromBounds( bounds );
-		pixels = drawPolygonIntoPixelBuffer( pixels, bounds, poly, color.r, color.g, color.b, color.a );
+		// pixels = drawPolygonIntoPixelBuffer( pixels, bounds, poly, color.r, color.g, color.b, color.a );
+		pixels = drawPolygonSpansIntoPixelBuffer( pixels, bounds, poly, color );
 		visual.texture = textureFromPixelBuffer( width, height, pixels );
 
 		// shared texture test
 		// visual.texture = sharedTexture;
 
+		return visual;
+	}
+
+	function updatePolygonVisual( visual:Visual, poly:Polygon, color:RGBA ) {
+		var bounds = getPolyBounds( poly );
+		var width = bounds.right - bounds.left;
+		var height = bounds.bottom - bounds.top;
+
+		// TODO - update geometry location and size
+		visual.pos = new Vector(bounds.left, bounds.top);
+		visual.size = new Vector(width, height);
+		
+
+		var pixels = pixelBufferFromBounds( bounds );
+		// pixels = drawPolygonIntoPixelBuffer( pixels, bounds, poly, color.r, color.g, color.b, color.a );
+		pixels = drawPolygonSpansIntoPixelBuffer( pixels, bounds, poly, color );
+		visual.texture.invalidate();
+		visual.texture = textureFromPixelBuffer( width, height, pixels );
 		return visual;
 	}
 
@@ -241,9 +272,11 @@ class Main extends luxe.Game {
 
 	override function update(dt:Float) {
 
-		// destroy and recreate the polygon every frame (probs bad)
-		polyTestVisual.destroy();
-		polyTestVisual = makePolygonVisual( lerpPolygon( polyTest, polyTest2, lerp.factor ), {r:255,g:0,b:0,a:255} );
+		// destroy and recreate the polygon every frame (probs bad --- actually this is ok if the polygon rendering itself is fast enough)
+		// polyTestVisual.destroy();
+		// polyTestVisual = makePolygonVisual( lerpPolygon( polyTest, polyTest2, lerp.factor ), {r:255,g:0,b:0,a:255} );
+
+		updatePolygonVisual( polyTestVisual, lerpPolygon( polyTest, polyTest2, lerp.factor ), {r:255,g:0,b:0,a:255} );
 
 		trackFps(dt);
 	} //update
@@ -314,6 +347,7 @@ class Main extends luxe.Game {
 				var pixelStartIndex = ( yBuf * width * pixelSize ) + ( xBuf * pixelSize );
 				// trace( x + ", " + y );
 				// trace( xBuf + ", " + yBuf );
+
 				if ( isPixelInPoly( x, y, polygon ) ) {
 					// trace("!");
 					if (x % 2 == 0) debugStr += "X";
@@ -331,8 +365,20 @@ class Main extends luxe.Game {
 					pixels.buffer[ pixelStartIndex + 2 ] = cast 0;
 					pixels.buffer[ pixelStartIndex + 3 ] = cast 0;
 				}
+
 			}
 			// trace( debugStr );
+		}
+		return pixels;
+	}
+
+	function drawPolygonSpansIntoPixelBuffer( pixels:PixelBuffer, bounds:Bounds, polygon:Polygon, color:RGBA ) {
+		var width = bounds.right - bounds.left;
+		for ( y in bounds.top ... bounds.bottom ) {
+			var spans = spansInScanline( y, polygon );
+			for (s in spans) {
+				setSpan( pixels, width, bounds.left, bounds.top, y, s, color ); //awkward function signature if you ask me
+			}
 		}
 		return pixels;
 	}
@@ -380,5 +426,81 @@ class Main extends luxe.Game {
 		return new Texture({ id:"tex" + Luxe.utils.uniqueid(), width: width, height: height, pixels: pixels, filter_min: FilterType.nearest, filter_mag: FilterType.nearest });
 	}
 
+	function spansInScanline( scanY:Int, polygon:Array<Float> ) {
+
+		var hits : Array<Int> = [];
+
+		var cy = scanY + 0.5;
+
+		var i = 0;
+		while (i+3 < polygon.length) { 
+			var ax = polygon[i+0]; //todo need a point abstraction don't I
+			var ay = polygon[i+1];
+			var bx = polygon[i+2];
+			var by = polygon[i+3];
+
+			var yDeltaAlongLine = (cy - ay) / (by - ay);
+			var closestXPositionOnLine = ax + ( (bx - ax) * yDeltaAlongLine );
+			var isInYRange = yDeltaAlongLine >= 0 && yDeltaAlongLine <= 1;
+
+			if (isInYRange)
+				hits.push( Math.floor(closestXPositionOnLine) );
+
+			i += 2;
+		}
+
+		hits.sort(function(a, b):Int {
+		  if (a < b) return -1;
+		  else if (a > b) return 1;
+		  return 0;
+		});
+
+		var spans = [];
+		var j = 0;
+		while ((j+1) < hits.length) {
+			spans.push({
+					start: hits[j],
+					end: hits[j+1]
+				});
+			j += 2;
+		}
+
+		return spans;
+	}
+
+
+	function setSpan( pixels:PixelBuffer, texWidth:Int, texX:Int, texY:Int, y:Int, span:{start:Int,end:Int}, color:RGBA ) {
+		var pixelSize = 4;
+		var rowSize = texWidth * pixelSize; // todo: I'll worry about efficiency later
+		var pixelStartIndex = ((y-texY)*rowSize) + ( (span.start-texX) *pixelSize);
+
+		var pixelBuf = new ArrayBuffer( pixelSize );
+		pixelBuf[0] = cast color.r;
+		pixelBuf[1] = cast color.g;
+		pixelBuf[2] = cast color.b;
+		pixelBuf[3] = cast color.a;
+
+		var spanLen = (span.end - span.start);
+		var spanByteLen = spanLen * pixelSize * 1;
+		var buf = new ArrayBuffer( spanByteLen );
+
+		var i = 0;
+		while (i < spanByteLen) {
+			// buf[i+0] = cast r;
+			// buf[i+1] = cast g;
+			// buf[i+2] = cast b;`
+			// buf[i+3] = cast a;
+			buf.blit(i,pixelBuf,0,4); //yup that's a little bit faster
+			i += pixelSize;
+		}
+		pixels.buffer.blit( pixelStartIndex, buf, 0, spanByteLen );
+
+		// var data : Array<Float> = [];
+		// for (x in span.start ... span.end) {
+		// 	data = data.concat( [r,g,b,a] );
+		// }
+		// //trace(data);
+		// renderPixels.set( data, pixelStartIndex );
+	}
 
 } //Main
