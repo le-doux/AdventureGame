@@ -32,10 +32,11 @@ X polygon -> texture
 X full render
 X multiple polygons (static)
 X test pan & zoom
-- animation
+X animation
 	- update vertices
 	- update texture
 - test performance
+	- test animation performance (it bad)
 - design
 	- paths <--> texture <--> quad
 	- keep all elements separate, yet associable
@@ -48,15 +49,25 @@ X test pan & zoom
 	- can we do it async?
 	- can we do it by targetting a goal zoom?
 	- can we do it based on which elements are visible?
-- texture sharing perf tests
+X texture sharing perf tests
+
+NOTES & IDEAS
+- moving textures around is hard on the gpu
+- pre-render animations?
+- try implementing earcut instead?
 
 PERF
 mac debug perf bounds: 256 - 512 quads (each with their own texture)
+	locked: 512 -> 50 fps (some improvement)
+	unlocked: 512 -> 30 fps
 mac ship perf bounds: 512 - 1024 quads
 
 SHARED TEXTURE (1) PERF
 mac debug perf bounds: 1024 - 2048 quads (sharing 1 texture)
 mac ship perf bounds: 1024 - 2048 quads
+
+ANIM PERF
+mac debug 8-16
 */
 
 typedef PixelBuffer = Uint8Array;
@@ -73,16 +84,25 @@ typedef RGBA = {
 	public var b : Int;
 	public var a : Int;
 };
+typedef AnimatedPolygon = {
+	public var frame0 : Polygon;
+	public var frame1 : Polygon;
+	public var color : RGBA;
+};
 
 class Main extends luxe.Game {
 
 	// first animation test
-	var polyTest : Array<Float> = [ 400,200, 500,300, 300,300, 400,270, 400,200 ];
-	var polyTest2 : Array<Float> = [ 400,100, 300,260, 300,400, 200,250, 400,100 ];
-	var polyTestVisual : Visual;
+	// var polyTest : Array<Float> = [ 400,200, 500,300, 300,300, 400,270, 400,200 ];
+	// var polyTest2 : Array<Float> = [ 400,100, 300,260, 300,400, 200,250, 400,100 ];
+	// var polyTestVisual : Visual;
 	var lerp = {
 		factor : 0.0
 	};
+
+	// multiple animation test
+	var animatedPolyData : Array<AnimatedPolygon> = [];
+	var animatedPolyVisual : Array<Visual> = [];
 
 	// var polyTest : Array<Float> = [ 10,10, 100,10, 100,100, 10,100, 10,10 ];
 	// var polyTest : Array<Float> = [ 10,10, 10,100, 100,100, 10,10 ];
@@ -110,10 +130,18 @@ class Main extends luxe.Game {
 		// sharedTexture = textureFromPixels( width, height, pixels );
 
 		for (i in 0 ... 4) {
-			polyVisuals.push( makeRandomPoly() );
+			var p = makeRandomPoly();
+			p.geometry.locked = false;
+			polyVisuals.push( p );
 		}
 
-		polyTestVisual = makePolygonVisual( polyTest, {r:255,g:0,b:0,a:255} );
+		// for (i in 0 ... 2) {
+		// 	var a = randomAnimatedPolygon();
+		// 	animatedPolyData.push( a );
+		// 	animatedPolyVisual.push( makePolygonVisual( a.frame0, a.color ) );
+		// }
+
+		// polyTestVisual = makePolygonVisual( polyTest, {r:255,g:0,b:0,a:255} );
 		luxe.tween.Actuate.tween( lerp, 1.0, {factor:1.0} ).ease( luxe.tween.easing.Cubic.easeInOut ).reflect().repeat();
 	} //ready
 
@@ -178,9 +206,12 @@ class Main extends luxe.Game {
 		return visual;
 	}
 
-	function makeRandomPoly() {
+	function perturbPath(path:Polygon) {
+		return path.map( function(f:Float) { return f + Luxe.utils.random.float(-10,10); });
+	}
+
+	function randomPath() {
 		var poly = [];
-		// var polyAnim = [];
 		var center = new Vector( Luxe.utils.random.float(100,700), Luxe.utils.random.float(100,500) );
 		var count = Luxe.utils.random.int(3,10);
 		for (i in 0 ... count ) {
@@ -190,25 +221,36 @@ class Main extends luxe.Game {
 			var point = Vector.Add( center, Vector.Multiply( normal, Luxe.utils.random.float(30,80) ) );
 			poly.push( point.x );
 			poly.push( point.y );
-			// polyAnim.push( point.x + Luxe.utils.random.float(-10,10) );
-			// polyAnim.push( point.y + Luxe.utils.random.float(-10,10) );
 		}
 		// close the loop
 		poly.push( poly[0] );
 		poly.push( poly[1] );
-		// polyAnim.push( poly[0] );
-		// polyAnim.push( poly[1] );
+		return poly;
+	}
 
-		// polygons.push( poly );
-		// polygonsAnim.push( polyAnim );
-		// polyColors.push( {r:Luxe.utils.random.int(100,255),g:Luxe.utils.random.int(100,255),b:Luxe.utils.random.int(100,255),a:255} );
-		return makePolygonVisual( poly, {r:Luxe.utils.random.int(100,255),g:Luxe.utils.random.int(100,255),b:Luxe.utils.random.int(100,255),a:255} );
+	function randomAnimatedPolygon() : AnimatedPolygon {
+		var frame0 = randomPath();
+		var frame1 = perturbPath( frame0 );
+		return {
+			frame0: frame0,
+			frame1: frame1,
+			color: {r:Luxe.utils.random.int(100,255),g:Luxe.utils.random.int(100,255),b:Luxe.utils.random.int(100,255),a:255}
+		};
+	}
+
+	function makeRandomPoly() {
+		return makePolygonVisual( randomPath(), {r:Luxe.utils.random.int(100,255),g:Luxe.utils.random.int(100,255),b:Luxe.utils.random.int(100,255),a:255} );
 	}
 
 	override function onmousedown( e:MouseEvent ) {
 		for (i in 0 ... polyVisuals.length) {
-			polyVisuals.push( makeRandomPoly() );
+			var p = makeRandomPoly();
+			p.geometry.locked = false;
+			polyVisuals.push( p );
 		}
+		// for (i in 0 ... animatedPolyData.length) {
+		// 	animatedPolyData.push( randomAnimatedPolygon() );
+		// }
 	}
 
 	override function onkeydown( e:KeyEvent ) {
@@ -265,8 +307,9 @@ class Main extends luxe.Game {
 		}
 
 		Luxe.draw.text({
-				text: "fps " + fps + "\n" + "quads " + polyVisuals.length,
-				immediate: true
+				text: "fps " + fps + "\n" + "static-poly " + polyVisuals.length + "\n" + "anim-poly " + animatedPolyData.length,
+				immediate: true,
+				depth: 2000
 			});
 	}
 
@@ -276,7 +319,16 @@ class Main extends luxe.Game {
 		// polyTestVisual.destroy();
 		// polyTestVisual = makePolygonVisual( lerpPolygon( polyTest, polyTest2, lerp.factor ), {r:255,g:0,b:0,a:255} );
 
-		updatePolygonVisual( polyTestVisual, lerpPolygon( polyTest, polyTest2, lerp.factor ), {r:255,g:0,b:0,a:255} );
+		// updatePolygonVisual( polyTestVisual, lerpPolygon( polyTest, polyTest2, lerp.factor ), {r:255,g:0,b:0,a:255} );
+
+		// multiple poly test
+		for (i in 0 ... animatedPolyVisual.length) {
+			animatedPolyVisual[i].destroy();
+		}
+		animatedPolyVisual = [];
+		for (a in animatedPolyData) {
+			animatedPolyVisual.push( makePolygonVisual( lerpPolygon( a.frame0, a.frame1, lerp.factor ), a.color ) );
+		}
 
 		trackFps(dt);
 	} //update
